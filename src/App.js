@@ -88,7 +88,7 @@ function App() {
 
 
   const showTableData = async () => {
-    const response = await fetch('http://localhost:8083/getTableData/D_EWAYA_CONFIG/'+tableSelected);
+    const response = await fetch('http://ms-python-teradata-git-nirvana-qa.apps.ocptest.gp.inet/getTableData/D_EWAYA_CONFIG/'+tableSelected);
     const data = await response.json();
     console.log(data)
     setRows(data)
@@ -96,7 +96,7 @@ function App() {
   }
 
   const showTables = async () => {
-    const response = await fetch('http://localhost:8083/getTablesByDatabase/D_EWAYA_CONFIG');
+    const response = await fetch('http://ms-python-teradata-git-nirvana-qa.apps.ocptest.gp.inet/getTablesByDatabase/D_EWAYA_CONFIG');
     const data = await response.json();
     setRowTables(data)
   }
