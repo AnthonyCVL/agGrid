@@ -96,7 +96,7 @@ function App() {
   }
 
   const showTables = async () => {
-    const response = await fetch('http://localhost:8083/getTablesByDatabase/D_EWAYA_CONFIG');
+    const response = await fetch('http://localhost:8083/getTableData/D_EWAYA_CONFIG/TB_CONFIG_FE');
     const data = await response.json();
     setRowTables(data)
   }
