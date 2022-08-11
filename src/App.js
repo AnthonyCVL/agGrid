@@ -1,5 +1,5 @@
 import './App.css';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect , useMemo} from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
@@ -27,6 +27,30 @@ function App() {
     setTableSelected(option)
   }
 
+const customToolTip = (props) => {
+    const data = useMemo(
+      () => props.api.getDisplayedRowAtIndex(props.rowIndex).data,
+      []
+    );
+  
+    return (
+      <div
+        className="custom-tooltip"
+        style={{ backgroundColor: props.color || 'white' }}
+      >
+        <p>
+          <span>{data.num_row}</span>
+        </p>
+        <p>
+          <span>Country: </span> {data.last_load}
+        </p>
+        <p>
+          <span>Total: </span> {data.val_max}
+        </p>
+      </div>
+    );
+  };
+
   // const columns = [{ headerName: "Make", field: "make" },
   // { headerName: "Price", field: "price" },
   // { headerName: "Model", field: "model" },
@@ -35,6 +59,7 @@ function App() {
   const columnDefs = (key) => ({
       field: key,
       hide: key.toLowerCase()==='v_obsv',
+      tooltipComponent: customToolTip,
       cellStyle: params => { 
         let style = null;
         //Para todas las celdas valida que el campo v_obsv exista y su contenido sea diferente de null
