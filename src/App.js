@@ -129,7 +129,7 @@ function App() {
   const showTables = async () => {
     try {
       //const response = await fetch('http://localhost:8080/getTableData/D_EWAYA_CONFIG/TB_CONFIG_FE');
-      const response = await fetch('http://ms-python-teradata-git-nirvana-qa.apps.ocptest.gp.inet/getTablesByDatabase/D_EWAYA_CONFIG');
+      const response = await fetch('http://ms-python-teradata-git-nirvana-qa.apps.ocptest.gp.inet/getTableData/D_EWAYA_CONFIG/TB_CONFIG_FE');
       const data = await response.json();
       setRowTables(data)
     } catch (error) {
