@@ -32,7 +32,7 @@ function App() {
   // { headerName: "Model", field: "model" },
   // { headerName: "Date", field: "date" }]
 
-  const columnDefs = (key) => ({
+  const columnDefs_json = (key) => ({
       field: key,
       hide: key.toLowerCase()==='v_obsv',
       cellStyle: params => { 
@@ -48,6 +48,21 @@ function App() {
         return style;
       }
   })
+
+  const columnDefs = (key) => ({
+    field: key,
+    hide: key.toLowerCase()==='v_obsv' || key.toLowerCase()==='valid_column' || key.toLowerCase()==='obsv' || key.toLowerCase()==='color',
+    cellStyle: params => { 
+      let style = null;
+      if(params.data.color !== null && params.data.color !== "" ){
+        if(key.toLowerCase() === params.data.valid_column){
+          style = { background: params.data.color , color: 'white'}
+        }
+      }
+      console.log("style: "+style)
+      return style;
+    }
+})
 
   const getDynamicColumns = (obj) => {
     return Object.keys(obj).map(key => columnDefs(key))
@@ -88,7 +103,7 @@ function App() {
 
 
   const showTableData = async () => {
-    const response = await fetch('http://localhost:8083/getTableData/D_EWAYA_CONFIG/'+tableSelected);
+    const response = await fetch('http://localhost:8080/getTableData/D_EWAYA_CONFIG/'+tableSelected);
     //const response = await fetch('http://ms-python-teradata-git-nirvana-qa.apps.ocptest.gp.inet/getTableData/D_EWAYA_CONFIG/'+tableSelected);
     const data = await response.json();
     console.log(data)
@@ -97,7 +112,7 @@ function App() {
   }
 
   const showTables = async () => {
-    const response = await fetch('http://localhost:8083/getTableData/D_EWAYA_CONFIG/TB_CONFIG_FE');
+    const response = await fetch('http://localhost:8080/getTableData/D_EWAYA_CONFIG/TB_CONFIG_FE');
     //const response = await fetch('http://ms-python-teradata-git-nirvana-qa.apps.ocptest.gp.inet/getTablesByDatabase/D_EWAYA_CONFIG');
     const data = await response.json();
     setRowTables(data)
@@ -150,7 +165,7 @@ function App() {
 }
 
 function callAPI() {
-  fetch('http://localhost:8083/getTable').then(
+  fetch('http://localhost:8080/getTable').then(
       (response) => response.json()
   ).then((data) => {
       console.log(data)
