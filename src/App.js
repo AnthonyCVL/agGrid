@@ -32,15 +32,25 @@ function App() {
   // { headerName: "Model", field: "model" },
   // { headerName: "Date", field: "date" }]
 
-  const columnDefs_json = (key) => ({
+  const columnDefs = (key) => ({
       field: key,
       hide: key.toLowerCase()==='v_obsv',
       cellStyle: params => { 
         let style = null;
-        if(params.data.v_obsv !== null && params.data.v_obsv !== "" ){
-          Object.keys(params.data.v_obsv).map(key => {
-            if(params.colDef.field === key.toLowerCase()){
-              style = { background: 'red' }
+        //Para todas las celdas valida que el campo v_obsv exista y su contenido sea diferente de null
+        if('v_obsv' in params.data && params.data.v_obsv !== null && params.data.v_obsv !== "" ){
+          //Valida que el contenido de v_obsv sea un String
+          if(typeof params.data.v_obsv === 'string' || params.data.v_obsv instanceof String){
+            //Transforma el JSON en String en un objeto JSON
+            params.data.v_obsv = JSON.parse(params.data.v_obsv)
+          }
+          //Recorre el JSON contenido en v_obsv
+          Object.keys(params.data.v_obsv).map(kjson => {
+            //Valida que el cellStyle se aplique sobre el campo contenido en cada elemento del JSON de v_obsv
+            //Valida que el JSON sea diferente de null
+            if(params.colDef.field === kjson.toLowerCase() && params.data.v_obsv[kjson]!==null ){
+              //Aplica estilos a la celda del elemento del JSON de v_obsv
+              style = { background: params.data.v_obsv[kjson].color}
               return true
             }
           })
@@ -49,7 +59,7 @@ function App() {
       }
   })
 
-  const columnDefs = (key) => ({
+  const columnDefs_columns = (key) => ({
     field: key,
     hide: key.toLowerCase()==='v_obsv' || key.toLowerCase()==='valid_column' || key.toLowerCase()==='obsv' || key.toLowerCase()==='color',
     cellStyle: params => { 
@@ -97,25 +107,34 @@ function App() {
     sortable: true,
     resizable: true,
     filter: true,
-    flex: 1
+    flex: 1,
+    //tooltipComponent: <p>Hola</p>
     //minWidth: 100
   }
 
 
   const showTableData = async () => {
-    const response = await fetch('http://localhost:8080/getTableData/D_EWAYA_CONFIG/'+tableSelected);
-    //const response = await fetch('http://ms-python-teradata-git-nirvana-qa.apps.ocptest.gp.inet/getTableData/D_EWAYA_CONFIG/'+tableSelected);
-    const data = await response.json();
-    console.log(data)
-    setRows(data)
-    setColumns(getDynamicColumns(data[0]))
+    try {
+      const response = await fetch('http://localhost:8080/getTableData/D_EWAYA_CONFIG/'+tableSelected);
+      //const response = await fetch('http://ms-python-teradata-git-nirvana-qa.apps.ocptest.gp.inet/getTableData/D_EWAYA_CONFIG/'+tableSelected);
+      const data = await response.json();
+      console.log(data)
+      setRows(data)
+      setColumns(getDynamicColumns(data[0]))
+    } catch (error) {
+      console.error("There has been a problem with your fetch operation:", error);
+    }
   }
 
   const showTables = async () => {
-    const response = await fetch('http://localhost:8080/getTableData/D_EWAYA_CONFIG/TB_CONFIG_FE');
-    //const response = await fetch('http://ms-python-teradata-git-nirvana-qa.apps.ocptest.gp.inet/getTablesByDatabase/D_EWAYA_CONFIG');
-    const data = await response.json();
-    setRowTables(data)
+    try {
+      const response = await fetch('http://localhost:8080/getTableData/D_EWAYA_CONFIG/TB_CONFIG_FE');
+      //const response = await fetch('http://ms-python-teradata-git-nirvana-qa.apps.ocptest.gp.inet/getTablesByDatabase/D_EWAYA_CONFIG');
+      const data = await response.json();
+      setRowTables(data)
+    } catch (error) {
+      console.error("There has been a problem with your fetch operation:", error);
+    }
   }
 
   useEffect(()=>{ 
