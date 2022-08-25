@@ -27,7 +27,7 @@ function App() {
     setTableSelected(option)
   }
 
-const customToolTip = (props) => {
+/*const customToolTip = (props) => {
     const data = useMemo(
       () => props.api.getDisplayedRowAtIndex(props.rowIndex).data,
       []
@@ -50,7 +50,7 @@ const customToolTip = (props) => {
       </div>
     );
   };
-
+*/
   // const columns = [{ headerName: "Make", field: "make" },
   // { headerName: "Price", field: "price" },
   // { headerName: "Model", field: "model" },
@@ -59,7 +59,7 @@ const customToolTip = (props) => {
   const columnDefs = (key) => ({
       field: key,
       hide: key.toLowerCase()==='v_obsv',
-      tooltipComponent: customToolTip,
+      //tooltipComponent: customToolTip,
       cellStyle: params => { 
         let style = null;
         //Para todas las celdas valida que el campo v_obsv exista y su contenido sea diferente de null
