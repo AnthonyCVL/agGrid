@@ -23,7 +23,7 @@ function App() {
   ];
 
   const handlerTable = function (e) {
-    const option = e.target.value;
+    const option = JSON.parse(e.target.value);
     setTableSelected(option)
   }
 
@@ -140,8 +140,8 @@ const customToolTip = (props) => {
 
   const showTableData = async () => {
     try {
-      //const response = await fetch('http://localhost:8080/getTableData/D_EWAYA_CONFIG/'+tableSelected);
-      const response = await fetch('http://ms-python-teradata-git-nirvana-qa.apps.ocptest.gp.inet/getTableData/D_EWAYA_CONFIG/'+tableSelected);
+      //const response = await fetch('http://localhost:8080/getTableData?database=D_EWAYA_CONFIG&table='+tableSelected.table_name+'&select='+tableSelected.col_qry+'&order='+tableSelected.ord_qry);
+      const response = await fetch('http://ms-python-teradata-git-nirvana-qa.apps.ocptest.gp.inet/getTableData?database=D_EWAYA_CONFIG&table='+tableSelected.table_name+'&select='+tableSelected.col_qry+'&order='+tableSelected.ord_qry);
       const data = await response.json();
       console.log(data)
       setRows(data)
@@ -153,8 +153,8 @@ const customToolTip = (props) => {
 
   const showTables = async () => {
     try {
-      //const response = await fetch('http://localhost:8080/getTableData/D_EWAYA_CONFIG/TB_CONFIG_FE');
-      const response = await fetch('http://ms-python-teradata-git-nirvana-qa.apps.ocptest.gp.inet/getTableData/D_EWAYA_CONFIG/TB_CONFIG_FE');
+      // response = await fetch('http://localhost:8080/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE');
+      const response = await fetch('http://ms-python-teradata-git-nirvana-qa.apps.ocptest.gp.inet/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE');
       const data = await response.json();
       setRowTables(data)
     } catch (error) {
@@ -190,7 +190,7 @@ const customToolTip = (props) => {
         <div><h6 className="n5">Tabla: </h6></div>
         <select name="tablas" className="form-select" onChange={handlerTable}>
           {rowsTable.map(element => (
-            <option key={element.TableName} value={element.TableName}>{element.TableName}</option>
+            <option key={element.table_name} value={JSON.stringify(element)}>{element.table_name}</option>
           ))}
         </select>
       </div>
