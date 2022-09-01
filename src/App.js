@@ -3,17 +3,35 @@ import React, { useState, useEffect , useMemo} from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
+import {TabContent, TabPane, Nav, NavItem, NavLink} from 'reactstrap'
 
 function App() {
   const [rows, setRows] = useState([])
+  const [groupTables, setGroupTables] = useState([])
   const [columns, setColumns] = useState([])
   const [rowsTable, setRowTables] = useState([])
   const [tableSelected, setTableSelected] = useState([])
+  const [datatables, setDatatables] = useState([]);
+  const [activeTab, setActiveTab] = useState("1")
+
+  const addDatatable = async (dt) => {
+    setDatatables([...datatables, dt])
+  }
+
+  const addElementToArray = async (list, element) => {
+    list.push(element)
+  }
+
+  const changeTab = (numberTab) => {
+    if(activeTab !== numberTab){
+      setActiveTab(numberTab)
+    }
+  }
+
   var moment = require('moment')
   let myDate;
 
   myDate = moment().format("YYYY-MMMM-dddd")
-  console.log(myDate)
 
   const rowData = [
     { make: "Toyota", model: "Celica", price: 35000, date: "09-02-2022", available: true },
@@ -138,10 +156,13 @@ function App() {
   }
 
 
-  const showTableData = async () => {
+  const showTableData2 = async () => {
     try {
-      //const response = await fetch('http://localhost:8080/getTableData?database=D_EWAYA_CONFIG&table='+tableSelected.table_name+'&select='+tableSelected.col_qry+'&order='+tableSelected.ord_qry);
-      const response = await fetch('http://ms-python-teradata-git-nirvana-qa.apps.ocptest.gp.inet/getTableData?database=D_EWAYA_CONFIG&table='+tableSelected.table_name+'&select='+tableSelected.col_qry+'&order='+tableSelected.ord_qry);
+      //const base_url='http://localhost:8080'
+      const base_url='http://ms-python-teradata-git-nirvana-qa.apps.ocptest.gp.inet'
+      const params_group='/getTableData?database=D_EWAYA_CONFIG&table='+tableSelected.table_name
+      const response_group=await fetch(base_url+params_group)
+      const response = await fetch(base_url+'/getTableData?database=D_EWAYA_CONFIG&table='+tableSelected.table_name+'&select='+tableSelected.col_qry+'&order='+tableSelected.ord_qry);
       const data = await response.json();
       console.log(data)
       setRows(data)
@@ -151,10 +172,76 @@ function App() {
     }
   }
 
+  const request_gettabledata = async (body) => {
+    const base_url='http://localhost:8080'
+    //const base_url='http://ms-python-teradata-git-nirvana-qa.apps.ocptest.gp.inet'
+    const method = '/getTableData2'
+    const request = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: body
+    };
+    return await send_post(base_url, method, request)
+  }
+
+  const send_post = async (base_url, method, request) => {
+    const response=await fetch(base_url+method, request)
+    const json = await response.json();
+    return json
+  }
+
+  const showTableData = async () => {
+    try { 
+      const group_tables = await request_gettabledata( 
+        JSON.stringify({ 
+          database: 'D_EWAYA_CONFIG',
+          table: 'TB_CONFIG_FE_GROUP_TABLE',
+          where: JSON.stringify({ id_group: tableSelected.id, state: 1 })
+        })
+      )
+      setRows(group_tables)
+      setGroupTables(group_tables)
+      const dts = []
+      Object.keys(group_tables).forEach(async function(key) {
+        console.log(group_tables[key].id_table)
+        const tables = await request_gettabledata( 
+          JSON.stringify({ 
+            database: 'D_EWAYA_CONFIG',
+            table: 'TB_CONFIG_FE',
+            where: JSON.stringify({ id: group_tables[key].id_table, state: 1})
+          })
+        )
+        console.log(tables)
+        const table = tables[0]
+        console.log(table)
+        const dt = await request_gettabledata( 
+          JSON.stringify({ 
+            database: table.database_name,
+            table: table.table_name,
+            select: table.col_qry,
+            order: table.ord_qry
+          })
+        )
+        //dts.push(dt)
+        addElementToArray(dts, dt)
+        console.log(dt)
+      });
+      console.log(dts)
+      setDatatables(dts)
+      console.log("DATATABLESSSSSSSSSSSSSSSSSSSSSSSSSSSS")
+      console.log(datatables)
+      //const response = await fetch(base_url+'/getTableData?database=D_EWAYA_CONFIG&table='+tableSelected.table_name+'&select='+tableSelected.col_qry+'&order='+tableSelected.ord_qry);
+      //const data = await response.json();
+      setColumns(getDynamicColumns(group_tables[0]))
+    } catch (error) {
+      console.error("There has been a problem with your fetch operation:", error);
+    }
+  }
+
   const showTables = async () => {
     try {
-      // response = await fetch('http://localhost:8080/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE');
-      const response = await fetch('http://ms-python-teradata-git-nirvana-qa.apps.ocptest.gp.inet/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE');
+      const response = await fetch('http://localhost:8080/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE_GROUP');
+      //const response = await fetch('http://ms-python-teradata-git-nirvana-qa.apps.ocptest.gp.inet/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE_GROUP');
       const data = await response.json();
       setRowTables(data)
     } catch (error) {
@@ -190,9 +277,38 @@ function App() {
         <div><h6 className="n5">Tabla: </h6></div>
         <select name="tablas" className="form-select" onChange={handlerTable}>
           {rowsTable.map(element => (
-            <option key={element.table_name} value={JSON.stringify(element)}>{element.table_name}</option>
+            <option key={element.id} value={JSON.stringify(element)}>{element.name}</option>
           ))}
         </select>
+      </div>
+      <div className="Tabs">
+        <Nav tabs>
+          {datatables.map(element => (
+            <NavItem>
+              <NavLink 
+              className={(activeTab==element.position_table ? "activeTab baseTab" : "baseTab")}
+              onClick = {() => changeTab(element.position_table)}>
+                {element.description}
+              </NavLink>
+            </NavItem>
+          ))}
+        </Nav>
+        <TabContent activeTab={activeTab}>
+          {datatables.map(element => (
+            <TabPane tabId={element.position_table}>
+              <div className="App-datatable ag-theme-alpine" >
+                <AgGridReact
+                  rowData={rows}
+                  columnDefs={columns}
+                  defaultColDef={defColumnDefs}
+                  pagination={true}
+                  paginationPageSize={20}
+                  //onGridReady={onGridReady} 
+                  />
+              </div>
+            </TabPane>
+          ))}
+        </TabContent>
       </div>
       <div className="App-datatable ag-theme-alpine" >
         <AgGridReact

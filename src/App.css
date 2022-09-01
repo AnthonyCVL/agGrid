@@ -36,3 +36,17 @@
   height: 600px;
 }
 
+.baseTab{
+  border-left: 1px solid #e9ecef !important;
+  cursor: pointer;
+}
+
+.baseTab:hover{
+  background-color: #007bff !important;
+  color: white !important;
+}
+
+.activeTab{
+  background-color: #007bff !important;
+  color: white !important;
+}
