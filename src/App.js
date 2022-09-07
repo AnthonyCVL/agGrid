@@ -153,8 +153,8 @@ function App() {
 
   const showTables = async () => {
     try {
-      // response = await fetch('http://localhost:8080/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE');
-      const response = await fetch('http://ms-python-teradata-git-nirvana-qa.apps.ocptest.gp.inet/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE');
+      //const response = await fetch('http://localhost:8080/getTableDataMenu?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE');
+      const response = await fetch('http://ms-python-teradata-git-nirvana-qa.apps.ocptest.gp.inet/getTableDataMenu?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE');
       const data = await response.json();
       setRowTables(data)
     } catch (error) {
@@ -175,6 +175,22 @@ function App() {
     return Object.keys(obj).map(key => ({ field: key }))
   }
 
+  const gridOptions = {
+    defaultColDef: defColumnDefs,
+    pagination: true,
+    paginationPageSize: '100'
+  }
+
+  /*
+  function onGridReady(params) {
+    this.gridApi = params.api;
+    this.gridColumnApi = params.columnApi;
+    this.autoSizeAll();  // do your autosizing here
+  }
+*/
+  const onGridReady = async (params) => {
+    params.api.columnApi.autosizeAll()
+  }
 /*
   const onGridReady = async (params) => {
     setGridApi(params)
@@ -185,23 +201,20 @@ function App() {
   return (
     <div className="App">
       <div className="App-title"><h1 align="center" className="display-5 fw-bold">Teradata BI</h1></div>
-      <div className="App-subtitle"><h2 align="center">Tablas y Vistas</h2></div>
+      <div className="App-subtitle"><h2 align="center">Reportes</h2></div>
       <div className="dropdown">
-        <div><h6 className="n5">Tabla: </h6></div>
+        <div><h5 className="n5" style={{color: `white`}}>Reporte: </h5></div>
         <select name="tablas" className="form-select" onChange={handlerTable}>
           {rowsTable.map(element => (
-            <option key={element.table_name} value={JSON.stringify(element)}>{element.table_name}</option>
+            <option key={element.table_name} value={JSON.stringify(element)}>{element.desc_qry}</option>
           ))}
         </select>
       </div>
       <div className="App-datatable ag-theme-alpine" >
         <AgGridReact
+          gridOptions={gridOptions}
           rowData={rows}
           columnDefs={columns}
-          defaultColDef={defColumnDefs}
-          pagination={true}
-          paginationPageSize={20}
-          //onGridReady={onGridReady} 
           />
       </div>
     </div>
