@@ -18,7 +18,7 @@ function App() {
     setDatatables([...datatables, dt])
   }
 
-  const addElementToArray = (list, element) => {
+  const addElementToArray = async (list, element) => {
     list.push(element)
   }
 
@@ -112,7 +112,7 @@ function App() {
           style = { background: params.data.color , color: 'white'}
         }
       }
-      //console.log("style: "+style)
+      console.log("style: "+style)
       return style;
     }
 })
@@ -164,7 +164,7 @@ function App() {
       const response_group=await fetch(base_url+params_group)
       const response = await fetch(base_url+'/getTableData?database=D_EWAYA_CONFIG&table='+tableSelected.table_name+'&select='+tableSelected.col_qry+'&order='+tableSelected.ord_qry);
       const data = await response.json();
-      //console.log(data)
+      console.log(data)
       setRows(data)
       setColumns(getDynamicColumns(data[0]))
     } catch (error) {
@@ -190,39 +190,7 @@ function App() {
     return json
   }
 
-  const request_group_table = async (group_tables) => {
-    const dts = []
-    Object.keys(group_tables).forEach(async function(key) {
-      console.log(group_tables[key].id_table)
-      const tables = await request_gettabledata( 
-        JSON.stringify({ 
-          database: 'D_EWAYA_CONFIG',
-          table: 'TB_CONFIG_FE',
-          where: JSON.stringify({ id: group_tables[key].id_table, state: 1})
-        })
-      )
-      console.log("TABLES")
-      console.log(tables)
-      const table = tables[0]
-      console.log(table)
-      const dt = await request_gettabledata( 
-        JSON.stringify({ 
-          database: table.database_name,
-          table: table.table_name,
-          select: table.col_qry,
-          order: table.ord_qry
-        })
-      )
-      //dts.push(dt)
-      addElementToArray(dts, dt)
-      console.log("addElementToArray")
-      console.log(dt)
-    });
-    return dts;
-  }
-
   const showTableData = async () => {
-    setDatatables([])
     try { 
       const group_tables = await request_gettabledata( 
         JSON.stringify({ 
@@ -233,13 +201,35 @@ function App() {
       )
       setRows(group_tables)
       setGroupTables(group_tables)
-      //const dts = []
-      const dts = await request_group_table(group_tables)
-      console.log("DTS")
+      const dts = []
+      Object.keys(group_tables).forEach(async function(key) {
+        console.log(group_tables[key].id_table)
+        const tables = await request_gettabledata( 
+          JSON.stringify({ 
+            database: 'D_EWAYA_CONFIG',
+            table: 'TB_CONFIG_FE',
+            where: JSON.stringify({ id: group_tables[key].id_table, state: 1})
+          })
+        )
+        console.log(tables)
+        const table = tables[0]
+        console.log(table)
+        const dt = await request_gettabledata( 
+          JSON.stringify({ 
+            database: table.database_name,
+            table: table.table_name,
+            select: table.col_qry,
+            order: table.ord_qry
+          })
+        )
+        //dts.push(dt)
+        addElementToArray(dts, dt)
+        console.log(dt)
+      });
       console.log(dts)
       setDatatables(dts)
       console.log("DATATABLESSSSSSSSSSSSSSSSSSSSSSSSSSSS")
-      await console.log(datatables)
+      console.log(datatables)
       //const response = await fetch(base_url+'/getTableData?database=D_EWAYA_CONFIG&table='+tableSelected.table_name+'&select='+tableSelected.col_qry+'&order='+tableSelected.ord_qry);
       //const data = await response.json();
       setColumns(getDynamicColumns(group_tables[0]))
@@ -266,7 +256,7 @@ function App() {
   useEffect(()=>{ 
     showTables()
   }, [])
-
+  
   const cellColor = (obj) => {
     console.log(obj)
     return Object.keys(obj).map(key => ({ field: key }))
