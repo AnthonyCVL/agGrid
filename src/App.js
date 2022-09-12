@@ -9,6 +9,8 @@ function App() {
   const [columns, setColumns] = useState([])
   const [rowsTable, setRowTables] = useState([])
   const [tableSelected, setTableSelected] = useState([])
+  //const [gridApi, setGridApi] = useState([])
+  //const [gridColumnApi, setGridColumnApi] = useState([])
   var moment = require('moment')
   let myDate;
 
@@ -188,9 +190,12 @@ function App() {
     this.autoSizeAll();  // do your autosizing here
   }
 */
-  const onGridReady = async (params) => {
-    params.api.columnApi.autosizeAll()
-  }
+  /*const onGridReady = (params) => {
+    //params.api.columnApi.autosizeAll()
+    setGridApi(params.api);
+    setGridColumnApi(params.columnApi);
+    autoSizeAll(false)
+  }*/
 /*
   const onGridReady = async (params) => {
     setGridApi(params)
@@ -198,6 +203,25 @@ function App() {
     params.api.setColumnDefs(dynamycColumns)
   }
 */
+
+function onFirstDataRendered (params) {
+  params.api.sizeColumnsToFit()
+  const colIds = params.columnApi.getAllColumns().map(c => c.colId)
+  params.columnApi.autoSizeColumns(colIds)
+
+}
+
+/*const sizeToFit = () => {
+  gridApi.sizeColumnsToFit();
+};
+
+const autoSizeAll = (skipHeader) => {
+  const allColumnIds = [];
+  gridColumnApi.getAllGridColumns().forEach((column) => {
+    allColumnIds.push(column.getId());
+  });
+  gridColumnApi.autoSizeColumns(allColumnIds, skipHeader);
+};*/
   return (
     <div className="App">
       <div className="App-title"><h1 align="center" className="display-5 fw-bold">Teradata BI</h1></div>
@@ -215,6 +239,7 @@ function App() {
           gridOptions={gridOptions}
           rowData={rows}
           columnDefs={columns}
+          onFirstDataRendered={onFirstDataRendered}
           />
       </div>
     </div>
