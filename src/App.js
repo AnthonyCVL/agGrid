@@ -12,6 +12,8 @@ function App() {
   const [rowsTable, setRowTables] = useState([])
   const [tableSelected, setTableSelected] = useState([])
   const [datatables, setDatatables] = useState([]);
+  const [datatablesColumns, setDatatablesColumns] = useState([])
+  const [defaultOption, setDefaultOption] = useState(0);
   const [activeTab, setActiveTab] = useState("1")
 
   const addDatatable = async (dt) => {
@@ -23,8 +25,15 @@ function App() {
   }
 
   const changeTab = (numberTab) => {
+    console.log("changeTab")
+    console.log(activeTab)
+    console.log(numberTab)
     if(activeTab !== numberTab){
       setActiveTab(numberTab)
+      setRows(datatables[numberTab-1])
+      setColumns(datatablesColumns[numberTab-1])
+      console.log(datatables[numberTab-1])
+      console.log(datatablesColumns[numberTab-1])
     }
   }
 
@@ -41,6 +50,7 @@ function App() {
   ];
 
   const handlerTable = function (e) {
+    console.log("handlerTable")
     const option = JSON.parse(e.target.value);
     setTableSelected(option)
   }
@@ -190,7 +200,96 @@ function App() {
     return json
   }
 
+  const request_gettabledata2 = async (body) => {
+    const base_url='http://localhost:8080'
+    //const base_url='http://ms-python-teradata-git-nirvana-qa.apps.ocptest.gp.inet'
+    const method = '/getTableData2'
+    const request = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: body
+    };
+    return await send_post2(base_url, method, request)
+  }
+
+  const send_post2 = async (base_url, method, request) => {
+    return fetch(base_url+method, request)
+     
+  }
+
   const showTableData = async () => {
+    console.log("showTableData async")
+    console.log(groupTables)
+    try { 
+      console.log("tableSelected.id")
+      console.log(tableSelected.id)
+      if(tableSelected.id<=0 || tableSelected.id==undefined){
+        return;
+      }
+        const group_tables = await request_gettabledata( 
+          JSON.stringify({ 
+            database: 'D_EWAYA_CONFIG',
+            table: 'TB_CONFIG_FE_GROUP_TABLE',
+            where: JSON.stringify({ id_group: tableSelected.id, state: 1 })
+          })
+        )
+      
+      //setRows(group_tables)
+    console.log(groupTables)
+      setGroupTables(group_tables.sort((a, b) => a.position_table > b.position_table ? 1 : -1))
+      const dts = []
+      const promises=[]
+
+      
+      Object.keys(group_tables).forEach(async function(key) {
+        promises.push(group_tables[key].id_table)
+      });
+
+      const resultados = await Promise.all( promises.map( function(key) {
+        console.log(key)
+        const tables =  request_gettabledata( 
+          JSON.stringify({ 
+            database: 'D_EWAYA_CONFIG',
+            table: 'TB_CONFIG_FE',
+            where: JSON.stringify({ id: key, state: 1})
+          })
+        )
+        return tables
+      })  
+      ).then(
+        tables => Promise.all(tables.map( async function(tables){
+          const table = tables[0]
+          const dt = await request_gettabledata( 
+            JSON.stringify({ 
+              database: table.database_name,
+              table: table.table_name,
+              select: table.col_qry,
+              order: table.ord_qry
+            })
+          )
+          addElementToArray(dts, dt)
+          return dt
+        }
+        )
+      ).then(
+        dt => {
+          return dt
+        }
+      )
+      )
+        
+      setDatatables(resultados)
+      const dtsColumns= []
+      resultados.map(element => {
+        dtsColumns.push(getDynamicColumns(element[0]))
+      })
+      setDatatablesColumns(dtsColumns)
+    } catch (error) {
+      console.error("There has been a problem with your fetch operation:", error);
+    }
+  }
+
+  const showTableData3 = async () => {
     try { 
       const group_tables = await request_gettabledata( 
         JSON.stringify({ 
@@ -199,11 +298,13 @@ function App() {
           where: JSON.stringify({ id_group: tableSelected.id, state: 1 })
         })
       )
+      console.log("group_tables")
+      console.log(group_tables)
       setRows(group_tables)
       setGroupTables(group_tables)
       const dts = []
+
       Object.keys(group_tables).forEach(async function(key) {
-        console.log(group_tables[key].id_table)
         const tables = await request_gettabledata( 
           JSON.stringify({ 
             database: 'D_EWAYA_CONFIG',
@@ -211,8 +312,10 @@ function App() {
             where: JSON.stringify({ id: group_tables[key].id_table, state: 1})
           })
         )
+        console.log("TABLES")
         console.log(tables)
         const table = tables[0]
+        console.log("TABLE")
         console.log(table)
         const dt = await request_gettabledata( 
           JSON.stringify({ 
@@ -224,8 +327,10 @@ function App() {
         )
         //dts.push(dt)
         addElementToArray(dts, dt)
+        console.log("dt")
         console.log(dt)
       });
+      console.log("dts")
       console.log(dts)
       setDatatables(dts)
       console.log("DATATABLESSSSSSSSSSSSSSSSSSSSSSSSSSSS")
@@ -244,18 +349,35 @@ function App() {
       //const response = await fetch('http://ms-python-teradata-git-nirvana-qa.apps.ocptest.gp.inet/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE_GROUP');
       const data = await response.json();
       setRowTables(data)
+      setTableSelected(data[0])
+      //setDefaultOption(data[0])
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
     }
   }
 
   useEffect(()=>{ 
-    showTableData()
-  }, [tableSelected])
-
-  useEffect(()=>{ 
+    console.log("showTables")
     showTables()
   }, [])
+  
+  useEffect(()=>{ 
+    console.log("showTableData")
+    showTableData()
+    setActiveTab(0)
+    //changeTab(1)
+  }, [tableSelected])
+
+  /*useEffect(()=>{ 
+    console.log("handlerTable")
+    setTableSelected(option)
+  }, [defaultOption])*/
+
+  useEffect(()=>{ 
+    console.log("datatablesColumns updated")
+    changeTab(1)
+  }, [datatablesColumns])
+
   
   const cellColor = (obj) => {
     console.log(obj)
@@ -269,21 +391,28 @@ function App() {
     params.api.setColumnDefs(dynamycColumns)
   }
 */
+function onFirstDataRendered (params) {
+  params.api.sizeColumnsToFit()
+  const colIds = params.columnApi.getAllColumns().map(c => c.colId)
+  params.columnApi.autoSizeColumns(colIds)
+
+}
+
   return (
     <div className="App">
       <div className="App-title"><h1 align="center" className="display-5 fw-bold">Teradata BI</h1></div>
       <div className="App-subtitle"><h2 align="center">Tablas y Vistas</h2></div>
       <div className="dropdown">
         <div><h6 className="n5">Tabla: </h6></div>
-        <select name="tablas" className="form-select" onChange={handlerTable}>
+        <select name="tablas" className="form-select" onChange={handlerTable} defaultValue={defaultOption.id}>
           {rowsTable.map(element => (
             <option key={element.id} value={JSON.stringify(element)}>{element.name}</option>
           ))}
         </select>
       </div>
-      <div className="Tabs">
+      <div className="tabs">
         <Nav tabs>
-          {datatables.map(element => (
+          {groupTables.map(element => (
             <NavItem>
               <NavLink 
               className={(activeTab==element.position_table ? "activeTab baseTab" : "baseTab")}
@@ -294,7 +423,7 @@ function App() {
           ))}
         </Nav>
         <TabContent activeTab={activeTab}>
-          {datatables.map(element => (
+          {groupTables.map(element => (
             <TabPane tabId={element.position_table}>
               <div className="App-datatable ag-theme-alpine" >
                 <AgGridReact
@@ -303,6 +432,7 @@ function App() {
                   defaultColDef={defColumnDefs}
                   pagination={true}
                   paginationPageSize={20}
+                  onFirstDataRendered={onFirstDataRendered}
                   //onGridReady={onGridReady} 
                   />
               </div>
@@ -310,7 +440,7 @@ function App() {
           ))}
         </TabContent>
       </div>
-      <div className="App-datatable ag-theme-alpine" >
+      <div className="App-datatable ag-theme-alpine" hidden="hidden">
         <AgGridReact
           rowData={rows}
           columnDefs={columns}
