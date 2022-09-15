@@ -10,12 +10,18 @@
 }
 
 .dropdown {
-  width: 300px;
+  width: 400px;
   padding: 10px;
   margin: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.reporte-dropdown{
+  padding: 10px;
+  margin: 10px;
+  width: 70%;
 }
 
 .App-title {
@@ -57,4 +63,8 @@
   background-color: #2596be;
   padding: 10px;
   margin: 10px;
+}
+
+.ag-header-cell-label {
+  justify-content: center;
 }

@@ -71,6 +71,10 @@ function App() {
               style = { background: params.data.v_obsv[kjson].color}
               return true
             }
+            if(kjson.toLowerCase()=="all_fields"){
+              style = { background: params.data.v_obsv[kjson].color}
+              return true
+            }
           })
         }
         return style;
@@ -134,6 +138,8 @@ function App() {
   }
 
   const showTableData = async () => {
+    setRows([])
+    setColumns([])
     try { 
       if(tableSelected.id<=0 || tableSelected.id==undefined){
         return;
@@ -242,14 +248,16 @@ function onFirstDataRendered (params) {
   return (
     <div className="App">
       <div className="App-title"><h1 align="center" className="display-5 fw-bold">Teradata BI</h1></div>
-      <div className="App-subtitle"><h2 align="center">Tablas y Vistas</h2></div>
+      <div className="App-subtitle"><h2 align="center">Reportes</h2></div>
       <div className="dropdown">
-        <div><h6 className="n5">Tabla: </h6></div>
+        <div><h5 className="n5" style={{color: `white`}}>Reporte: </h5></div>
+        <div className="reporte-dropdown">
         <select name="tablas" className="form-select" onChange={handlerTable} defaultValue={defaultOption.id}>
           {rowsTable.map(element => (
             <option key={element.id} value={JSON.stringify(element)}>{element.name}</option>
           ))}
         </select>
+        </div>
       </div>
       <div className="tabs">
         <Nav tabs>
@@ -272,7 +280,7 @@ function onFirstDataRendered (params) {
                   columnDefs={columns}
                   defaultColDef={defColumnDefs}
                   pagination={true}
-                  paginationPageSize={20}
+                  paginationPageSize={100}
                   onFirstDataRendered={onFirstDataRendered}
                   //onGridReady={onGridReady} 
                   />
