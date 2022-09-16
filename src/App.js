@@ -54,7 +54,7 @@ function App() {
       hide: key.toLowerCase()==='v_obsv',
       //tooltipComponent: customToolTip,
       cellStyle: params => { 
-        let style = null;
+        let style = {};
         //Para todas las celdas valida que el campo v_obsv exista y su contenido sea diferente de null
         if('v_obsv' in params.data && params.data.v_obsv !== null && params.data.v_obsv !== "" ){
           //Valida que el contenido de v_obsv sea un String
@@ -66,15 +66,20 @@ function App() {
           Object.keys(params.data.v_obsv).map(kjson => {
             //Valida que el cellStyle se aplique sobre el campo contenido en cada elemento del JSON de v_obsv
             //Valida que el JSON sea diferente de null
-            if(params.colDef.field === kjson.toLowerCase() && params.data.v_obsv[kjson]!==null ){
+            if(( kjson.toLowerCase() === params.colDef.field || kjson.toLowerCase()=="all_fields") && params.data.v_obsv[kjson]!==null ){
               //Aplica estilos a la celda del elemento del JSON de v_obsv
-              style = { background: params.data.v_obsv[kjson].color}
+              Object.keys(params.data.v_obsv[kjson]).map(prop => {
+                style[prop.replace("_","-")] = params.data.v_obsv[kjson][prop].replace("_","-")
+                //style[prop] = (params.data.v_obsv[kjson][prop]==null ? '' : params.data.v_obsv[kjson][prop])
+              })
               return true
             }
-            if(kjson.toLowerCase()=="all_fields"){
-              style = { background: params.data.v_obsv[kjson].color}
+            /*if(kjson.toLowerCase()=="all_fields" && params.data.v_obsv[kjson]!==null){
+              Object.keys(params.data.v_obsv[kjson]).map(prop => {
+                style[prop] = params.data.v_obsv[kjson][prop]
+              })
               return true
-            }
+            }*/
           })
         }
         return style;
