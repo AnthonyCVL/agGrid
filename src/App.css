@@ -2,7 +2,7 @@
 
 .App {
   text-align: center;
-  background-color: #2596be;
+  background-color: white;
 }
 
 .App-link {
@@ -24,16 +24,20 @@
   width: 70%;
 }
 
+.App-header{
+  background: white;
+}
+
 .App-title {
   padding: 10px;
   margin: 10px;
-  color: white;
+  color: #06f;
 }
 
 .App-subtitle {
   padding: 10px;
   margin: 10px;
-  color: white;
+  color: #06f;
 }
 
 .App-datatable {
@@ -50,21 +54,40 @@
 }
 
 .baseTab:hover{
-  background-color: #002fff !important;
+  background-color: #002bff !important;
   color: white !important;
 }
 
 .activeTab{
-  background-color: #007bff !important;
+  background-color: #0066ffcf !important;
   color: white !important;
+  border-color: white !important
 }
 
 .tabs{
-  background-color: #2596be;
+  background-color: white;
   padding: 10px;
   margin: 10px;
 }
 
 .ag-header-cell-label {
   justify-content: center;
+}
+
+.main-logo{
+  padding: 10px;
+  margin: 10px;
+  display: flex;
+}
+
+.main-title{
+  color: #06f;
+}
+
+.main-subtitle{
+  color: #06f;
+}
+
+.ag-header-cell {
+  color: black;
 }

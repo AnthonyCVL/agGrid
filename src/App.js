@@ -66,7 +66,7 @@ function App() {
           Object.keys(params.data.v_obsv).map(kjson => {
             //Valida que el cellStyle se aplique sobre el campo contenido en cada elemento del JSON de v_obsv
             //Valida que el JSON sea diferente de null
-            if(( kjson.toLowerCase() === params.colDef.field || kjson.toLowerCase()=="all_fields") && params.data.v_obsv[kjson]!==null ){
+            if(( kjson.toLowerCase() === params.colDef.field.toLowerCase() || kjson.toLowerCase()=="all_fields") && params.data.v_obsv[kjson]!==null ){
               //Aplica estilos a la celda del elemento del JSON de v_obsv
               Object.keys(params.data.v_obsv[kjson]).map(prop => {
                 style[prop.replace("_","-")] = params.data.v_obsv[kjson][prop].replace("_","-")
@@ -252,10 +252,10 @@ function onFirstDataRendered (params) {
 
   return (
     <div className="App">
-      <div className="App-title"><h1 align="center" className="display-5 fw-bold">Teradata BI</h1></div>
-      <div className="App-subtitle"><h2 align="center">Reportes</h2></div>
+      <div className="App-header"><img src={require("./telefonica_logo.png")} alt="logo" className='main-logo'/></div>
+      <div className="App-title"><h1 align="center" className="display-5 fw-bold main-title">Tablero BI</h1></div>
       <div className="dropdown">
-        <div><h5 className="n5" style={{color: `white`}}>Reporte: </h5></div>
+        <div><h5 className="n5 main-subtitle">Reporte: </h5></div>
         <div className="reporte-dropdown">
         <select name="tablas" className="form-select" onChange={handlerTable} defaultValue={defaultOption.id}>
           {rowsTable.map(element => (
