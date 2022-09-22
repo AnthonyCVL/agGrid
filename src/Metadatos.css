@@ -10,7 +10,7 @@
 }
 
 .dropdown {
-  width: 400px;
+  width: 500px;
   padding: 10px;
   margin: 10px;
   display: flex;
@@ -40,9 +40,15 @@
   color: #06f;
 }
 
-.App-datatable {
-  padding: 0px;
-  margin: 0px;
+.App-datatable-header {
+  padding: 10px;
+  margin: 10px;
+  height: 150px;
+}
+
+.App-datatable-detail {
+  padding: 10px;
+  margin: 10px;
   height: 600px;
 }
 
@@ -88,6 +94,24 @@
   color: #06f;
 }
 
+.datatable-title{
+  color: #06f;
+  flex: 1;
+  text-align: left;
+  padding-left: 20px;
+  margin: 10px;
+}
+
 .ag-header-cell {
   color: black;
+}
+
+.grid {
+  flex: 1 1 auto;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }

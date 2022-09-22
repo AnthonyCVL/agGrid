@@ -1,20 +1,29 @@
 import './Metadatos.css';
-import React, { useState, useEffect , useMemo} from 'react';
+import React, { useState, useEffect , useRef} from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
-import {TabContent, TabPane, Nav, NavItem, NavLink} from 'reactstrap'
+import Select from 'react-select';
 
 function Metadatos() {
-  const [rows, setRows] = useState([])
+  const headerGrid = useRef(null);
+  const detailGrid = useRef(null);
+  const [rowsHeader, setRowsHeader] = useState([])
+  const [columnsHeader, setColumnsHeader] = useState([])
+  const [rowsDetail, setRowsDetail] = useState([])
   const [groupTables, setGroupTables] = useState([])
-  const [columns, setColumns] = useState([])
+  const [columnsDetail, setColumnsDetail] = useState([])
   const [rowsTable, setRowTables] = useState([])
   const [tableSelected, setTableSelected] = useState([])
   const [datatables, setDatatables] = useState([]);
   const [datatablesColumns, setDatatablesColumns] = useState([])
   const [defaultOption, setDefaultOption] = useState(0);
   const [activeTab, setActiveTab] = useState("1")
+
+  const options = [
+    {value: 'mexico', label: 'Mexico'},
+    {value: 'canada', label: 'Canada'}
+  ]
 
   const addDatatable = async (dt) => {
     setDatatables([...datatables, dt])
@@ -27,8 +36,8 @@ function Metadatos() {
   const changeTab = (numberTab) => {
     if(activeTab !== numberTab){
       setActiveTab(numberTab)
-      setRows(datatables[numberTab-1])
-      setColumns(datatablesColumns[numberTab-1])
+      setRowsDetail(datatables[numberTab-1])
+      setColumnsDetail(datatablesColumns[numberTab-1])
     }
   }
 
@@ -55,6 +64,12 @@ function Metadatos() {
       //tooltipComponent: customToolTip,
       cellStyle: params => { 
         let style = {};
+        console.log(params.value)
+        if(isNaN(params.value)){
+          style['text-align'] = 'left'
+        } else {
+          style['text-align'] = 'right'
+        }
         //Para todas las celdas valida que el campo v_obsv exista y su contenido sea diferente de null
         if('v_obsv' in params.data && params.data.v_obsv !== null && params.data.v_obsv !== "" ){
           //Valida que el contenido de v_obsv sea un String
@@ -125,8 +140,8 @@ function Metadatos() {
   }
 
   const request_gettabledata = async (body) => {
-    const base_url='http://localhost:8080'
-    //const base_url='http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    //const base_url='http://localhost:8080'
+    const base_url='http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/getTableData2'
     const request = {
       method: 'POST',
@@ -143,23 +158,28 @@ function Metadatos() {
   }
 
   const showTableData = async () => {
-    setRows([])
-    setColumns([])
+    setRowsDetail([])
+    setColumnsDetail([])
     try { 
       if(tableSelected.id_proceso<=0 || tableSelected.id_proceso==undefined){
         return;
       }
-        const resultados = await request_gettabledata( 
-          JSON.stringify({ 
-            database: 'D_EWAYA_CONFIG',
-            table: 'vw_metadatosprocesosdet',
-            where: JSON.stringify({ id_proceso: tableSelected.id_proceso })
-          })
-        )
+      console.log("tableSelected")
+      console.log([tableSelected])
+      console.log(tableSelected)
+      setRowsHeader([tableSelected])
+      setColumnsHeader(getDynamicColumns(tableSelected))
+      const resultados = await request_gettabledata( 
+        JSON.stringify({ 
+          database: 'D_EWAYA_CONFIG',
+          table: 'vw_metadatosprocesosdet',
+          where: JSON.stringify({ id_proceso: tableSelected.id_proceso })
+        })
+      )
       console.log("showTableData")
       console.log(resultados)
-      setRows(resultados)
-      setColumns(getDynamicColumns(resultados[0]))
+      setRowsDetail(resultados)
+      setColumnsDetail(getDynamicColumns(resultados[0]))
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
     }
@@ -196,18 +216,10 @@ function Metadatos() {
     changeTab(1)
   }, [datatablesColumns])
 
-/*
-  const onGridReady = async (params) => {
-    setGridApi(params)
-    const dynamycColumns = await getDynamicColumns(rows[0])
-    params.api.setColumnDefs(dynamycColumns)
-  }
-*/
-function onFirstDataRendered (params) {
-  params.api.sizeColumnsToFit()
-  const colIds = params.columnApi.getAllColumns().map(c => c.colId)
+function onRowDataChanged(params){
+  const colIds = params.columnApi.getAllGridColumns().map(c => c.colId)
+  //console.log(colIds)
   params.columnApi.autoSizeColumns(colIds)
-
 }
 
   return (
@@ -215,7 +227,7 @@ function onFirstDataRendered (params) {
       <div className="App-header"><img src={require("./telefonica_logo.png")} alt="logo" className='main-logo'/></div>
       <div className="App-title"><h1 align="center" className="display-5 fw-bold main-title">Tablero BI</h1></div>
       <div className="dropdown">
-        <div><h5 className="n5 main-subtitle">Reporte: </h5></div>
+        <div><h5 className="n5 main-subtitle">Proceso: </h5></div>
         <div className="reporte-dropdown">
         <select name="tablas" className="form-select" onChange={handlerTable} defaultValue={defaultOption.id}>
           {rowsTable.map(element => (
@@ -223,17 +235,36 @@ function onFirstDataRendered (params) {
           ))}
         </select>
         </div>
+        <Select
+          options={rowsTable}
+          onChange={handlerTable}
+        />
       </div>
-      <div className="App-datatable ag-theme-alpine" >
+      <div className="App-datatable-header grid ag-theme-alpine"  >
         <AgGridReact
+          ref={headerGrid}
+          alignedGrids={detailGrid.current ? [detailGrid.current] : undefined}
+          defaultColDef={defColumnDefs}
+          rowData={rowsHeader}
+          columnDefs={columnsHeader}
+          onRowDataChanged={onRowDataChanged}
+          />
+      </div>
+      <div  className="datatable-title" ><h5 >Detalle </h5></div>
+      <div className="App-datatable-detail grid ag-theme-alpine"  >
+        <AgGridReact
+          ref={detailGrid}
+          alignedGrids={headerGrid.current ? [headerGrid.current] : undefined}
           defaultColDef={defColumnDefs}
           pagination={true}
           paginationPageSize={100}
-          onFirstDataRendered={onFirstDataRendered}
-          rowData={rows}
-          columnDefs={columns}
+          rowData={rowsDetail}
+          columnDefs={columnsDetail}
+          onRowDataChanged={onRowDataChanged}
           />
       </div>
+
+      
     </div>
   );
 }
