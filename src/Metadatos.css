@@ -1,0 +1,93 @@
+@import url("https://cdn.syncfusion.com/ej2/bootstrap5.css");
+
+.App {
+  text-align: center;
+  background-color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+.dropdown {
+  width: 400px;
+  padding: 10px;
+  margin: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.reporte-dropdown{
+  padding: 10px;
+  margin: 10px;
+  width: 70%;
+}
+
+.App-header{
+  background: white;
+}
+
+.App-title {
+  padding: 10px;
+  margin: 10px;
+  color: #06f;
+}
+
+.App-subtitle {
+  padding: 10px;
+  margin: 10px;
+  color: #06f;
+}
+
+.App-datatable {
+  padding: 0px;
+  margin: 0px;
+  height: 600px;
+}
+
+.baseTab{
+  border: 1px solid #e9ecef !important;
+  cursor: pointer;
+  background-color: white !important;
+  color: black !important;
+}
+
+.baseTab:hover{
+  background-color: #002bff !important;
+  color: white !important;
+}
+
+.activeTab{
+  background-color: #0066ffcf !important;
+  color: white !important;
+  border-color: white !important
+}
+
+.tabs{
+  background-color: white;
+  padding: 10px;
+  margin: 10px;
+}
+
+.ag-header-cell-label {
+  justify-content: center;
+}
+
+.main-logo{
+  padding: 10px;
+  margin: 10px;
+  display: flex;
+}
+
+.main-title{
+  color: #06f;
+}
+
+.main-subtitle{
+  color: #06f;
+}
+
+.ag-header-cell {
+  color: black;
+}
