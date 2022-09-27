@@ -14,6 +14,8 @@ function Metadatos() {
   const [groupTables, setGroupTables] = useState([])
   const [columnsDetail, setColumnsDetail] = useState([])
   const [rowsTable, setRowTables] = useState([])
+  const [rowsTableSelect, setRowTablesSelect] = useState([])
+  const [valueSelect, setValueSelect] = useState({})
   const [tableSelected, setTableSelected] = useState([])
   const [datatables, setDatatables] = useState([]);
   const [datatablesColumns, setDatatablesColumns] = useState([])
@@ -21,8 +23,8 @@ function Metadatos() {
   const [activeTab, setActiveTab] = useState("1")
 
   const options = [
-    {value: 'mexico', label: 'Mexico'},
-    {value: 'canada', label: 'Canada'}
+    {value: 'Mexico', label: 'Mexico'},
+    {value: 'Canada', label: 'Canada'}
   ]
 
   const addDatatable = async (dt) => {
@@ -54,8 +56,8 @@ function Metadatos() {
   ];
 
   const handlerTable = function (e) {
-    const option = JSON.parse(e.target.value);
-    setTableSelected(option)
+    setTableSelected(e.object)
+    setValueSelect(e)
   }
 
   const columnDefs = (key) => ({
@@ -64,7 +66,6 @@ function Metadatos() {
       //tooltipComponent: customToolTip,
       cellStyle: params => { 
         let style = {};
-        console.log(params.value)
         if(isNaN(params.value)){
           style['text-align'] = 'left'
         } else {
@@ -186,6 +187,7 @@ function Metadatos() {
   }
 
   const showTables = async () => {
+    console.log("==========showTables===========")
     try {
       const data = await request_gettabledata( 
         JSON.stringify({ 
@@ -194,7 +196,14 @@ function Metadatos() {
           where: JSON.stringify({ estado: 1 })
         })
       )
-
+      const dataSelect = [];
+      console.log(data)
+      data.map(function(obj) {
+        dataSelect.push({ value: obj["nombre_proceso"] , label: obj["nombre_proceso"], object: obj});
+      })
+      console.log("======dataSelect======")
+      setRowTablesSelect(dataSelect)
+      setValueSelect(dataSelect[0])
       setRowTables(data)
       setTableSelected(data[0])
       //setDefaultOption(data[0])
@@ -225,20 +234,17 @@ function onRowDataChanged(params){
   return (
     <div className="App">
       <div className="App-header"><img src={require("./telefonica_logo.png")} alt="logo" className='main-logo'/></div>
-      <div className="App-title"><h1 align="center" className="display-5 fw-bold main-title">Tablero BI</h1></div>
+      <div className="App-title"><h1 align="center" className="display-5 fw-bold main-title">Metadatos críticos</h1></div>
       <div className="dropdown">
         <div><h5 className="n5 main-subtitle">Proceso: </h5></div>
         <div className="reporte-dropdown">
-        <select name="tablas" className="form-select" onChange={handlerTable} defaultValue={defaultOption.id}>
-          {rowsTable.map(element => (
-            <option key={element.id_proceso} value={JSON.stringify(element)}>{element.nombre_proceso}</option>
-          ))}
-        </select>
-        </div>
         <Select
-          options={rowsTable}
-          onChange={handlerTable}
+          options={rowsTableSelect}
+          value={valueSelect}
+          onChange={(e) => handlerTable(e)}
         />
+        </div>
+        
       </div>
       <div className="App-datatable-header grid ag-theme-alpine"  >
         <AgGridReact
