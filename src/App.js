@@ -55,6 +55,11 @@ function App() {
       //tooltipComponent: customToolTip,
       cellStyle: params => { 
         let style = {};
+        if(isNaN(params.value)){
+          style['text-align'] = 'left'
+        } else {
+          style['text-align'] = 'right'
+        }
         //Para todas las celdas valida que el campo v_obsv exista y su contenido sea diferente de null
         if('v_obsv' in params.data && params.data.v_obsv !== null && params.data.v_obsv !== "" ){
           //Valida que el contenido de v_obsv sea un String
