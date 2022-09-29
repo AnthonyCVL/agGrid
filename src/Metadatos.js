@@ -4,6 +4,7 @@ import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import Select from 'react-select';
+import Navbarr from './Navbarr';
 
 function Metadatos() {
   const headerGrid = useRef(null);
@@ -233,7 +234,6 @@ function onRowDataChanged(params){
 
   return (
     <div className="App">
-      <div className="App-header"><img src={require("./telefonica_logo.png")} alt="logo" className='main-logo'/></div>
       <div className="App-title"><h1 align="center" className="display-5 fw-bold main-title">Metadatos críticos</h1></div>
       <div className="dropdown">
         <div><h5 className="n5 main-subtitle">Proceso: </h5></div>
@@ -254,9 +254,10 @@ function onRowDataChanged(params){
           rowData={rowsHeader}
           columnDefs={columnsHeader}
           onRowDataChanged={onRowDataChanged}
+          rowHeight={30}
           />
       </div>
-      <div  className="datatable-title" ><h5 >Detalle </h5></div>
+      <div  ><h5  className="datatable-title">Detalle </h5></div>
       <div className="App-datatable-detail grid ag-theme-alpine"  >
         <AgGridReact
           ref={detailGrid}
@@ -267,6 +268,7 @@ function onRowDataChanged(params){
           rowData={rowsDetail}
           columnDefs={columnsDetail}
           onRowDataChanged={onRowDataChanged}
+          rowHeight={30}
           />
       </div>
 

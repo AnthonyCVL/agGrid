@@ -22,6 +22,7 @@
   padding: 10px;
   margin: 10px;
   width: 70%;
+  color: black !important;
 }
 
 .App-header{
@@ -92,6 +93,8 @@
 
 .main-subtitle{
   color: #06f;
+  font-weight: bold;
+  font-size: 22px;
 }
 
 .datatable-title{
@@ -100,6 +103,8 @@
   text-align: left;
   padding-left: 20px;
   margin: 10px;
+  font-weight: bold;
+  font-size: 22px;
 }
 
 .ag-header-cell {
@@ -114,4 +119,9 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+}
+
+.ag-row .ag-cell {
+  display: flex!important;
+  align-items: center;
 }

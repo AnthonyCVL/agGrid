@@ -252,7 +252,6 @@ function onFirstDataRendered (params) {
 
   return (
     <div className="App">
-      <div className="App-header"><img src={require("./telefonica_logo.png")} alt="logo" className='main-logo'/></div>
       <div className="App-title"><h1 align="center" className="display-5 fw-bold main-title">Tablero BI</h1></div>
       <div className="dropdown">
         <div><h5 className="n5 main-subtitle">Reporte: </h5></div>
