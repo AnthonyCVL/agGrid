@@ -20,19 +20,19 @@ function Navbarrr() {
     }
     return (
         <>
-                <div class="navbar-container">
-                    <div class="container-logo">
+                <div className="navbar-container">
+                    <div className="container-logo">
                         <img src={require("./telefonica_logo.png")} alt="logo" className='main-logo' />
                     </div>
                     <div>
-                            <ul class="nav-ul">
-                                <li class="nav-link">
+                            <ul className="nav-ul">
+                                <li className="nav-link">
                                     <Link to="/app"><a className='nav-a active-link'>TABLERO BI</a></Link>
-                                    <div class="underline"></div>
+                                    <div className="underline"></div>
                                 </li>
-                                <li class="nav-link">
+                                <li className="nav-link">
                                     <Link to="/metadatos"><a className='nav-a active-link'>METADATOS CRITICOS</a></Link>
-                                    <div class="underline"></div>
+                                    <div className="underline"></div>
                                 </li>
                             </ul>
                     </div>

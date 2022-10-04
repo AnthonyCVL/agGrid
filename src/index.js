@@ -1,12 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import Metadatos from './Metadatos';
-import Navbarrr from './Navbarrr';
+import Appss from './Appss';
 
 ReactDOM.render(
   <React.StrictMode>
-    <Navbarrr></Navbarrr>
+    <Appss />
   </React.StrictMode>,
   document.getElementById('root')
 );
