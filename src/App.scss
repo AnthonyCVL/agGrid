@@ -50,3 +50,15 @@ section {
 .navBg {
   background-color: white;
 }
+
+.nav-option:hover{
+  color: green;
+}
+
+.nav-option{
+  color: black;
+}
+
+.nav-option .underline{
+  color: black;
+}

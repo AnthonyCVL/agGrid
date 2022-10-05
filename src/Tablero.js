@@ -1,14 +1,19 @@
-import './App.css';
-import React, { useState, useEffect , useMemo} from 'react';
+import './Tablero.css';
+import React, { useState, useEffect , useRef} from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import {TabContent, TabPane, Nav, NavItem, NavLink} from 'reactstrap'
+import Select from 'react-select';
 
-function App() {
+function Tablero() {
+  const headerGrid = useRef(null);
+  const detailGrid = useRef(null);
   const [rows, setRows] = useState([])
   const [groupTables, setGroupTables] = useState([])
   const [columns, setColumns] = useState([])
+  const [rowsTableSelect, setRowTablesSelect] = useState([])
+  const [valueSelect, setValueSelect] = useState({})
   const [rowsTable, setRowTables] = useState([])
   const [tableSelected, setTableSelected] = useState([])
   const [datatables, setDatatables] = useState([]);
@@ -45,8 +50,8 @@ function App() {
   ];
 
   const handlerTable = function (e) {
-    const option = JSON.parse(e.target.value);
-    setTableSelected(option)
+    setTableSelected(e.object)
+    setValueSelect(e)
   }
 
   const columnDefs = (key) => ({
@@ -55,6 +60,11 @@ function App() {
       //tooltipComponent: customToolTip,
       cellStyle: params => { 
         let style = {};
+        if(isNaN(params.value)){
+          style['text-align'] = 'left'
+        } else {
+          style['text-align'] = 'right'
+        }
         //Para todas las celdas valida que el campo v_obsv exista y su contenido sea diferente de null
         if('v_obsv' in params.data && params.data.v_obsv !== null && params.data.v_obsv !== "" ){
           //Valida que el contenido de v_obsv sea un String
@@ -125,8 +135,8 @@ function App() {
   }
 
   const request_gettabledata = async (body) => {
-    //const base_url='http://localhost:8080'
-    const base_url='http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const base_url='http://localhost:8080'
+    //const base_url='http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/getTableData2'
     const request = {
       method: 'POST',
@@ -149,6 +159,7 @@ function App() {
       if(tableSelected.id<=0 || tableSelected.id==undefined){
         return;
       }
+      
         const group_tables = await request_gettabledata( 
           JSON.stringify({ 
             database: 'D_EWAYA_CONFIG',
@@ -156,7 +167,7 @@ function App() {
             where: JSON.stringify({ id_group: tableSelected.id, state: 1 })
           })
         )
-      
+      console.log(group_tables)
       setGroupTables(group_tables.sort((a, b) => a.position_table > b.position_table ? 1 : -1))
       const dts = []
       const promises=[]
@@ -184,7 +195,9 @@ function App() {
               database: table.database_name,
               table: table.table_name,
               select: table.col_qry,
-              order: table.ord_qry
+              order: table.ord_qry,
+              type: table.type_qry,
+              query: table.full_qry
             })
           )
           addElementToArray(dts, dt)
@@ -211,9 +224,19 @@ function App() {
 
   const showTables = async () => {
     try {
-      //const response = await fetch('http://localhost:8080/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE_GROUP');
-      const response = await fetch('http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE_GROUP');
+      const response = await fetch('http://localhost:8080/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE_GROUP');
+      //const response = await fetch('http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE_GROUP');
       const data = await response.json();
+      const dataSelect = [];
+      console.log(data)
+      data.sort(function(a, b) { 
+        return a.id - b.id  ||  a.name.localeCompare(b.name);
+      });
+      data.map(function(obj) {
+        dataSelect.push({ value: obj["name"] , label: obj["name"], object: obj});
+      })
+      setRowTablesSelect(dataSelect)
+      setValueSelect(dataSelect[0])
       setRowTables(data)
       setTableSelected(data[0])
       //setDefaultOption(data[0])
@@ -243,11 +266,11 @@ function App() {
     params.api.setColumnDefs(dynamycColumns)
   }
 */
-function onFirstDataRendered (params) {
-  params.api.sizeColumnsToFit()
-  const colIds = params.columnApi.getAllColumns().map(c => c.colId)
-  params.columnApi.autoSizeColumns(colIds)
 
+function onRowDataChanged(params){
+  const colIds = params.columnApi.getAllGridColumns().map(c => c.colId)
+  //console.log(colIds)
+  params.columnApi.autoSizeColumns(colIds)
 }
 
   return (
@@ -256,11 +279,11 @@ function onFirstDataRendered (params) {
       <div className="dropdown">
         <div><h5 className="n5 main-subtitle">Reporte: </h5></div>
         <div className="reporte-dropdown">
-        <select name="tablas" className="form-select" onChange={handlerTable} defaultValue={defaultOption.id}>
-          {rowsTable.map(element => (
-            <option key={element.id} value={JSON.stringify(element)}>{element.name}</option>
-          ))}
-        </select>
+        <Select
+          options={rowsTableSelect}
+          value={valueSelect}
+          onChange={(e) => handlerTable(e)}
+        />
         </div>
       </div>
       <div className="tabs">
@@ -280,12 +303,15 @@ function onFirstDataRendered (params) {
             <TabPane tabId={element.position_table}>
               <div className="App-datatable ag-theme-alpine" >
                 <AgGridReact
+                  ref={detailGrid}
+                  alignedGrids={headerGrid.current ? [headerGrid.current] : undefined}
                   rowData={rows}
                   columnDefs={columns}
                   defaultColDef={defColumnDefs}
                   pagination={true}
                   paginationPageSize={100}
-                  onFirstDataRendered={onFirstDataRendered}
+                  onRowDataChanged={onRowDataChanged}
+                  rowHeight={30}
                   //onGridReady={onGridReady} 
                   />
               </div>
@@ -308,4 +334,4 @@ function callAPI() {
   })
 }
 
-export default App;
+export default Tablero;
