@@ -1,26 +1,34 @@
-import './Tablero.css';
+import './MetadatosTecnicos.css';
 import React, { useState, useEffect, useRef } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
-import { TabContent, TabPane, Nav, NavItem, NavLink, Button } from 'reactstrap'
+import { Button } from 'reactstrap'
 import Select from 'react-select';
 
-function Tablero() {
+function MetadatosTecnicos() {
   const headerGrid = useRef(null);
   const detailGrid = useRef(null);
-  const [rows, setRows] = useState([])
+  const [gridApiHeader, setGridApiHeader] = useState({})
+  const [gridApiDetail, setGridApiDetail] = useState({})
+  const [rowsHeader, setRowsHeader] = useState([])
+  const [columnsHeader, setColumnsHeader] = useState([])
+  const [rowsDetail, setRowsDetail] = useState([])
   const [groupTables, setGroupTables] = useState([])
-  const [columns, setColumns] = useState([])
+  const [columnsDetail, setColumnsDetail] = useState([])
+  const [rowsTable, setRowTables] = useState([])
   const [rowsTableSelect, setRowTablesSelect] = useState([])
   const [valueSelect, setValueSelect] = useState({})
-  const [rowsTable, setRowTables] = useState([])
   const [tableSelected, setTableSelected] = useState([])
   const [datatables, setDatatables] = useState([]);
   const [datatablesColumns, setDatatablesColumns] = useState([])
   const [defaultOption, setDefaultOption] = useState(0);
   const [activeTab, setActiveTab] = useState("1")
-  const [gridApi, setGridApi] = useState({})
+
+  const options = [
+    { value: 'Mexico', label: 'Mexico' },
+    { value: 'Canada', label: 'Canada' }
+  ]
 
   const addDatatable = async (dt) => {
     setDatatables([...datatables, dt])
@@ -33,8 +41,8 @@ function Tablero() {
   const changeTab = (numberTab) => {
     if (activeTab !== numberTab) {
       setActiveTab(numberTab)
-      setRows(datatables[numberTab - 1])
-      setColumns(datatablesColumns[numberTab - 1])
+      setRowsDetail(datatables[numberTab - 1])
+      setColumnsDetail(datatablesColumns[numberTab - 1])
     }
   }
 
@@ -136,8 +144,8 @@ function Tablero() {
   }
 
   const request_gettabledata = async (body) => {
-    //const base_url='http://localhost:8080'
-    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const base_url = 'http://localhost:8080'
+    //const base_url='http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/getTableData2'
     const request = {
       method: 'POST',
@@ -154,88 +162,48 @@ function Tablero() {
   }
 
   const showTableData = async () => {
-    setRows([])
-    setColumns([])
+    setRowsDetail([])
+    setColumnsDetail([])
     try {
-      if (tableSelected.id <= 0 || tableSelected.id == undefined) {
+      if (tableSelected.TableName === null || tableSelected.TableName === '') {
         return;
       }
-
-      const group_tables = await request_gettabledata(
+      console.log("tableSelected")
+      console.log([tableSelected])
+      console.log(tableSelected)
+      setRowsHeader([tableSelected])
+      setColumnsHeader(getDynamicColumns(tableSelected))
+      const resultados = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: 'TB_CONFIG_FE_GROUP_TABLE',
-          where: JSON.stringify({ id_group: tableSelected.id, state: 1 })
+          table: 'vw_metadatostecnicosdet',
+          where: JSON.stringify({ DatabaseName: tableSelected.DatabaseName, TableName: tableSelected.TableName })
         })
       )
-      console.log(group_tables)
-      setGroupTables(group_tables.sort((a, b) => a.position_table > b.position_table ? 1 : -1))
-      const dts = []
-      const promises = []
-
-
-      Object.keys(group_tables).forEach(async function (key) {
-        promises.push(group_tables[key].id_table)
-      });
-
-      const resultados = await Promise.all(promises.map(function (key) {
-        const tables = request_gettabledata(
-          JSON.stringify({
-            database: 'D_EWAYA_CONFIG',
-            table: 'TB_CONFIG_FE',
-            where: JSON.stringify({ id: key, state: 1 })
-          })
-        )
-        return tables
-      })
-      ).then(
-        tables => Promise.all(tables.map(async function (tables) {
-          const table = tables[0]
-          const dt = await request_gettabledata(
-            JSON.stringify({
-              database: table.database_name,
-              table: table.table_name,
-              select: table.col_qry,
-              order: table.ord_qry,
-              type: table.type_qry,
-              query: table.full_qry
-            })
-          )
-          addElementToArray(dts, dt)
-          return dt
-        }
-        )
-        ).then(
-          dt => {
-            return dt
-          }
-        )
-      )
-
-      setDatatables(resultados)
-      const dtsColumns = []
-      resultados.map(element => {
-        dtsColumns.push(getDynamicColumns(element[0]))
-      })
-      setDatatablesColumns(dtsColumns)
+      console.log("showTableData")
+      console.log(resultados)
+      setRowsDetail(resultados)
+      setColumnsDetail(getDynamicColumns(resultados[0]))
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
     }
   }
 
   const showTables = async () => {
+    console.log("==========showTables===========")
     try {
-      //const response = await fetch('http://localhost:8080/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE_GROUP');
-      const response = await fetch('http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE_GROUP');
-      const data = await response.json();
+      const data = await request_gettabledata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'vw_metadatostecnicoscab'
+        })
+      )
       const dataSelect = [];
       console.log(data)
-      data.sort(function (a, b) {
-        return a.id - b.id || a.name.localeCompare(b.name);
-      });
       data.map(function (obj) {
-        dataSelect.push({ value: obj["name"], label: obj["name"], object: obj });
+        dataSelect.push({ value: obj["TableName"], label: obj["TableName"], object: obj });
       })
+      console.log("======dataSelect======")
       setRowTablesSelect(dataSelect)
       setValueSelect(dataSelect[0])
       setRowTables(data)
@@ -252,7 +220,6 @@ function Tablero() {
 
   useEffect(() => {
     showTableData()
-    setActiveTab(0)
     //changeTab(1)
   }, [tableSelected])
 
@@ -260,36 +227,32 @@ function Tablero() {
     changeTab(1)
   }, [datatablesColumns])
 
-  /*
-    const onGridReady = async (params) => {
-      setGridApi(params)
-      const dynamycColumns = await getDynamicColumns(rows[0])
-      params.api.setColumnDefs(dynamycColumns)
-    }
-  */
-
   function onRowDataChanged(params) {
     const colIds = params.columnApi.getAllGridColumns().map(c => c.colId)
     //console.log(colIds)
     params.columnApi.autoSizeColumns(colIds)
   }
 
-  const onGridReady = params => {
-    console.log("onGridReady")
-    setGridApi(params.api);
+  const onGridReadyHeader = params => {
+    setGridApiHeader(params.api);
   };
 
-  const onBtnExportDataAsCsv = () => {
-    console.log("onBtnExportDataAsExcel")
-    console.log(gridApi)
-    gridApi.exportDataAsCsv();
+  const onGridReadyDetail = params => {
+    setGridApiDetail(params.api);
   };
 
+  const onBtnExportDataAsCsvHeader = () => {
+    gridApiHeader.exportDataAsCsv();
+  };
+
+  const onBtnExportDataAsCsvDetail = () => {
+    gridApiDetail.exportDataAsCsv();
+  };
   return (
     <div className="App">
-      <div className="App-title"><h1 align="center" className="display-5 fw-bold main-title">Tablero BI</h1></div>
+      <div className="App-title"><h1 align="center" className="display-5 fw-bold main-title">Metadatos técnicos</h1></div>
       <div className="dropdown">
-        <div><h5 className="n5 main-subtitle">Reporte: </h5></div>
+        <div><h5 className="n5 main-subtitle">Tabla: </h5></div>
         <div className="reporte-dropdown">
           <Select
             options={rowsTableSelect}
@@ -297,51 +260,53 @@ function Tablero() {
             onChange={(e) => handlerTable(e)}
           />
         </div>
+
       </div>
-
-
-      <div className="tabs">
+      <div className="App-datatable-header grid ag-theme-alpine"  >
         <div className='reporte-button'>
           <Button color="success"
-            onClick={() => onBtnExportDataAsCsv()}
+            onClick={() => onBtnExportDataAsCsvHeader()}
             style={{ marginBottom: '5px', fontWeight: 'bold' }}
           >
             Exportar a CSV
           </Button>
         </div>
-        <Nav tabs>
-          {groupTables.map(element => (
-            <NavItem>
-              <NavLink
-                className={(activeTab == element.position_table ? "activeTab baseTab" : "baseTab")}
-                onClick={() => changeTab(element.position_table)}>
-                {element.description}
-              </NavLink>
-            </NavItem>
-          ))}
-        </Nav>
-        <TabContent activeTab={activeTab}>
-          {groupTables.map(element => (
-            <TabPane tabId={element.position_table}>
-              <div className="App-datatable ag-theme-alpine" >
-                <AgGridReact
-                  ref={headerGrid}
-                  alignedGrids={headerGrid.current ? [headerGrid.current] : undefined}
-                  rowData={rows}
-                  columnDefs={columns}
-                  defaultColDef={defColumnDefs}
-                  pagination={true}
-                  paginationPageSize={100}
-                  onRowDataChanged={onRowDataChanged}
-                  rowHeight={30}
-                  onGridReady={onGridReady}
-                //onGridReady={onGridReady} 
-                />
-              </div>
-            </TabPane>
-          ))}
-        </TabContent>
+        <AgGridReact
+          ref={headerGrid}
+          alignedGrids={headerGrid.current ? [headerGrid.current] : undefined}
+          defaultColDef={defColumnDefs}
+          rowData={rowsHeader}
+          columnDefs={columnsHeader}
+          onRowDataChanged={onRowDataChanged}
+          onGridReady={onGridReadyHeader}
+          rowHeight={30}
+        />
       </div>
+      <div  ><h5 className="datatable-title">Detalle </h5></div>
+      <div className="App-datatable-detail grid ag-theme-alpine"  >
+        <div className='reporte-button'>
+          <Button color="success"
+            onClick={() => onBtnExportDataAsCsvDetail()}
+            style={{ marginBottom: '5px', fontWeight: 'bold' }}
+          >
+            Exportar a CSV
+          </Button>
+        </div>
+        <AgGridReact
+          ref={detailGrid}
+          alignedGrids={detailGrid.current ? [detailGrid.current] : undefined}
+          defaultColDef={defColumnDefs}
+          pagination={true}
+          paginationPageSize={100}
+          rowData={rowsDetail}
+          columnDefs={columnsDetail}
+          onRowDataChanged={onRowDataChanged}
+          onGridReady={onGridReadyDetail}
+          rowHeight={30}
+        />
+      </div>
+
+
     </div>
   );
 }
@@ -357,4 +322,4 @@ function callAPI() {
   })
 }
 
-export default Tablero;
+export default MetadatosTecnicos;

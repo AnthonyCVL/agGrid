@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ag-grid-enterprise/excel-export": "^28.2.0",
     "@syncfusion/ej2-react-dropdowns": "^20.2.39",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
