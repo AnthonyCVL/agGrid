@@ -14,49 +14,10 @@ function MetadatosTecnicos() {
   const [rowsHeader, setRowsHeader] = useState([])
   const [columnsHeader, setColumnsHeader] = useState([])
   const [rowsDetail, setRowsDetail] = useState([])
-  const [groupTables, setGroupTables] = useState([])
   const [columnsDetail, setColumnsDetail] = useState([])
-  const [rowsTable, setRowTables] = useState([])
   const [rowsTableSelect, setRowTablesSelect] = useState([])
   const [valueSelect, setValueSelect] = useState({})
   const [tableSelected, setTableSelected] = useState([])
-  const [datatables, setDatatables] = useState([]);
-  const [datatablesColumns, setDatatablesColumns] = useState([])
-  const [defaultOption, setDefaultOption] = useState(0);
-  const [activeTab, setActiveTab] = useState("1")
-
-  const options = [
-    { value: 'Mexico', label: 'Mexico' },
-    { value: 'Canada', label: 'Canada' }
-  ]
-
-  const addDatatable = async (dt) => {
-    setDatatables([...datatables, dt])
-  }
-
-  const addElementToArray = async (list, element) => {
-    list.push(element)
-  }
-
-  const changeTab = (numberTab) => {
-    if (activeTab !== numberTab) {
-      setActiveTab(numberTab)
-      setRowsDetail(datatables[numberTab - 1])
-      setColumnsDetail(datatablesColumns[numberTab - 1])
-    }
-  }
-
-  var moment = require('moment')
-  let myDate;
-
-  myDate = moment().format("YYYY-MMMM-dddd")
-
-  const rowData = [
-    { make: "Toyota", model: "Celica", price: 35000, date: "09-02-2022", available: true },
-    { make: "Ford", model: "Mondeo", price: 32000, date: "11-02-2022", available: false },
-    { make: "Porsche", model: "Boxter", price: 72000, date: "10-02-2022", available: true },
-    { make: "Mers", model: "Mers", price: 92000, date: "12-02-2022", available: true }
-  ];
 
   const handlerTable = function (e) {
     setTableSelected(e.object)
@@ -93,12 +54,6 @@ function MetadatosTecnicos() {
             })
             return true
           }
-          /*if(kjson.toLowerCase()=="all_fields" && params.data.v_obsv[kjson]!==null){
-            Object.keys(params.data.v_obsv[kjson]).map(prop => {
-              style[prop] = params.data.v_obsv[kjson][prop]
-            })
-            return true
-          }*/
         })
       }
       return style;
@@ -107,27 +62,6 @@ function MetadatosTecnicos() {
 
   const getDynamicColumns = (obj) => {
     return Object.keys(obj).map(key => columnDefs(key))
-  }
-
-  const cellStyle = (obj) => {
-    return Object.entries(obj).map(([key, value]) => {
-      //console.log(value)
-      Object.entries(value).map(([keyObj, valueObj]) => {
-        //console.log(valueObj)
-        //value["cellStyle"] = {background: 'red'}
-      })
-    })
-  }
-
-  const getDataDate = (obj) => {
-    Object.keys(obj).map(i => {
-      Object.keys(obj[i]).map(key => {
-        if (Date.parse(obj[i][key])) {
-          obj[i][key] = new Date(obj[i][key])
-        }
-        return obj[i][key]
-      })
-    })
   }
 
   const defColumnDefs = {
@@ -168,9 +102,6 @@ function MetadatosTecnicos() {
       if (tableSelected.TableName === null || tableSelected.TableName === '') {
         return;
       }
-      console.log("tableSelected")
-      console.log([tableSelected])
-      console.log(tableSelected)
       setRowsHeader([tableSelected])
       setColumnsHeader(getDynamicColumns(tableSelected))
       const resultados = await request_gettabledata(
@@ -180,8 +111,6 @@ function MetadatosTecnicos() {
           where: JSON.stringify({ DatabaseName: tableSelected.DatabaseName, TableName: tableSelected.TableName })
         })
       )
-      console.log("showTableData")
-      console.log(resultados)
       setRowsDetail(resultados)
       setColumnsDetail(getDynamicColumns(resultados[0]))
     } catch (error) {
@@ -190,7 +119,6 @@ function MetadatosTecnicos() {
   }
 
   const showTables = async () => {
-    console.log("==========showTables===========")
     try {
       const data = await request_gettabledata(
         JSON.stringify({
@@ -203,12 +131,9 @@ function MetadatosTecnicos() {
       data.map(function (obj) {
         dataSelect.push({ value: obj["TableName"], label: obj["TableName"], object: obj });
       })
-      console.log("======dataSelect======")
       setRowTablesSelect(dataSelect)
       setValueSelect(dataSelect[0])
-      setRowTables(data)
       setTableSelected(data[0])
-      //setDefaultOption(data[0])
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
     }
@@ -220,16 +145,10 @@ function MetadatosTecnicos() {
 
   useEffect(() => {
     showTableData()
-    //changeTab(1)
   }, [tableSelected])
-
-  useEffect(() => {
-    changeTab(1)
-  }, [datatablesColumns])
 
   function onRowDataChanged(params) {
     const colIds = params.columnApi.getAllGridColumns().map(c => c.colId)
-    //console.log(colIds)
     params.columnApi.autoSizeColumns(colIds)
   }
 
@@ -248,6 +167,7 @@ function MetadatosTecnicos() {
   const onBtnExportDataAsCsvDetail = () => {
     gridApiDetail.exportDataAsCsv();
   };
+
   return (
     <div className="App">
       <div className="App-title"><h1 align="center" className="display-5 fw-bold main-title">Metadatos técnicos</h1></div>
@@ -305,21 +225,8 @@ function MetadatosTecnicos() {
           rowHeight={30}
         />
       </div>
-
-
     </div>
   );
-}
-
-function callAPI() {
-  fetch('http://localhost:8080/getTable').then(
-    (response) => response.json()
-  ).then((data) => {
-    console.log(data)
-    this.setState({
-      list: data
-    })
-  })
 }
 
 export default MetadatosTecnicos;

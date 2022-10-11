@@ -8,23 +8,16 @@ import Select from 'react-select';
 
 function Tablero() {
   const headerGrid = useRef(null);
-  const detailGrid = useRef(null);
   const [rows, setRows] = useState([])
   const [groupTables, setGroupTables] = useState([])
   const [columns, setColumns] = useState([])
   const [rowsTableSelect, setRowTablesSelect] = useState([])
   const [valueSelect, setValueSelect] = useState({})
-  const [rowsTable, setRowTables] = useState([])
   const [tableSelected, setTableSelected] = useState([])
   const [datatables, setDatatables] = useState([]);
   const [datatablesColumns, setDatatablesColumns] = useState([])
-  const [defaultOption, setDefaultOption] = useState(0);
   const [activeTab, setActiveTab] = useState("1")
   const [gridApi, setGridApi] = useState({})
-
-  const addDatatable = async (dt) => {
-    setDatatables([...datatables, dt])
-  }
 
   const addElementToArray = async (list, element) => {
     list.push(element)
@@ -37,18 +30,6 @@ function Tablero() {
       setColumns(datatablesColumns[numberTab - 1])
     }
   }
-
-  var moment = require('moment')
-  let myDate;
-
-  myDate = moment().format("YYYY-MMMM-dddd")
-
-  const rowData = [
-    { make: "Toyota", model: "Celica", price: 35000, date: "09-02-2022", available: true },
-    { make: "Ford", model: "Mondeo", price: 32000, date: "11-02-2022", available: false },
-    { make: "Porsche", model: "Boxter", price: 72000, date: "10-02-2022", available: true },
-    { make: "Mers", model: "Mers", price: 92000, date: "12-02-2022", available: true }
-  ];
 
   const handlerTable = function (e) {
     setTableSelected(e.object)
@@ -85,12 +66,6 @@ function Tablero() {
             })
             return true
           }
-          /*if(kjson.toLowerCase()=="all_fields" && params.data.v_obsv[kjson]!==null){
-            Object.keys(params.data.v_obsv[kjson]).map(prop => {
-              style[prop] = params.data.v_obsv[kjson][prop]
-            })
-            return true
-          }*/
         })
       }
       return style;
@@ -99,27 +74,6 @@ function Tablero() {
 
   const getDynamicColumns = (obj) => {
     return Object.keys(obj).map(key => columnDefs(key))
-  }
-
-  const cellStyle = (obj) => {
-    return Object.entries(obj).map(([key, value]) => {
-      //console.log(value)
-      Object.entries(value).map(([keyObj, valueObj]) => {
-        //console.log(valueObj)
-        //value["cellStyle"] = {background: 'red'}
-      })
-    })
-  }
-
-  const getDataDate = (obj) => {
-    Object.keys(obj).map(i => {
-      Object.keys(obj[i]).map(key => {
-        if (Date.parse(obj[i][key])) {
-          obj[i][key] = new Date(obj[i][key])
-        }
-        return obj[i][key]
-      })
-    })
   }
 
   const defColumnDefs = {
@@ -168,7 +122,6 @@ function Tablero() {
           where: JSON.stringify({ id_group: tableSelected.id, state: 1 })
         })
       )
-      console.log(group_tables)
       setGroupTables(group_tables.sort((a, b) => a.position_table > b.position_table ? 1 : -1))
       const dts = []
       const promises = []
@@ -229,7 +182,6 @@ function Tablero() {
       const response = await fetch('http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE_GROUP');
       const data = await response.json();
       const dataSelect = [];
-      console.log(data)
       data.sort(function (a, b) {
         return a.id - b.id || a.name.localeCompare(b.name);
       });
@@ -238,9 +190,7 @@ function Tablero() {
       })
       setRowTablesSelect(dataSelect)
       setValueSelect(dataSelect[0])
-      setRowTables(data)
       setTableSelected(data[0])
-      //setDefaultOption(data[0])
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
     }
@@ -253,35 +203,22 @@ function Tablero() {
   useEffect(() => {
     showTableData()
     setActiveTab(0)
-    //changeTab(1)
   }, [tableSelected])
 
   useEffect(() => {
     changeTab(1)
   }, [datatablesColumns])
 
-  /*
-    const onGridReady = async (params) => {
-      setGridApi(params)
-      const dynamycColumns = await getDynamicColumns(rows[0])
-      params.api.setColumnDefs(dynamycColumns)
-    }
-  */
-
   function onRowDataChanged(params) {
     const colIds = params.columnApi.getAllGridColumns().map(c => c.colId)
-    //console.log(colIds)
     params.columnApi.autoSizeColumns(colIds)
   }
 
   const onGridReady = params => {
-    console.log("onGridReady")
     setGridApi(params.api);
   };
 
   const onBtnExportDataAsCsv = () => {
-    console.log("onBtnExportDataAsExcel")
-    console.log(gridApi)
     gridApi.exportDataAsCsv();
   };
 
@@ -335,7 +272,6 @@ function Tablero() {
                   onRowDataChanged={onRowDataChanged}
                   rowHeight={30}
                   onGridReady={onGridReady}
-                //onGridReady={onGridReady} 
                 />
               </div>
             </TabPane>
@@ -344,17 +280,6 @@ function Tablero() {
       </div>
     </div>
   );
-}
-
-function callAPI() {
-  fetch('http://localhost:8080/getTable').then(
-    (response) => response.json()
-  ).then((data) => {
-    console.log(data)
-    this.setState({
-      list: data
-    })
-  })
 }
 
 export default Tablero;

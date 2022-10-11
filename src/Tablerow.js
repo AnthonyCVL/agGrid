@@ -1,23 +1,36 @@
-import './Metadatos.css';
+import './Tablero.css';
 import React, { useState, useEffect, useRef } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
-import { Button } from 'reactstrap'
+import { TabContent, TabPane, Nav, NavItem, NavLink, Button } from 'reactstrap'
 import Select from 'react-select';
+import AgGrid from './components/AgGrid';
 
-function Metadatos() {
+function Tablerow() {
   const headerGrid = useRef(null);
-  const detailGrid = useRef(null);
-  const [gridApiHeader, setGridApiHeader] = useState({})
-  const [gridApiDetail, setGridApiDetail] = useState({})
-  const [rowsHeader, setRowsHeader] = useState([])
-  const [columnsHeader, setColumnsHeader] = useState([])
-  const [rowsDetail, setRowsDetail] = useState([])
-  const [columnsDetail, setColumnsDetail] = useState([])
+  const [rows, setRows] = useState([])
+  const [groupTables, setGroupTables] = useState([])
+  const [columns, setColumns] = useState([])
   const [rowsTableSelect, setRowTablesSelect] = useState([])
   const [valueSelect, setValueSelect] = useState({})
   const [tableSelected, setTableSelected] = useState([])
+  const [datatables, setDatatables] = useState([]);
+  const [datatablesColumns, setDatatablesColumns] = useState([])
+  const [activeTab, setActiveTab] = useState("1")
+  const [gridApi, setGridApi] = useState({})
+
+  const addElementToArray = async (list, element) => {
+    list.push(element)
+  }
+
+  const changeTab = (numberTab) => {
+    if (activeTab !== numberTab) {
+      setActiveTab(numberTab)
+      setRows(datatables[numberTab - 1])
+      setColumns(datatablesColumns[numberTab - 1])
+    }
+  }
 
   const handlerTable = function (e) {
     setTableSelected(e.object)
@@ -96,23 +109,69 @@ function Metadatos() {
   }
 
   const showTableData = async () => {
-    setRowsDetail([])
-    setColumnsDetail([])
+    setRows([])
+    setColumns([])
     try {
-      if (tableSelected.id_proceso <= 0 || tableSelected.id_proceso == undefined) {
+      if (tableSelected.id <= 0 || tableSelected.id == undefined) {
         return;
       }
-      setRowsHeader([tableSelected])
-      setColumnsHeader(getDynamicColumns(tableSelected))
-      const resultados = await request_gettabledata(
+
+      const group_tables = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: 'vw_metadatosprocesosdet',
-          where: JSON.stringify({ id_proceso: tableSelected.id_proceso })
+          table: 'TB_CONFIG_FE_GROUP_TABLE',
+          where: JSON.stringify({ id_group: tableSelected.id, state: 1 })
         })
       )
-      setRowsDetail(resultados)
-      setColumnsDetail(getDynamicColumns(resultados[0]))
+      setGroupTables(group_tables.sort((a, b) => a.position_table > b.position_table ? 1 : -1))
+      const dts = []
+      const promises = []
+
+
+      Object.keys(group_tables).forEach(async function (key) {
+        promises.push(group_tables[key].id_table)
+      });
+
+      const resultados = await Promise.all(promises.map(function (key) {
+        const tables = request_gettabledata(
+          JSON.stringify({
+            database: 'D_EWAYA_CONFIG',
+            table: 'TB_CONFIG_FE',
+            where: JSON.stringify({ id: key, state: 1 })
+          })
+        )
+        return tables
+      })
+      ).then(
+        tables => Promise.all(tables.map(async function (tables) {
+          const table = tables[0]
+          const dt = await request_gettabledata(
+            JSON.stringify({
+              database: table.database_name,
+              table: table.table_name,
+              select: table.col_qry,
+              order: table.ord_qry,
+              type: table.type_qry,
+              query: table.full_qry
+            })
+          )
+          addElementToArray(dts, dt)
+          return dt
+        }
+        )
+        ).then(
+          dt => {
+            return dt
+          }
+        )
+      )
+
+      setDatatables(resultados)
+      const dtsColumns = []
+      resultados.map(element => {
+        dtsColumns.push(getDynamicColumns(element[0]))
+      })
+      setDatatablesColumns(dtsColumns)
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
     }
@@ -120,16 +179,15 @@ function Metadatos() {
 
   const showTables = async () => {
     try {
-      const data = await request_gettabledata(
-        JSON.stringify({
-          database: 'D_EWAYA_CONFIG',
-          table: 'vw_metadatosprocesoscab',
-          where: JSON.stringify({ estado: 1 })
-        })
-      )
+      //const response = await fetch('http://localhost:8080/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE_GROUP');
+      const response = await fetch('http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE_GROUP');
+      const data = await response.json();
       const dataSelect = [];
+      data.sort(function (a, b) {
+        return a.id - b.id || a.name.localeCompare(b.name);
+      });
       data.map(function (obj) {
-        dataSelect.push({ value: obj["nombre_proceso"], label: obj["nombre_proceso"], object: obj });
+        dataSelect.push({ value: obj["name"], label: obj["name"], object: obj });
       })
       setRowTablesSelect(dataSelect)
       setValueSelect(dataSelect[0])
@@ -145,34 +203,31 @@ function Metadatos() {
 
   useEffect(() => {
     showTableData()
+    setActiveTab(0)
   }, [tableSelected])
+
+  useEffect(() => {
+    changeTab(1)
+  }, [datatablesColumns])
 
   function onRowDataChanged(params) {
     const colIds = params.columnApi.getAllGridColumns().map(c => c.colId)
     params.columnApi.autoSizeColumns(colIds)
   }
 
-  const onGridReadyHeader = params => {
-    setGridApiHeader(params.api);
+  const onGridReady = params => {
+    setGridApi(params.api);
   };
 
-  const onGridReadyDetail = params => {
-    setGridApiDetail(params.api);
-  };
-
-  const onBtnExportDataAsCsvHeader = () => {
-    gridApiHeader.exportDataAsCsv();
-  };
-
-  const onBtnExportDataAsCsvDetail = () => {
-    gridApiDetail.exportDataAsCsv();
+  const onBtnExportDataAsCsv = () => {
+    gridApi.exportDataAsCsv();
   };
 
   return (
     <div className="App">
-      <div className="App-title"><h1 align="center" className="display-5 fw-bold main-title">Metadatos de Procesos</h1></div>
+      <div className="App-title"><h1 align="center" className="display-5 fw-bold main-title">Tablero BI</h1></div>
       <div className="dropdown">
-        <div><h5 className="n5 main-subtitle">Proceso: </h5></div>
+        <div><h5 className="n5 main-subtitle">Reporte: </h5></div>
         <div className="reporte-dropdown">
           <Select
             options={rowsTableSelect}
@@ -180,56 +235,12 @@ function Metadatos() {
             onChange={(e) => handlerTable(e)}
           />
         </div>
-
       </div>
-      <div className="App-datatable-header grid ag-theme-alpine"  >
-
-        <div className='reporte-button'>
-          <Button color="success"
-            onClick={() => onBtnExportDataAsCsvHeader()}
-            style={{ marginBottom: '5px', fontWeight: 'bold' }}
-          >
-            Exportar a CSV
-          </Button>
-        </div>
-        <AgGridReact
-          ref={headerGrid}
-          alignedGrids={headerGrid.current ? [headerGrid.current] : undefined}
-          defaultColDef={defColumnDefs}
-          rowData={rowsHeader}
-          columnDefs={columnsHeader}
-          onRowDataChanged={onRowDataChanged}
-          onGridReady={onGridReadyHeader}
-          rowHeight={30}
-        />
-      </div>
-      <div  ><h5 className="datatable-title">Detalle </h5></div>
-      <div className="App-datatable-detail grid ag-theme-alpine"  >
-        <div className='reporte-button'>
-          <Button color="success"
-            onClick={() => onBtnExportDataAsCsvDetail()}
-            style={{ marginBottom: '5px', fontWeight: 'bold' }}
-          >
-            Exportar a CSV
-          </Button>
-        </div>
-        <AgGridReact
-          ref={detailGrid}
-          alignedGrids={detailGrid.current ? [detailGrid.current] : undefined}
-          defaultColDef={defColumnDefs}
-          pagination={true}
-          paginationPageSize={100}
-          rowData={rowsDetail}
-          columnDefs={columnsDetail}
-          onRowDataChanged={onRowDataChanged}
-          onGridReady={onGridReadyDetail}
-          rowHeight={30}
-        />
-      </div>
-
-
+      <AgGrid 
+        p_grouptables = {groupTables}
+        p_datatables = {datatables}/>
     </div>
   );
 }
 
-export default Metadatos;
+export default Tablerow;
