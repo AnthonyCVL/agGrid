@@ -8,28 +8,15 @@ import Select from 'react-select';
 import AgGrid from './components/AgGrid';
 
 function Tablerow() {
-  const headerGrid = useRef(null);
-  const [rows, setRows] = useState([])
   const [groupTables, setGroupTables] = useState([])
-  const [columns, setColumns] = useState([])
   const [rowsTableSelect, setRowTablesSelect] = useState([])
   const [valueSelect, setValueSelect] = useState({})
   const [tableSelected, setTableSelected] = useState([])
   const [datatables, setDatatables] = useState([]);
-  const [datatablesColumns, setDatatablesColumns] = useState([])
-  const [activeTab, setActiveTab] = useState("1")
   const [gridApi, setGridApi] = useState({})
 
   const addElementToArray = async (list, element) => {
     list.push(element)
-  }
-
-  const changeTab = (numberTab) => {
-    if (activeTab !== numberTab) {
-      setActiveTab(numberTab)
-      setRows(datatables[numberTab - 1])
-      setColumns(datatablesColumns[numberTab - 1])
-    }
   }
 
   const handlerTable = function (e) {
@@ -73,23 +60,6 @@ function Tablerow() {
     }
   })
 
-  const getDynamicColumns = (obj) => {
-    return Object.keys(obj).map(key => columnDefs(key))
-  }
-
-  const defColumnDefs = {
-    //editable: true,
-    //enableRowGroup: true,
-    //enablePivot: true,
-    //enableValue: true,
-    sortable: true,
-    resizable: true,
-    filter: true,
-    flex: 1,
-    //tooltipComponent: <p>Hola</p>
-    //minWidth: 100
-  }
-
   const request_gettabledata = async (body) => {
     //const base_url='http://localhost:8080'
     const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
@@ -109,8 +79,9 @@ function Tablerow() {
   }
 
   const showTableData = async () => {
-    setRows([])
-    setColumns([])
+    console.log("showTableData")
+    setGroupTables([])
+    setDatatables([])
     try {
       if (tableSelected.id <= 0 || tableSelected.id == undefined) {
         return;
@@ -167,11 +138,7 @@ function Tablerow() {
       )
 
       setDatatables(resultados)
-      const dtsColumns = []
-      resultados.map(element => {
-        dtsColumns.push(getDynamicColumns(element[0]))
-      })
-      setDatatablesColumns(dtsColumns)
+      console.log(resultados)
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
     }
@@ -203,12 +170,8 @@ function Tablerow() {
 
   useEffect(() => {
     showTableData()
-    setActiveTab(0)
   }, [tableSelected])
 
-  useEffect(() => {
-    changeTab(1)
-  }, [datatablesColumns])
 
   function onRowDataChanged(params) {
     const colIds = params.columnApi.getAllGridColumns().map(c => c.colId)
