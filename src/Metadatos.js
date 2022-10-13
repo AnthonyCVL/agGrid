@@ -5,6 +5,7 @@ import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import { Button } from 'reactstrap'
 import Select from 'react-select';
+import AgGrid from './components/AgGrid';
 
 function Metadatos() {
   const headerGrid = useRef(null);
@@ -102,8 +103,15 @@ function Metadatos() {
       if (tableSelected.id_proceso <= 0 || tableSelected.id_proceso == undefined) {
         return;
       }
-      setRowsHeader([tableSelected])
-      setColumnsHeader(getDynamicColumns(tableSelected))
+      console.log("showTableData")
+      console.log(tableSelected)
+      var headertable = []
+      headertable.push({description: tableSelected.nombre_proceso, position_table: 1})
+      console.log(headertable)
+      console.log(headertable)
+      console.log([tableSelected])
+      setRowsHeader(headertable)
+      setColumnsHeader([tableSelected])
       const resultados = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
@@ -182,27 +190,11 @@ function Metadatos() {
         </div>
 
       </div>
-      <div className="App-datatable-header grid ag-theme-alpine"  >
+      
+      <AgGrid 
+        p_grouptables = {columnsHeader}
+        p_datatables = {rowsHeader}/>
 
-        <div className='reporte-button'>
-          <Button color="success"
-            onClick={() => onBtnExportDataAsCsvHeader()}
-            style={{ marginBottom: '5px', fontWeight: 'bold' }}
-          >
-            Exportar a CSV
-          </Button>
-        </div>
-        <AgGridReact
-          ref={headerGrid}
-          alignedGrids={headerGrid.current ? [headerGrid.current] : undefined}
-          defaultColDef={defColumnDefs}
-          rowData={rowsHeader}
-          columnDefs={columnsHeader}
-          onRowDataChanged={onRowDataChanged}
-          onGridReady={onGridReadyHeader}
-          rowHeight={30}
-        />
-      </div>
       <div  ><h5 className="datatable-title">Detalle </h5></div>
       <div className="App-datatable-detail grid ag-theme-alpine"  >
         <div className='reporte-button'>

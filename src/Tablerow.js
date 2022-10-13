@@ -90,6 +90,18 @@ function Tablerow() {
     //minWidth: 100
   }
 
+  const request_insertrow = async (body) => {
+    const base_url='http://localhost:8080'
+    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const method = '/insertRow'
+    const request = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: body
+    };
+    return await send_post(base_url, method, request)
+  }
+
   const request_gettabledata = async (body) => {
     //const base_url='http://localhost:8080'
     const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
@@ -108,6 +120,21 @@ function Tablerow() {
     return json
   }
 
+  const send = async () => {
+    const test = await request_insertrow(
+      JSON.stringify({
+        database: 'D_EWAYA_CONFIG',
+        table: 'TB_CONFIG_FE_GROUP_TABLE',
+        body: JSON.stringify({ id_group: 1,
+                                id_table: 1,
+                                description: 'test',
+                                position_table: 1,
+                                state: 1,
+                                create_ts: 'CURRENT_TIMESTAMP'})
+      })
+    )
+  }
+
   const showTableData = async () => {
     setRows([])
     setColumns([])
@@ -115,7 +142,7 @@ function Tablerow() {
       if (tableSelected.id <= 0 || tableSelected.id == undefined) {
         return;
       }
-
+ 
       const group_tables = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
@@ -124,6 +151,8 @@ function Tablerow() {
         })
       )
       setGroupTables(group_tables.sort((a, b) => a.position_table > b.position_table ? 1 : -1))
+      console.log("group_tables")
+      console.log(group_tables)
       const dts = []
       const promises = []
 
@@ -167,6 +196,8 @@ function Tablerow() {
       )
 
       setDatatables(resultados)
+      console.log("resultados")
+      console.log(resultados)
       const dtsColumns = []
       resultados.map(element => {
         dtsColumns.push(getDynamicColumns(element[0]))
