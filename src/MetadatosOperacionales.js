@@ -1,25 +1,23 @@
-import './Tablero.css';
+import './Metadatos.css';
 import React, { useState, useEffect, useRef } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
-import { TabContent, TabPane, Nav, NavItem, NavLink, Button } from 'reactstrap'
+import { Button } from 'reactstrap'
 import Select from 'react-select';
-import AgGrid from './components/AgGrid';
-import Modal2 from './components/Modal2';
 
-function Tablerow() {
-  const [groupTables, setGroupTables] = useState([])
+function MetadatosOperacionales() {
+  const headerGrid = useRef(null);
+  const detailGrid = useRef(null);
+  const [gridApiHeader, setGridApiHeader] = useState({})
+  const [gridApiDetail, setGridApiDetail] = useState({})
+  const [rowsHeader, setRowsHeader] = useState([])
+  const [columnsHeader, setColumnsHeader] = useState([])
+  const [rowsDetail, setRowsDetail] = useState([])
+  const [columnsDetail, setColumnsDetail] = useState([])
   const [rowsTableSelect, setRowTablesSelect] = useState([])
   const [valueSelect, setValueSelect] = useState({})
   const [tableSelected, setTableSelected] = useState([])
-  const [datatables, setDatatables] = useState([])
-  const [gridApi, setGridApi] = useState({})
-  const [openModal, setOpenModal] = useState(true)
-
-  const addElementToArray = async (list, element) => {
-    list.push(element)
-  }
 
   const handlerTable = function (e) {
     setTableSelected(e.object)
@@ -62,6 +60,23 @@ function Tablerow() {
     }
   })
 
+  const getDynamicColumns = (obj) => {
+    return Object.keys(obj).map(key => columnDefs(key))
+  }
+
+  const defColumnDefs = {
+    //editable: true,
+    //enableRowGroup: true,
+    //enablePivot: true,
+    //enableValue: true,
+    sortable: true,
+    resizable: true,
+    filter: true,
+    flex: 1,
+    //tooltipComponent: <p>Hola</p>
+    //minWidth: 100
+  }
+
   const request_gettabledata = async (body) => {
     //const base_url='http://localhost:8080'
     const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
@@ -81,66 +96,23 @@ function Tablerow() {
   }
 
   const showTableData = async () => {
-    console.log("showTableData")
-    setGroupTables([])
-    setDatatables([])
+    setRowsDetail([])
+    setColumnsDetail([])
     try {
-      if (tableSelected.id <= 0 || tableSelected.id == undefined) {
+      if (tableSelected.id_proceso <= 0 || tableSelected.id_proceso == undefined) {
         return;
       }
-
-      const group_tables = await request_gettabledata(
+      setRowsHeader([tableSelected])
+      setColumnsHeader(getDynamicColumns(tableSelected))
+      const resultados = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: 'GD_WebGrupoReporte',
-          where: JSON.stringify({ id_group: tableSelected.id, state: 1 })
+          table: 'vw_metadatosoperacionalesdet',
+          where: JSON.stringify({ id_proceso: tableSelected.id_proceso })
         })
       )
-      setGroupTables(group_tables.sort((a, b) => a.position_table > b.position_table ? 1 : -1))
-      const dts = []
-      const promises = []
-
-
-      Object.keys(group_tables).forEach(async function (key) {
-        promises.push(group_tables[key].id_table)
-      });
-
-      const resultados = await Promise.all(promises.map(function (key) {
-        const tables = request_gettabledata(
-          JSON.stringify({
-            database: 'D_EWAYA_CONFIG',
-            table: 'GD_WebReporte',
-            where: JSON.stringify({ id: key, state: 1 })
-          })
-        )
-        return tables
-      })
-      ).then(
-        tables => Promise.all(tables.map(async function (tables) {
-          const table = tables[0]
-          const dt = await request_gettabledata(
-            JSON.stringify({
-              database: table.database_name,
-              table: table.table_name,
-              select: table.col_qry,
-              order: table.ord_qry,
-              type: table.type_qry,
-              query: table.full_qry
-            })
-          )
-          addElementToArray(dts, dt)
-          return dt
-        }
-        )
-        ).then(
-          dt => {
-            return dt
-          }
-        )
-      )
-
-      setDatatables(resultados)
-      console.log(resultados)
+      setRowsDetail(resultados)
+      setColumnsDetail(getDynamicColumns(resultados[0]))
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
     }
@@ -148,15 +120,16 @@ function Tablerow() {
 
   const showTables = async () => {
     try {
-      //const response = await fetch('http://localhost:8080/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE_GROUP');
-      const response = await fetch('http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet/getTableData?database=D_EWAYA_CONFIG&table=GD_WebGrupo');
-      const data = await response.json();
+      const data = await request_gettabledata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'vw_metadatosprocesoscab',
+          where: JSON.stringify({ estado: 1 })
+        })
+      )
       const dataSelect = [];
-      data.sort(function (a, b) {
-        return a.id - b.id || a.name.localeCompare(b.name);
-      });
       data.map(function (obj) {
-        dataSelect.push({ value: obj["name"], label: obj["name"], object: obj });
+        dataSelect.push({ value: obj["nombre_proceso"], label: obj["nombre_proceso"], object: obj });
       })
       setRowTablesSelect(dataSelect)
       setValueSelect(dataSelect[0])
@@ -174,28 +147,32 @@ function Tablerow() {
     showTableData()
   }, [tableSelected])
 
-
   function onRowDataChanged(params) {
     const colIds = params.columnApi.getAllGridColumns().map(c => c.colId)
     params.columnApi.autoSizeColumns(colIds)
   }
 
-  const onGridReady = params => {
-    setGridApi(params.api);
+  const onGridReadyHeader = params => {
+    setGridApiHeader(params.api);
   };
 
-  const onBtnExportDataAsCsv = () => {
-    gridApi.exportDataAsCsv();
+  const onGridReadyDetail = params => {
+    setGridApiDetail(params.api);
+  };
+
+  const onBtnExportDataAsCsvHeader = () => {
+    gridApiHeader.exportDataAsCsv();
+  };
+
+  const onBtnExportDataAsCsvDetail = () => {
+    gridApiDetail.exportDataAsCsv();
   };
 
   return (
-    <div>
     <div className="App">
-      <Button onClick={()=>setOpenModal(true)}>Agregar Reporte</Button>
-      <Modal2 open={openModal} onClose={()=>setOpenModal(false)}></Modal2>
-      <div className="App-title"><h1 align="center" className="display-5 fw-bold main-title">Tablero BI</h1></div>
+      <div className="App-title"><h1 align="center" className="display-5 fw-bold main-title">Metadatos Operacionales</h1></div>
       <div className="dropdown">
-        <div><h5 className="n5 main-subtitle">Reporte: </h5></div>
+        <div><h5 className="n5 main-subtitle">Proceso: </h5></div>
         <div className="reporte-dropdown">
           <Select
             options={rowsTableSelect}
@@ -203,13 +180,56 @@ function Tablerow() {
             onChange={(e) => handlerTable(e)}
           />
         </div>
+
       </div>
-      <AgGrid 
-        p_grouptables = {groupTables}
-        p_datatables = {datatables}/>
-    </div>
+      <div className="App-datatable-header grid ag-theme-alpine"  >
+
+        <div className='reporte-button'>
+          <Button color="success"
+            onClick={() => onBtnExportDataAsCsvHeader()}
+            style={{ marginBottom: '5px', fontWeight: 'bold' }}
+          >
+            Exportar a CSV
+          </Button>
+        </div>
+        <AgGridReact
+          ref={headerGrid}
+          alignedGrids={headerGrid.current ? [headerGrid.current] : undefined}
+          defaultColDef={defColumnDefs}
+          rowData={rowsHeader}
+          columnDefs={columnsHeader}
+          onRowDataChanged={onRowDataChanged}
+          onGridReady={onGridReadyHeader}
+          rowHeight={30}
+        />
+      </div>
+      <div  ><h5 className="datatable-title">Detalle </h5></div>
+      <div className="App-datatable-detail grid ag-theme-alpine"  >
+        <div className='reporte-button'>
+          <Button color="success"
+            onClick={() => onBtnExportDataAsCsvDetail()}
+            style={{ marginBottom: '5px', fontWeight: 'bold' }}
+          >
+            Exportar a CSV
+          </Button>
+        </div>
+        <AgGridReact
+          ref={detailGrid}
+          alignedGrids={detailGrid.current ? [detailGrid.current] : undefined}
+          defaultColDef={defColumnDefs}
+          pagination={true}
+          paginationPageSize={100}
+          rowData={rowsDetail}
+          columnDefs={columnsDetail}
+          onRowDataChanged={onRowDataChanged}
+          onGridReady={onGridReadyDetail}
+          rowHeight={30}
+        />
+      </div>
+
+
     </div>
   );
 }
 
-export default Tablerow;
+export default MetadatosOperacionales;

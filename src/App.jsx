@@ -8,6 +8,7 @@ import Tablerow from './Tablerow';
 import Metadatos from './Metadatos';
 import MetadatosTecnicos from './MetadatosTecnicos';
 import Menu from './Menu';
+import MetadatosOperacionales from './MetadatosOperacionales';
 
 function Appss() {
   return (
@@ -20,6 +21,7 @@ function Appss() {
     <Route path='app' element={ <Tablerow /> } />
     <Route path='metadatos' element={ <Metadatos /> } />
     <Route path='metadatostecnicos' element={ <MetadatosTecnicos /> } />
+    <Route path='metadatosoperacionales' element={ <MetadatosOperacionales /> } />
     <Route path='*' element={ <Navigate replace to="/"/> }/>
   </Route>
 </Routes> 
