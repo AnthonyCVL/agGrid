@@ -170,7 +170,9 @@ function MetadatosTecnicos() {
 
   return (
     <div className="App">
-      <div className="App-title"><h1 align="center" className="display-5 fw-bold main-title">Metadatos técnicos</h1></div>
+      <div className="App-title">
+        <h2 align="center" className="display-8 fw-bold main-title">Metadatos Técnicos</h2>
+        </div>
       <div className="dropdown">
         <div><h5 className="n5 main-subtitle">Tabla: </h5></div>
         <div className="reporte-dropdown">
@@ -186,7 +188,7 @@ function MetadatosTecnicos() {
         <div className='reporte-button'>
           <Button color="success"
             onClick={() => onBtnExportDataAsCsvHeader()}
-            style={{ marginBottom: '5px', fontWeight: 'bold' }}
+            style={{ fontSize: '12px', marginBottom: '5px'}}
           >
             Exportar a CSV
           </Button>
@@ -202,12 +204,11 @@ function MetadatosTecnicos() {
           rowHeight={30}
         />
       </div>
-      <div  ><h5 className="datatable-title">Detalle </h5></div>
       <div className="App-datatable-detail grid ag-theme-alpine"  >
         <div className='reporte-button'>
           <Button color="success"
             onClick={() => onBtnExportDataAsCsvDetail()}
-            style={{ marginBottom: '5px', fontWeight: 'bold' }}
+            style={{ fontSize: '12px', marginBottom: '5px'}}
           >
             Exportar a CSV
           </Button>

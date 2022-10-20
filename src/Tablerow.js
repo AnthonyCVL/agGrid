@@ -15,7 +15,7 @@ function Tablerow() {
   const [tableSelected, setTableSelected] = useState([])
   const [datatables, setDatatables] = useState([])
   const [gridApi, setGridApi] = useState({})
-  const [openModal, setOpenModal] = useState(true)
+  const [openModal, setOpenModal] = useState(false)
 
   const addElementToArray = async (list, element) => {
     list.push(element)
@@ -191,9 +191,11 @@ function Tablerow() {
   return (
     <div>
     <div className="App">
-      <Button onClick={()=>setOpenModal(true)}>Agregar Reporte</Button>
+      {/*<Button onClick={()=>setOpenModal(true)}>Agregar Reporte</Button>*/}
       <Modal2 open={openModal} onClose={()=>setOpenModal(false)}></Modal2>
-      <div className="App-title"><h1 align="center" className="display-5 fw-bold main-title">Tablero BI</h1></div>
+      <div className="App-title">
+        <h2 align="center" className="display-8 fw-bold main-title">Tablero BI</h2>
+      </div>
       <div className="dropdown">
         <div><h5 className="n5 main-subtitle">Reporte: </h5></div>
         <div className="reporte-dropdown">

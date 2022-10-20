@@ -48,6 +48,7 @@
 }
 
 .App-datatable-detail {
+  margin-top: 30px !important;
   padding: 10px;
   margin: 10px;
   height: 600px;

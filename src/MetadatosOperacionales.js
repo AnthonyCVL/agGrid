@@ -104,11 +104,46 @@ function MetadatosOperacionales() {
       }
       setRowsHeader([tableSelected])
       setColumnsHeader(getDynamicColumns(tableSelected))
+      const q = `
+      SELECT 
+mpc.id_proceso,
+S.LayoutCD, 
+B.NombreLayout, 
+RIGHT(B.NomTabla,LENGTH(B.NomTabla)-7) AS TABLA,
+ts.TipoSchdCD,
+ts.CodSchd,
+ts.DesSchd,
+A.SchdMatrixCD,
+A.ScheduleCD,
+A.SchdMatrixCDPred,
+A.FecIni,
+TO_CHAR(A.HorIni,'hh24:mi:ss') HoraInicio,
+TO_CHAR(A.HorMaxEjec,'HH24:Mi:ss') HoraMaxEjec,
+A.FecIniEjec_TS,
+A.FecFinEjec_TS,
+e.DesEstado,
+A.numEjec,
+S.Predecesores,
+A.FecCreaTS,
+B.estadoLayout
+FROM 
+    PE_PROD_FG_CONFIG.TB_SCHEDULE_MATRIZ A
+        INNER JOIN PE_PROD_FG_CONFIG.TB_SCHEDULE S ON A.ScheduleCD = S.ScheduleCD 
+        INNER JOIN PE_PROD_FG_CONFIG.TB_LAYOUT B ON B.LayoutCD = S.LayoutCD AND B.estadoLayout = 1
+        INNER JOIN D_EWAYA_CONFIG.GD_MetaDatosScheduleRel msr 
+            ON msr.ScheduleCD = S.ScheduleCD 
+            AND msr.TipSchdCD  = S.TipSchdCD
+            AND msr.LayoutCD  = S.LayoutCD
+        AND S.estado = 1   and msr.estado = 1 and msr.estadoLAyout=1
+        INNER JOIN D_EWAYA_CONFIG.GD_MetaDatosProcesosCab mpc ON mpc.Id_proceso = msr.Id_proceso AND msr.estado = 1
+        INNER JOIN PE_PROD_FG_CONFIG.TB_TIPO_SCHEDULE ts ON ts.TipoSchdCD = S.TipSchdCD 
+        INNER JOIN PE_PROD_FG_CONFIG.TB_ESTADO e ON e.estadoCD = A.EstadoCD
+      `
+      const fullQuery=q+" where msr.id_proceso="+tableSelected.id_proceso;
       const resultados = await request_gettabledata(
         JSON.stringify({
-          database: 'D_EWAYA_CONFIG',
-          table: 'vw_metadatosoperacionalesdet',
-          where: JSON.stringify({ id_proceso: tableSelected.id_proceso })
+          type: 2,
+          query: fullQuery
         })
       )
       setRowsDetail(resultados)
@@ -170,7 +205,9 @@ function MetadatosOperacionales() {
 
   return (
     <div className="App">
-      <div className="App-title"><h1 align="center" className="display-5 fw-bold main-title">Metadatos Operacionales</h1></div>
+      <div className="App-title">
+        <h2 align="center" className="display-8 fw-bold main-title">Metadatos Operacionales</h2>
+        </div>
       <div className="dropdown">
         <div><h5 className="n5 main-subtitle">Proceso: </h5></div>
         <div className="reporte-dropdown">
@@ -187,7 +224,7 @@ function MetadatosOperacionales() {
         <div className='reporte-button'>
           <Button color="success"
             onClick={() => onBtnExportDataAsCsvHeader()}
-            style={{ marginBottom: '5px', fontWeight: 'bold' }}
+            style={{ fontSize: '12px', marginBottom: '5px'}}
           >
             Exportar a CSV
           </Button>
@@ -203,12 +240,11 @@ function MetadatosOperacionales() {
           rowHeight={30}
         />
       </div>
-      <div  ><h5 className="datatable-title">Detalle </h5></div>
       <div className="App-datatable-detail grid ag-theme-alpine"  >
         <div className='reporte-button'>
           <Button color="success"
             onClick={() => onBtnExportDataAsCsvDetail()}
-            style={{ marginBottom: '5px', fontWeight: 'bold' }}
+            style={{ fontSize: '12px', marginBottom: '5px'}}
           >
             Exportar a CSV
           </Button>

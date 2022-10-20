@@ -123,7 +123,7 @@ function AgGrid(props) {
       <div className='reporte-button'>
         <Button color="success"
           onClick={() => onBtnExportDataAsCsv()}
-          style={{ marginBottom: '5px', fontWeight: 'bold' }}
+          style={{ fontSize: '12px' }}
         >
           Exportar a CSV
         </Button>
