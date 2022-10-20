@@ -7,7 +7,7 @@ import Select from 'react-select';
 import AgGrid from './AgGrid';
 import { Button } from 'reactstrap'
 
-function Modal2({open, onClose}) {
+function Modal2({open, onClose, p_datatables, p_grouptables}) {
 
   const [databaseSelect, setDatabaseSelect] = useState([])
   const [databaseValueSelect, setDatabaseValueSelect] = useState({})
@@ -147,6 +147,9 @@ function Modal2({open, onClose}) {
             </div>
             <div className="divDatatable">
               <label for="reportDatatable">Datatable</label>
+              <AgGrid 
+                p_grouptables = {p_grouptables}
+                p_datatables = {p_datatables}/>
             </div>
           </div>
           <div className="divView">

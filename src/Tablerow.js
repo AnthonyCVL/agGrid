@@ -16,6 +16,8 @@ function Tablerow() {
   const [datatables, setDatatables] = useState([])
   const [gridApi, setGridApi] = useState({})
   const [openModal, setOpenModal] = useState(false)
+  const [tableModal, setTableModal] = useState([])
+  const [tableGroupModal, setTableGroupModal] = useState([])
 
   const addElementToArray = async (list, element) => {
     list.push(element)
@@ -24,6 +26,14 @@ function Tablerow() {
   const handlerTable = function (e) {
     setTableSelected(e.object)
     setValueSelect(e)
+  }
+
+  const openModalfunction = () => {
+    setOpenModal(false)
+    const list = [{position: '1', databasename: 'databasename',objectname:'objectname'}]
+    const grouplist = [{position_table: 1, description: 'Reporte'}]
+    setTableModal(list)
+    setTableGroupModal(grouplist)
   }
 
   const columnDefs = (key) => ({
@@ -191,8 +201,8 @@ function Tablerow() {
   return (
     <div>
     <div className="App">
-      {/*<Button onClick={()=>setOpenModal(true)}>Agregar Reporte</Button>*/}
-      <Modal2 open={openModal} onClose={()=>setOpenModal(false)}></Modal2>
+      <Button onClick={()=>setOpenModal(true)}>Agregar Reporte</Button>
+      <Modal2 open={openModal} onClose={openModalfunction} p_datatables={tableModal} p_grouptables={tableGroupModal}></Modal2>
       <div className="App-title">
         <h2 align="center" className="display-8 fw-bold main-title">Tablero BI</h2>
       </div>
