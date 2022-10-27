@@ -26,6 +26,7 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
   const [viewName, setViewName] = useState("")
   const [viewColumns, setViewColumns] = useState("")
   const [viewSort, setViewSort] = useState("")
+  const [viewQuery, setViewQuery] = useState("")
 
   const databaseHandler = function (e) {
     setDatabaseObjectSelect(e.object)
@@ -48,9 +49,7 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
   }
 
   const test = async function(e){
-    console.log("groupTypeObjectSelect")
-    console.log(groupTypeObjectSelect)
-    /*const  response_insert_webgrupo= await request_insertrow(
+    const  response_insert_webgrupo= await request_insertrow(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
         table: 'GD_WebGrupo2',
@@ -59,20 +58,35 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
                                 description: reportDescription,
                                 id_tipogrupo: groupTypeObjectSelect.id_tipogrupo})
       })
-    )*/
+    )
+    console.log('viewObjectSelect')
+    console.log(viewObjectSelect)
     const response_insert_webreporte = await request_insertrow(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
         table: 'GD_WebReporte2',
         main_id: 'id_reporte',
         body: JSON.stringify({  desc_qry: viewName, 
-                                database_name: viewObjectSelect.databasename,
-                                table_name: viewObjectSelect.tablename,
-                                col_qry: viewColumns,
-                                ord_qry: viewSort,
+                                database_name: reportTypeObjectSelect.id_tiporeporte==1 ? viewObjectSelect.DataBaseName : 'null',
+                                table_name: reportTypeObjectSelect.id_tiporeporte==1 ? viewObjectSelect.TableName : 'null',
+                                col_qry: reportTypeObjectSelect.id_tiporeporte==1 ? viewColumns : 'null',
+                                ord_qry: reportTypeObjectSelect.id_tiporeporte==1 ? viewSort : 'null',
+                                full_qry: reportTypeObjectSelect.id_tiporeporte==2 ? viewQuery : 'null',
                                 id_tiporeporte: reportTypeObjectSelect.id_tiporeporte})
       })
     )
+
+    const response_insert_webgruporeporte = await request_insertrow(
+      JSON.stringify({
+        database: 'D_EWAYA_CONFIG',
+        table: 'GD_WebGrupoReporte2',
+        body: JSON.stringify({  id_grupo: response_insert_webgrupo['id_grupo'], 
+                                id_reporte: response_insert_webreporte['id_reporte'],
+                                description: reportDescription})
+      })
+    )
+
+    console.log(response_insert_webgruporeporte)
   }
 
   const request_gettabledata = async (body) => {
@@ -273,8 +287,7 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
                 value={reportTypeValueSelect}
                 onChange={(e) => reportTypeHandler(e)}/>
               </div>
-            </div>
-            <div className="divViewDatabase mb-3 row">
+            </div><div className={`divViewDatabase mb-3 row ${(reportTypeObjectSelect.id_tiporeporte !== 1 ? "div-hidden" : "")}`}>
               <label for="viewDatabase" className="col-sm-2 col-form-label">Base de datos</label>
               <div className="col-sm-4">
               <Select 
@@ -291,18 +304,25 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
                 onChange={(e) => viewHandler(e)}/>
               </div>
             </div>
-            <div className="divViewColumns mb-3 row">
+            <div className={`divViewColumns mb-3 row ${(reportTypeObjectSelect.id_tiporeporte !== 1 ? "div-hidden" : "")}`}>
               <label for="viewColumns" className="col-sm-2 col-form-label">Columnas</label>
               <div className="col-sm-4">
               <input id="viewColumns" type='text' className="form-control input"
               value={viewColumns} onInput={e => setViewColumns(e.target.value)}></input>
               </div>
             </div>
-            <div className="divViewSort mb-3 row">
+            <div className={`divViewSort mb-3 row ${(reportTypeObjectSelect.id_tiporeporte !== 1 ? "div-hidden" : "")}`}>
               <label for="viewSort" className="col-sm-2 col-form-label">Orden</label>
               <div className="col-sm-4">
               <input id="viewSort" type='text' className="form-control input"
               value={viewSort} onInput={e => setViewSort(e.target.value)}></input>
+              </div>
+            </div>
+            <div className={`divViewQuery mb-3 row ${(reportTypeObjectSelect.id_tiporeporte !== 2 ? "div-hidden" : "")}`}>
+              <label for="viewQuery" className="col-sm-2 col-form-label">Query</label>
+              <div className="col-sm-10">
+              <textarea id="viewQuery" type='text' className="form-control"  rows="3"
+              value={viewQuery} onInput={e => setViewQuery(e.target.value)}></textarea>
               </div>
             </div>
             <Button

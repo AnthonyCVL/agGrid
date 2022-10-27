@@ -134,7 +134,7 @@ function Tablerow() {
               table: table.table_name,
               select: table.col_qry,
               order: table.ord_qry,
-              type: table.id_reporte,
+              type: table.id_tiporeporte,
               query: table.full_qry
             })
           )
