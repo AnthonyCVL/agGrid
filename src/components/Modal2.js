@@ -15,6 +15,17 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
   const [viewSelect, setViewSelect] = useState([])
   const [viewValueSelect, setViewValueSelect] = useState({})
   const [viewObjectSelect, setViewObjectSelect] = useState([])
+  const [groupTypeSelect, setGroupTypeSelect] = useState([])
+  const [groupTypeValueSelect, setGroupTypeValueSelect] = useState({})
+  const [groupTypeObjectSelect, setGroupTypeObjectSelect] = useState([])
+  const [reportTypeSelect, setReportTypeSelect] = useState([])
+  const [reportTypeValueSelect, setReportTypeValueSelect] = useState({})
+  const [reportTypeObjectSelect, setReportTypeObjectSelect] = useState([])
+  const [reportName, setReportName] = useState("")
+  const [reportDescription, setReportDescription] = useState("")
+  const [viewName, setViewName] = useState("")
+  const [viewColumns, setViewColumns] = useState("")
+  const [viewSort, setViewSort] = useState("")
 
   const databaseHandler = function (e) {
     setDatabaseObjectSelect(e.object)
@@ -26,10 +37,60 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
     setViewValueSelect(e)
   }
 
+  const groupTypeHandler = function (e) {
+    setGroupTypeObjectSelect(e.object)
+    setGroupTypeValueSelect(e)
+  }
+
+  const reportTypeHandler = function (e) {
+    setReportTypeObjectSelect(e.object)
+    setReportTypeValueSelect(e)
+  }
+
+  const test = async function(e){
+    console.log("groupTypeObjectSelect")
+    console.log(groupTypeObjectSelect)
+    /*const  response_insert_webgrupo= await request_insertrow(
+      JSON.stringify({
+        database: 'D_EWAYA_CONFIG',
+        table: 'GD_WebGrupo2',
+        main_id: 'id_grupo',
+        body: JSON.stringify({  name: reportName, 
+                                description: reportDescription,
+                                id_tipogrupo: groupTypeObjectSelect.id_tipogrupo})
+      })
+    )*/
+    const response_insert_webreporte = await request_insertrow(
+      JSON.stringify({
+        database: 'D_EWAYA_CONFIG',
+        table: 'GD_WebReporte2',
+        main_id: 'id_reporte',
+        body: JSON.stringify({  desc_qry: viewName, 
+                                database_name: viewObjectSelect.databasename,
+                                table_name: viewObjectSelect.tablename,
+                                col_qry: viewColumns,
+                                ord_qry: viewSort,
+                                id_tiporeporte: reportTypeObjectSelect.id_tiporeporte})
+      })
+    )
+  }
+
   const request_gettabledata = async (body) => {
     //const base_url='http://localhost:8080'
     const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/getTableData2'
+    const request = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: body
+    };
+    return await send_post(base_url, method, request)
+  }
+
+  const request_insertrow = async (body) => {
+    const base_url='http://localhost:8080'
+    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const method = '/insertRow'
     const request = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -100,6 +161,42 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
       setDatabaseSelect(dataSelect)
       setDatabaseValueSelect(dataSelect[0])
       setDatabaseObjectSelect(list[0])
+
+      const listGroupType = await request_gettabledata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'VW_TipoWebGrupo'
+        })
+      )
+      const selectGroupType = [];
+      /*listDatabase.sort(function (a, b) {
+        return a.id - b.id || a.name.localeCompare(b.name);
+      });*/
+      listGroupType.map(function (obj) {
+        selectGroupType.push({ value: obj["nombre"], label: obj["nombre"], object: obj });
+      })
+      setGroupTypeSelect(selectGroupType)
+      setGroupTypeValueSelect(selectGroupType[0])
+      setGroupTypeObjectSelect(listGroupType[0])
+
+      const listReportType = await request_gettabledata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'VW_TipoWebReporte'
+        })
+      )
+
+      const selectReportType = [];
+      /*listDatabase.sort(function (a, b) {
+        return a.id - b.id || a.name.localeCompare(b.name);
+      });*/
+      listReportType.map(function (obj) {
+        selectReportType.push({ value: obj["nombre"], label: obj["nombre"], object: obj });
+      })
+      setReportTypeSelect(selectReportType)
+      setReportTypeValueSelect(selectReportType[0])
+      setReportTypeObjectSelect(listReportType[0])
+      
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
     }
@@ -130,19 +227,24 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
             <div className="divReportName mb-3 row">
               <label for="reportName" className="col-sm-2 col-form-label">Nombre</label>
               <div class="col-sm-4">
-                <input id="reportName" type='text' className="form-control"></input>
+                <input id="reportName" type='text' className="form-control" 
+                value={reportName} onInput={e => setReportName(e.target.value)}></input>
               </div>
             </div>
             <div className="divReportDescription mb-3 row">
               <label for="reportDescription" className="col-sm-2 col-form-label">Descripcion</label>
               <div className="col-sm-4">
-                <input id="reportDescription" type='text' className="form-control input"></input>
+                <input id="reportDescription" type='text' className="form-control input" 
+                value={reportDescription} onInput={e => setReportDescription(e.target.value)}></input>
               </div>
             </div>
             <div className="divReportType mb-3 row">
               <label for="reportType" className="col-sm-2 col-form-label">Tipo</label>
               <div className="col-sm-4">
-              <Select/>
+              <Select 
+                options={groupTypeSelect}
+                value={groupTypeValueSelect}
+                onChange={(e) => groupTypeHandler(e)}/>
               </div>
             </div>
             <div className="divDatatable">
@@ -159,13 +261,17 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
             <div className="divViewName mb-3 row">
               <label for="viewName" className="col-sm-2 col-form-label">Nombre</label>
               <div className="col-sm-4">
-              <input id="viewName" type='text' className="form-control input"></input>
+              <input id="viewName" type='text' className="form-control input"
+              value={viewName} onInput={e => setViewName(e.target.value)}></input>
               </div>
             </div>
             <div className="divViewType mb-3 row">
               <label for="viewType" className="col-sm-2 col-form-label">Tipo</label>
               <div className="col-sm-4">
-              <Select/>
+              <Select 
+                options={reportTypeSelect}
+                value={reportTypeValueSelect}
+                onChange={(e) => reportTypeHandler(e)}/>
               </div>
             </div>
             <div className="divViewDatabase mb-3 row">
@@ -188,16 +294,19 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
             <div className="divViewColumns mb-3 row">
               <label for="viewColumns" className="col-sm-2 col-form-label">Columnas</label>
               <div className="col-sm-4">
-              <input id="viewColumns" type='text' className="form-control input"></input>
+              <input id="viewColumns" type='text' className="form-control input"
+              value={viewColumns} onInput={e => setViewColumns(e.target.value)}></input>
               </div>
             </div>
             <div className="divViewSort mb-3 row">
               <label for="viewSort" className="col-sm-2 col-form-label">Orden</label>
               <div className="col-sm-4">
-              <input id="viewSort" type='text' className="form-control input"></input>
+              <input id="viewSort" type='text' className="form-control input"
+              value={viewSort} onInput={e => setViewSort(e.target.value)}></input>
               </div>
             </div>
-            <Button>Agregar</Button>
+            <Button
+            onClick={(e) => test(e)}>Agregar</Button>
           </div>
           </form>
         </div>

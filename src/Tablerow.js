@@ -95,15 +95,15 @@ function Tablerow() {
     setGroupTables([])
     setDatatables([])
     try {
-      if (tableSelected.id <= 0 || tableSelected.id == undefined) {
+      if (tableSelected.id_grupo <= 0 || tableSelected.id_grupo == undefined) {
         return;
       }
 
       const group_tables = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: 'GD_WebGrupoReporte',
-          where: JSON.stringify({ id_group: tableSelected.id, state: 1 })
+          table: 'GD_WebGrupoReporte2',
+          where: JSON.stringify({ id_grupo: tableSelected.id_grupo, state: 1 })
         })
       )
       setGroupTables(group_tables.sort((a, b) => a.position_table > b.position_table ? 1 : -1))
@@ -112,15 +112,15 @@ function Tablerow() {
 
 
       Object.keys(group_tables).forEach(async function (key) {
-        promises.push(group_tables[key].id_table)
+        promises.push(group_tables[key].id_reporte)
       });
 
       const resultados = await Promise.all(promises.map(function (key) {
         const tables = request_gettabledata(
           JSON.stringify({
             database: 'D_EWAYA_CONFIG',
-            table: 'GD_WebReporte',
-            where: JSON.stringify({ id: key, state: 1 })
+            table: 'GD_WebReporte2',
+            where: JSON.stringify({ id_reporte: key, state: 1 })
           })
         )
         return tables
@@ -134,7 +134,7 @@ function Tablerow() {
               table: table.table_name,
               select: table.col_qry,
               order: table.ord_qry,
-              type: table.type_qry,
+              type: table.id_reporte,
               query: table.full_qry
             })
           )
@@ -159,11 +159,11 @@ function Tablerow() {
   const showTables = async () => {
     try {
       //const response = await fetch('http://localhost:8080/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE_GROUP');
-      const response = await fetch('http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet/getTableData?database=D_EWAYA_CONFIG&table=GD_WebGrupo');
+      const response = await fetch('http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet/getTableData?database=D_EWAYA_CONFIG&table=GD_WebGrupo2');
       const data = await response.json();
       const dataSelect = [];
       data.sort(function (a, b) {
-        return a.id - b.id || a.name.localeCompare(b.name);
+        return a.id_grupo - b.id_grupo || a.name.localeCompare(b.name);
       });
       data.map(function (obj) {
         dataSelect.push({ value: obj["name"], label: obj["name"], object: obj });
