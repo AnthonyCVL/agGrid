@@ -22,6 +22,9 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
   const [reportTypeSelect, setReportTypeSelect] = useState([])
   const [reportTypeValueSelect, setReportTypeValueSelect] = useState({})
   const [reportTypeObjectSelect, setReportTypeObjectSelect] = useState([])
+  const [webGroupSelect, setWebGroupSelect] = useState([])
+  const [webGroupValueSelect, setWebGroupValueSelect] = useState({})
+  const [webGroupObjectSelect, setWebGroupObjectSelect] = useState([])
   const [reportName, setReportName] = useState("")
   const [reportDescription, setReportDescription] = useState("")
   const [viewName, setViewName] = useState("")
@@ -49,13 +52,64 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
     setReportTypeValueSelect(e)
   }
 
+  const webGroupHandler = function (e) {
+    setWebGroupObjectSelect(e.object)
+    setWebGroupValueSelect(e)
+  }
+
+  const getReportes = async function(e){
+    const response_webgroupreport = await request_gettabledata(
+      JSON.stringify({
+        database: 'D_EWAYA_CONFIG',
+        table: 'VW_WebGrupoReporte',
+        where: JSON.stringify({ id_grupo: webGroupObjectSelect.id_grupo })
+      })
+    )
+    console.log("response_webgroupreport")
+    console.log(response_webgroupreport)
+
+    var listReport = []
+    response_webgroupreport.map(async function (obj) {
+      const response_webbreport = await request_gettabledata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'VW_WebReporte',
+          where: JSON.stringify({ id_reporte: obj.id_reporte })
+        }))
+        listReport.push(response_webbreport)
+    })
+    console.log("listReport")
+    console.log(listReport)
+  }
+
+  const setWebGroup = () => {
+    console.log("setWebGroup")
+    console.log(groupTypeSelect)
+    console.log(webGroupObjectSelect.id_tipogrupo)
+    if(webGroupObjectSelect==='' || webGroupObjectSelect===undefined || webGroupObjectSelect.id_tipogrupo === '' || webGroupObjectSelect.id_tipogrupo===undefined ){
+      console.log("DEFAUUUUUUUUUUUUUUUUULT")
+      console.log(groupTypeSelect)
+      setGroupTypeObjectSelect(groupTypeSelect[0].object)
+      setGroupTypeValueSelect(groupTypeSelect[0])
+    } else{
+      console.log("FIIIIIIND")
+      var elementGroupType = groupTypeSelect.find((el) => {
+        return el.object.id_tipogrupo === webGroupObjectSelect.id_tipogrupo
+      })
+      console.log(elementGroupType)
+      setGroupTypeObjectSelect(elementGroupType.object)
+      setGroupTypeValueSelect(elementGroupType)
+    }
+    console.log("EEEEEEEND")
+  }
+
   const test = async function(e){
     const  response_insert_webgrupo= await request_insertrow(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
         table: 'GD_WebGrupo2',
         main_id: 'id_grupo',
-        body: JSON.stringify({  name: reportName, 
+        body: JSON.stringify({  name: webGroupObjectSelect.name, 
                                 description: reportDescription,
                                 id_tipogrupo: groupTypeObjectSelect.id_tipogrupo})
       })
@@ -188,7 +242,7 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
         return a.id - b.id || a.name.localeCompare(b.name);
       });*/
       listGroupType.map(function (obj) {
-        selectGroupType.push({ value: obj["nombre"], label: obj["nombre"], object: obj });
+        selectGroupType.push({ value: obj["id_tipogrupo"], label: obj["nombre"], object: obj });
       })
       setGroupTypeSelect(selectGroupType)
       setGroupTypeValueSelect(selectGroupType[0])
@@ -211,6 +265,23 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
       setReportTypeSelect(selectReportType)
       setReportTypeValueSelect(selectReportType[0])
       setReportTypeObjectSelect(listReportType[0])
+
+      const listWebGroup = await request_gettabledata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'VW_WebGrupo'
+        })
+      )
+      const selectWebGroup = [];
+      /*listDatabase.sort(function (a, b) {
+        return a.id - b.id || a.name.localeCompare(b.name);
+      });*/
+      listWebGroup.map(function (obj) {
+        selectWebGroup.push({ value: obj["name"], label: obj["name"], object: obj });
+      })
+      setWebGroupSelect(selectWebGroup)
+      //setWebGroupValueSelect("")
+      //setWebGroupObjectSelect("")
       
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
@@ -224,6 +295,11 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
   useEffect(() => {
     showTableData()
   }, [databaseObjectSelect])
+
+  useEffect(() => {
+    getReportes()
+    setWebGroup()
+  }, [webGroupValueSelect])
 
   if(!open) return null;
   
@@ -242,6 +318,10 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
             <div className="divReportName mb-3 row">
               <label for="reportName" className="col-sm-2 col-form-label">Nombre</label>
               <div class="col-sm-4">
+                <CreatableSelect  
+                  options={webGroupSelect}
+                  value={webGroupValueSelect}
+                  onChange={(e) => webGroupHandler(e)}/>
                 <input id="reportName" type='text' className="form-control" 
                 value={reportName} onInput={e => setReportName(e.target.value)}></input>
               </div>
@@ -250,7 +330,7 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
               <label for="reportDescription" className="col-sm-2 col-form-label">Descripcion</label>
               <div className="col-sm-4">
                 <input id="reportDescription" type='text' className="form-control input" 
-                value={reportDescription} onInput={e => setReportDescription(e.target.value)}></input>
+                value={webGroupObjectSelect.description} onInput={e => setReportDescription(e.target.value)}></input>
               </div>
             </div>
             <div className="divReportType mb-3 row">
