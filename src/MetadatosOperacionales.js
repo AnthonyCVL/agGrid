@@ -106,26 +106,24 @@ function MetadatosOperacionales() {
       setColumnsHeader(getDynamicColumns(tableSelected))
       const q = `
       SELECT 
-mpc.id_proceso,
+--mpc.id_proceso,
 S.LayoutCD, 
 B.NombreLayout, 
 RIGHT(B.NomTabla,LENGTH(B.NomTabla)-7) AS TABLA,
-ts.TipoSchdCD,
+--ts.TipoSchdCD,
 ts.CodSchd,
 ts.DesSchd,
 A.SchdMatrixCD,
-A.ScheduleCD,
 A.SchdMatrixCDPred,
-A.FecIni,
-TO_CHAR(A.HorIni,'hh24:mi:ss') HoraInicio,
-TO_CHAR(A.HorMaxEjec,'HH24:Mi:ss') HoraMaxEjec,
-A.FecIniEjec_TS,
-A.FecFinEjec_TS,
+--A.ScheduleCD,
+TO_CHAR(A.FecIni,'DD/MM/YYYY') FecIni,
+TO_CHAR(A.FecIniEjec_TS,'hh24:mi:ss') FecIniEjec_TS,
+TO_CHAR(A.FecFinEjec_TS,'hh24:mi:ss') FecFinEjec_TS,
 e.DesEstado,
 A.numEjec,
-S.Predecesores,
-A.FecCreaTS,
-B.estadoLayout
+S.Predecesores
+--A.FecCreaTS,
+--B.estadoLayout
 FROM 
     PE_PROD_FG_CONFIG.TB_SCHEDULE_MATRIZ A
         INNER JOIN PE_PROD_FG_CONFIG.TB_SCHEDULE S ON A.ScheduleCD = S.ScheduleCD 
@@ -138,6 +136,7 @@ FROM
         INNER JOIN D_EWAYA_CONFIG.GD_MetaDatosProcesosCab mpc ON mpc.Id_proceso = msr.Id_proceso AND msr.estado = 1
         INNER JOIN PE_PROD_FG_CONFIG.TB_TIPO_SCHEDULE ts ON ts.TipoSchdCD = S.TipSchdCD 
         INNER JOIN PE_PROD_FG_CONFIG.TB_ESTADO e ON e.estadoCD = A.EstadoCD
+        ORDER BY S.LayoutCD,A.FecIniEjec_TS
       `
       const fullQuery=q+" where msr.id_proceso="+tableSelected.id_proceso;
       const resultados = await request_gettabledata(
