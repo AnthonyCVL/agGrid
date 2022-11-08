@@ -159,8 +159,15 @@ function Tablerow() {
   const showTables = async () => {
     try {
       //const response = await fetch('http://localhost:8080/getTableData?database=D_EWAYA_CONFIG&table=VW_WebGrupo');
-      const response = await fetch('http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet/getTableData?database=D_EWAYA_CONFIG&table=VW_WebGrupo');
-      const data = await response.json();
+      //const response = await fetch('http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet/getTableData?database=D_EWAYA_CONFIG&table=VW_WebGrupo');
+      //const data = await response.json();
+      const data = await request_gettabledata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'VW_WebGrupo',
+          where: JSON.stringify({ state: 1 })
+        })
+      )
       const dataSelect = [];
       data.sort(function (a, b) {
         return a.id_grupo - b.id_grupo || a.name.localeCompare(b.name);
