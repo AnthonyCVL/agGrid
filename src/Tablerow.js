@@ -102,7 +102,7 @@ function Tablerow() {
       const group_tables = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: 'GD_WebGrupoReporte2',
+          table: 'VW_WebGrupoReporte',
           where: JSON.stringify({ id_grupo: tableSelected.id_grupo, state: 1 })
         })
       )
@@ -119,7 +119,7 @@ function Tablerow() {
         const tables = request_gettabledata(
           JSON.stringify({
             database: 'D_EWAYA_CONFIG',
-            table: 'GD_WebReporte2',
+            table: 'VW_WebReporte',
             where: JSON.stringify({ id_reporte: key, state: 1 })
           })
         )
@@ -158,7 +158,7 @@ function Tablerow() {
 
   const showTables = async () => {
     try {
-      const response = await fetch('http://localhost:8080/getTableData?database=D_EWAYA_CONFIG&table=GD_WebGrupo2');
+      const response = await fetch('http://localhost:8080/getTableData?database=D_EWAYA_CONFIG&table=VW_WebGrupo');
       //const response = await fetch('http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet/getTableData?database=D_EWAYA_CONFIG&table=GD_WebGrupo2');
       const data = await response.json();
       const dataSelect = [];
@@ -201,7 +201,7 @@ function Tablerow() {
   return (
     <div>
     <div className="App">
-      <Button onClick={()=>setOpenModal(true)}>Agregar Reporte</Button>
+      {/*<Button onClick={()=>setOpenModal(true)}>Agregar Reporte</Button>*/}
       <Modal2 open={openModal} onClose={openModalfunction} p_datatables={tableModal} p_grouptables={tableGroupModal}></Modal2>
       <div className="App-title">
         <h2 align="center" className="display-8 fw-bold main-title">Tablero BI</h2>

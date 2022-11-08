@@ -24,8 +24,7 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
   const [reportTypeObjectSelect, setReportTypeObjectSelect] = useState([])
   const [webGroupSelect, setWebGroupSelect] = useState([])
   const [webGroupValueSelect, setWebGroupValueSelect] = useState({})
-  const [webGroupObjectSelect, setWebGroupObjectSelect] = useState([])
-  const [reportName, setReportName] = useState("")
+  const [webGroupObjectSelect, setWebGroupObjectSelect] = useState({})
   const [reportDescription, setReportDescription] = useState("")
   const [viewName, setViewName] = useState("")
   const [viewColumns, setViewColumns] = useState("")
@@ -83,27 +82,68 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
   }
 
   const setWebGroup = () => {
-    console.log("setWebGroup")
-    console.log(groupTypeSelect)
-    console.log(webGroupObjectSelect.id_tipogrupo)
-    if(webGroupObjectSelect==='' || webGroupObjectSelect===undefined || webGroupObjectSelect.id_tipogrupo === '' || webGroupObjectSelect.id_tipogrupo===undefined ){
-      console.log("DEFAUUUUUUUUUUUUUUUUULT")
+    if(open){
+      console.log("setWebGroup")
       console.log(groupTypeSelect)
-      setGroupTypeObjectSelect(groupTypeSelect[0].object)
-      setGroupTypeValueSelect(groupTypeSelect[0])
-    } else{
-      console.log("FIIIIIIND")
-      var elementGroupType = groupTypeSelect.find((el) => {
-        return el.object.id_tipogrupo === webGroupObjectSelect.id_tipogrupo
-      })
-      console.log(elementGroupType)
-      setGroupTypeObjectSelect(elementGroupType.object)
-      setGroupTypeValueSelect(elementGroupType)
+      console.log(webGroupObjectSelect.id_tipogrupo)
+      if(webGroupObjectSelect==='' || webGroupObjectSelect===undefined || webGroupObjectSelect.id_tipogrupo === '' || webGroupObjectSelect.id_tipogrupo===undefined ){
+        console.log("DEFAUUUUUUUUUUUUUUUUULT")
+        console.log(groupTypeSelect)
+        setGroupTypeObjectSelect(groupTypeSelect[0].object)
+        setGroupTypeValueSelect(groupTypeSelect[0])
+      } else{
+        console.log("FIIIIIIND")
+        var elementGroupType = groupTypeSelect.find((el) => {
+          return el.object.id_tipogrupo === webGroupObjectSelect.id_tipogrupo
+        })
+        console.log(elementGroupType)
+        setGroupTypeObjectSelect(elementGroupType.object)
+        setGroupTypeValueSelect(elementGroupType)
+      }
+      console.log("EEEEEEEND")
     }
-    console.log("EEEEEEEND")
   }
 
-  const test = async function(e){
+  const save = async function(e){
+    console.log("SAVE")
+    console.log(webGroupObjectSelect)
+    if(webGroupObjectSelect==='' || webGroupObjectSelect===undefined || Object.keys(webGroupObjectSelect).length === 0){
+      //insert()
+      console.log("insert")
+    } else{
+      update()
+      console.log("update")
+    }
+  }
+
+  const update = async function(e){
+    const  response_update_webgrupo= await request_updaterow(
+      JSON.stringify({
+        database: 'D_EWAYA_CONFIG',
+        table: 'GD_WebGrupo2',
+        main_id: 'id_grupo',
+        body: JSON.stringify({  name: webGroupObjectSelect.name, 
+                                description: reportDescription,
+                                id_tipogrupo: groupTypeObjectSelect.id_tipogrupo})
+      })
+    )
+    /*const response_update_webreporte = await request_insertrow(
+      JSON.stringify({
+        database: 'D_EWAYA_CONFIG',
+        table: 'GD_WebReporte2',
+        main_id: 'id_reporte',
+        body: JSON.stringify({  desc_qry: viewName, 
+                                database_name: reportTypeObjectSelect.id_tiporeporte==1 ? viewObjectSelect.DataBaseName : 'null',
+                                table_name: reportTypeObjectSelect.id_tiporeporte==1 ? viewObjectSelect.TableName : 'null',
+                                col_qry: reportTypeObjectSelect.id_tiporeporte==1 ? viewColumns : 'null',
+                                ord_qry: reportTypeObjectSelect.id_tiporeporte==1 ? viewSort : 'null',
+                                full_qry: reportTypeObjectSelect.id_tiporeporte==2 ? viewQuery : 'null',
+                                id_tiporeporte: reportTypeObjectSelect.id_tiporeporte})
+      })
+    )*/
+  }
+
+  const insert = async function(e){
     const  response_insert_webgrupo= await request_insertrow(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
@@ -160,6 +200,18 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
     const base_url='http://localhost:8080'
     //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/insertRow'
+    const request = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: body
+    };
+    return await send_post(base_url, method, request)
+  }
+
+  const request_updaterow = async (body) => {
+    const base_url='http://localhost:8080'
+    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const method = '/updateRow'
     const request = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -297,6 +349,7 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
   }, [databaseObjectSelect])
 
   useEffect(() => {
+    console.log("EJECUTA???????")
     getReportes()
     setWebGroup()
   }, [webGroupValueSelect])
@@ -322,8 +375,6 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
                   options={webGroupSelect}
                   value={webGroupValueSelect}
                   onChange={(e) => webGroupHandler(e)}/>
-                <input id="reportName" type='text' className="form-control" 
-                value={reportName} onInput={e => setReportName(e.target.value)}></input>
               </div>
             </div>
             <div className="divReportDescription mb-3 row">
@@ -407,7 +458,7 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
               </div>
             </div>
             <Button
-            onClick={(e) => test(e)}>Agregar</Button>
+            onClick={(e) => save(e)}>Agregar</Button>
           </div>
           </form>
         </div>

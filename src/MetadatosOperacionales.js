@@ -96,6 +96,7 @@ function MetadatosOperacionales() {
   }
 
   const showTableData = async () => {
+    console.log("showTableData")
     setRowsDetail([])
     setColumnsDetail([])
     try {
@@ -104,40 +105,17 @@ function MetadatosOperacionales() {
       }
       setRowsHeader([tableSelected])
       setColumnsHeader(getDynamicColumns(tableSelected))
-      const q = `
-      SELECT 
---mpc.id_proceso,
-S.LayoutCD, 
-B.NombreLayout, 
-RIGHT(B.NomTabla,LENGTH(B.NomTabla)-7) AS TABLA,
---ts.TipoSchdCD,
-ts.CodSchd,
-ts.DesSchd,
-A.SchdMatrixCD,
-A.SchdMatrixCDPred,
---A.ScheduleCD,
-TO_CHAR(A.FecIni,'DD/MM/YYYY') FecIni,
-TO_CHAR(A.FecIniEjec_TS,'hh24:mi:ss') FecIniEjec_TS,
-TO_CHAR(A.FecFinEjec_TS,'hh24:mi:ss') FecFinEjec_TS,
-e.DesEstado,
-A.numEjec,
-S.Predecesores
---A.FecCreaTS,
---B.estadoLayout
-FROM 
-    PE_PROD_FG_CONFIG.TB_SCHEDULE_MATRIZ A
-        INNER JOIN PE_PROD_FG_CONFIG.TB_SCHEDULE S ON A.ScheduleCD = S.ScheduleCD 
-        INNER JOIN PE_PROD_FG_CONFIG.TB_LAYOUT B ON B.LayoutCD = S.LayoutCD AND B.estadoLayout = 1
-        INNER JOIN D_EWAYA_CONFIG.GD_MetaDatosScheduleRel msr 
-            ON msr.ScheduleCD = S.ScheduleCD 
-            AND msr.TipSchdCD  = S.TipSchdCD
-            AND msr.LayoutCD  = S.LayoutCD
-        AND S.estado = 1   and msr.estado = 1 and msr.estadoLAyout=1
-        INNER JOIN D_EWAYA_CONFIG.GD_MetaDatosProcesosCab mpc ON mpc.Id_proceso = msr.Id_proceso AND msr.estado = 1
-        INNER JOIN PE_PROD_FG_CONFIG.TB_TIPO_SCHEDULE ts ON ts.TipoSchdCD = S.TipSchdCD 
-        INNER JOIN PE_PROD_FG_CONFIG.TB_ESTADO e ON e.estadoCD = A.EstadoCD
-        ORDER BY S.LayoutCD,A.FecIniEjec_TS
-      `
+      console.log("request_gettabledata")
+      const data = await request_gettabledata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'GD_WebMaestroConsultaDetalle',
+          where: JSON.stringify({ state: 1, id_consulta: 1})
+        })
+      )
+      console.log(data)
+      const q = data[0].full_qry
+      console.log(q)
       const fullQuery=q+" where msr.id_proceso="+tableSelected.id_proceso;
       const resultados = await request_gettabledata(
         JSON.stringify({
