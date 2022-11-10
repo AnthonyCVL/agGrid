@@ -52,15 +52,22 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
   }
 
   const webGroupHandler = function (e) {
-    setWebGroupObjectSelect(e.object)
-    setWebGroupValueSelect(e)
+    console.log("webGroupHandler")
+    var object;
+    if(e.object === undefined){
+      setReportDescription(null)
+    } else{
+      setWebGroupObjectSelect(e.object)
+      setWebGroupValueSelect(e)
+      setReportDescription(e.object.description)
+    }
   }
 
   const getReportes = async function(e){
     const response_webgroupreport = await request_gettabledata(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
-        table: 'VW_WebGrupoReporte',
+        table: 'VW_WebGrupoReporteDesa',
         where: JSON.stringify({ id_grupo: webGroupObjectSelect.id_grupo })
       })
     )
@@ -72,7 +79,7 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
       const response_webbreport = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: 'VW_WebReporte',
+          table: 'VW_WebReporteDesa',
           where: JSON.stringify({ id_reporte: obj.id_reporte })
         }))
         listReport.push(response_webbreport)
@@ -120,7 +127,7 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
     const  response_update_webgrupo= await request_updaterow(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
-        table: 'GD_WebGrupo2',
+        table: 'GD_WebGrupoDesa',
         main_id: 'id_grupo',
         body: JSON.stringify({  name: webGroupObjectSelect.name, 
                                 description: reportDescription,
@@ -147,7 +154,7 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
     const  response_insert_webgrupo= await request_insertrow(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
-        table: 'GD_WebGrupo2',
+        table: 'GD_WebGrupoDesa',
         main_id: 'id_grupo',
         body: JSON.stringify({  name: webGroupObjectSelect.name, 
                                 description: reportDescription,
@@ -159,7 +166,7 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
     const response_insert_webreporte = await request_insertrow(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
-        table: 'GD_WebReporte2',
+        table: 'GD_WebReporteDesa',
         main_id: 'id_reporte',
         body: JSON.stringify({  desc_qry: viewName, 
                                 database_name: reportTypeObjectSelect.id_tiporeporte==1 ? viewObjectSelect.DataBaseName : 'null',
@@ -174,7 +181,7 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
     const response_insert_webgruporeporte = await request_insertrow(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
-        table: 'GD_WebGrupoReporte2',
+        table: 'GD_WebGrupoReporteDesa',
         body: JSON.stringify({  id_grupo: response_insert_webgrupo['id_grupo'], 
                                 id_reporte: response_insert_webreporte['id_reporte'],
                                 description: reportDescription})
@@ -197,8 +204,8 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
   }
 
   const request_insertrow = async (body) => {
-    //const base_url='http://localhost:8080'
-    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const base_url='http://localhost:8080'
+    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/insertRow'
     const request = {
       method: 'POST',
@@ -209,8 +216,8 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
   }
 
   const request_updaterow = async (body) => {
-    //const base_url='http://localhost:8080'
-    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const base_url='http://localhost:8080'
+    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/updateRow'
     const request = {
       method: 'POST',
@@ -321,7 +328,7 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
       const listWebGroup = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: 'VW_WebGrupo'
+          table: 'VW_WebGrupoDesa'
         })
       )
       const selectWebGroup = [];
@@ -381,7 +388,7 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
               <label for="reportDescription" className="col-sm-2 col-form-label">Descripcion</label>
               <div className="col-sm-4">
                 <input id="reportDescription" type='text' className="form-control input" 
-                value={webGroupObjectSelect.description} onInput={e => setReportDescription(e.target.value)}></input>
+                value={reportDescription} onInput={e => setReportDescription(e.target.value)}></input>
               </div>
             </div>
             <div className="divReportType mb-3 row">
