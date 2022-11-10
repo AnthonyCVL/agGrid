@@ -25,11 +25,13 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
   const [webGroupSelect, setWebGroupSelect] = useState([])
   const [webGroupValueSelect, setWebGroupValueSelect] = useState({})
   const [webGroupObjectSelect, setWebGroupObjectSelect] = useState({})
+  const [reportName, setReportName] = useState("")
   const [reportDescription, setReportDescription] = useState("")
   const [viewName, setViewName] = useState("")
   const [viewColumns, setViewColumns] = useState("")
   const [viewSort, setViewSort] = useState("")
   const [viewQuery, setViewQuery] = useState("")
+  const [flagAction, setFlagAction] = useState("")
 
   const databaseHandler = function (e) {
     setDatabaseObjectSelect(e.object)
@@ -50,18 +52,30 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
     setReportTypeObjectSelect(e.object)
     setReportTypeValueSelect(e)
   }
+  
+  
+  const createOption = (label) => ({
+    label,
+    value: label.toLowerCase().replace(/\W/g, ''),
+  });
+
+  const handleCreateReport = (inputValue) => {
+    const newOption = createOption(inputValue);
+    setWebGroupSelect((prev) => [...prev, newOption]);
+    setReportName(newOption);
+    setReportDescription('')
+    setFlagAction('insert')
+  };
+
 
   const webGroupHandler = function (e) {
-    console.log("webGroupHandler")
-    var object;
-    if(e.object === undefined){
-      setReportDescription(null)
-    } else{
-      setWebGroupObjectSelect(e.object)
-      setWebGroupValueSelect(e)
-      setReportDescription(e.object.description)
-    }
+    setWebGroupObjectSelect(e.object)
+    setWebGroupValueSelect(e)
+    setReportDescription(e.object.description)
+    setReportName(createOption(e.object.name))
+    setFlagAction('update')
   }
+  
 
   const getReportes = async function(e){
     const response_webgroupreport = await request_gettabledata(
@@ -113,9 +127,9 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
 
   const save = async function(e){
     console.log("SAVE")
-    console.log(webGroupObjectSelect)
-    if(webGroupObjectSelect==='' || webGroupObjectSelect===undefined || Object.keys(webGroupObjectSelect).length === 0){
-      //insert()
+    console.log(flagAction)
+    if(flagAction==='insert'){
+      insert()
       console.log("insert")
     } else{
       update()
@@ -156,7 +170,7 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
         database: 'D_EWAYA_CONFIG',
         table: 'GD_WebGrupoDesa',
         main_id: 'id_grupo',
-        body: JSON.stringify({  name: webGroupObjectSelect.name, 
+        body: JSON.stringify({  name: reportName.value, 
                                 description: reportDescription,
                                 id_tipogrupo: groupTypeObjectSelect.id_tipogrupo})
       })
@@ -380,8 +394,9 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
               <div class="col-sm-4">
                 <CreatableSelect  
                   options={webGroupSelect}
-                  value={webGroupValueSelect}
-                  onChange={(e) => webGroupHandler(e)}/>
+                  value={reportName}
+                  onCreateOption={handleCreateReport}
+                  onChange={webGroupHandler}/>
               </div>
             </div>
             <div className="divReportDescription mb-3 row">
