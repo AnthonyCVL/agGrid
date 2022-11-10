@@ -290,7 +290,7 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
       const list = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: 'VW_DATABASE'
+          table: '  '
         })
       )
       const dataSelect = [];
