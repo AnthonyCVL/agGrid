@@ -8,11 +8,13 @@ import CreatableSelect from 'react-select/creatable';
 import AgGrid from './AgGrid';
 import { Button } from 'reactstrap'
 
-function Modal2({open, onClose, p_datatables, p_grouptables}) {
+function Modal2({ open, onClose, p_datatables, p_grouptables }) {
 
   const [databaseSelect, setDatabaseSelect] = useState([])
   const [databaseValueSelect, setDatabaseValueSelect] = useState({})
   const [databaseObjectSelect, setDatabaseObjectSelect] = useState([])
+  const [viewElementSelect, setViewElementSelect] = useState({})
+  const [viewGeneralSelect, setViewGeneralSelect] = useState([])
   const [viewSelect, setViewSelect] = useState([])
   const [viewValueSelect, setViewValueSelect] = useState({})
   const [viewObjectSelect, setViewObjectSelect] = useState([])
@@ -24,6 +26,7 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
   const [reportTypeObjectSelect, setReportTypeObjectSelect] = useState([])
   const [webGroupSelect, setWebGroupSelect] = useState([])
   const [webGroupValueSelect, setWebGroupValueSelect] = useState({})
+  const [listView, setListView] = useState([])
   const [webGroupObjectSelect, setWebGroupObjectSelect] = useState({})
   const [reportName, setReportName] = useState("")
   const [reportDescription, setReportDescription] = useState("")
@@ -52,8 +55,8 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
     setReportTypeObjectSelect(e.object)
     setReportTypeValueSelect(e)
   }
-  
-  
+
+
   const createOption = (label) => ({
     label,
     value: label.toLowerCase().replace(/\W/g, ''),
@@ -69,15 +72,18 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
 
 
   const webGroupHandler = function (e) {
+    console.log("webGroupHandler")
     setWebGroupObjectSelect(e.object)
     setWebGroupValueSelect(e)
     setReportDescription(e.object.description)
     setReportName(createOption(e.object.name))
     setFlagAction('update')
   }
-  
 
-  const getReportes = async function(e){
+
+  const getReportes = async function (e) {
+    console.log("getReportes")
+    console.log(webGroupObjectSelect.id_grupo)
     const response_webgroupreport = await request_gettabledata(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
@@ -85,10 +91,6 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
         where: JSON.stringify({ id_grupo: webGroupObjectSelect.id_grupo })
       })
     )
-    console.log("response_webgroupreport")
-    console.log(response_webgroupreport)
-
-    var listReport = []
     response_webgroupreport.map(async function (obj) {
       const response_webbreport = await request_gettabledata(
         JSON.stringify({
@@ -96,63 +98,117 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
           table: 'VW_WebReporteDesa',
           where: JSON.stringify({ id_reporte: obj.id_reporte })
         }))
-        listReport.push(response_webbreport)
+      if(response_webbreport.length>0){
+        setListView(listView => [...listView, response_webbreport[0]])
+      }
     })
-    console.log("listReport")
-    console.log(listReport)
   }
 
   const setWebGroup = () => {
-    if(open){
-      console.log("setWebGroup")
-      console.log(groupTypeSelect)
-      console.log(webGroupObjectSelect.id_tipogrupo)
-      if(webGroupObjectSelect==='' || webGroupObjectSelect===undefined || webGroupObjectSelect.id_tipogrupo === '' || webGroupObjectSelect.id_tipogrupo===undefined ){
-        console.log("DEFAUUUUUUUUUUUUUUUUULT")
-        console.log(groupTypeSelect)
-        setGroupTypeObjectSelect(groupTypeSelect[0].object)
-        setGroupTypeValueSelect(groupTypeSelect[0])
-      } else{
-        console.log("FIIIIIIND")
-        var elementGroupType = groupTypeSelect.find((el) => {
-          return el.object.id_tipogrupo === webGroupObjectSelect.id_tipogrupo
-        })
-        console.log(elementGroupType)
-        setGroupTypeObjectSelect(elementGroupType.object)
-        setGroupTypeValueSelect(elementGroupType)
-      }
-      console.log("EEEEEEEND")
+    if (webGroupObjectSelect === '' || webGroupObjectSelect === undefined || webGroupObjectSelect.id_tipogrupo === '' || webGroupObjectSelect.id_tipogrupo === undefined) {
+      setGroupTypeObjectSelect(groupTypeSelect[0].object)
+      setGroupTypeValueSelect(groupTypeSelect[0])
+    } else {
+      var elementGroupType = groupTypeSelect.find((el) => {
+        return el.object.id_tipogrupo === webGroupObjectSelect.id_tipogrupo
+      })
+      setGroupTypeObjectSelect(elementGroupType.object)
+      setGroupTypeValueSelect(elementGroupType)
     }
   }
 
-  const save = async function(e){
+  const setWebReport = () => {
+    console.log("setWebReport")
+    console.log(listView)
+    console.log(viewSelect)
+    setViewName(listView[0].desc_qry)
+    setViewQuery(listView[0].full_qry)
+    setViewColumns(listView[0].col_qry)
+    setViewSort(listView[0].ord_qry)
+    if (webGroupObjectSelect === '' || webGroupObjectSelect === undefined || webGroupObjectSelect.id_tipogrupo === '' || webGroupObjectSelect.id_tipogrupo === undefined) {
+      setReportTypeObjectSelect(reportTypeSelect[0].object)
+      setReportTypeValueSelect(reportTypeSelect[0])
+      setDatabaseObjectSelect(databaseSelect[0].object)
+      setDatabaseValueSelect(databaseSelect[0])
+      setViewObjectSelect(viewSelect[0].object)
+      setViewValueSelect(viewSelect[0])
+    } else {
+      var elementReportType = reportTypeSelect.find((el) => {
+        return el.object.id_tiporeporte === listView[0].id_tiporeporte
+      })
+      setReportTypeObjectSelect(elementReportType.object)
+      setReportTypeValueSelect(elementReportType)
+
+      if(listView[0].id_tiporeporte === 1){
+        var elementDatabaseType = databaseSelect.find((el) => {
+          return el.object.DataBaseName.toUpperCase() === listView[0].database_name.toUpperCase()
+        })
+        setDatabaseObjectSelect(elementDatabaseType.object)
+        setDatabaseValueSelect(elementDatabaseType)
+        /*var elementViewType = viewGeneralSelect.find((el) => {
+          return el.DataBaseName.toUpperCase() === listView[0].database_name.toUpperCase() && el.TableName.toUpperCase() === listView[0].table_name.toUpperCase()
+        })
+        setViewObjectSelect(elementViewType.object)
+        setViewValueSelect(elementViewType)*/
+        setViewElementSelect(listView[0].table_name)
+      }
+    }
+  }
+
+  const saveButton = async function (e) {
     console.log("SAVE")
     console.log(flagAction)
-    if(flagAction==='insert'){
+    if (flagAction === 'insert') {
       insert()
       console.log("insert")
-    } else{
+    } else {
       update()
       console.log("update")
     }
   }
 
-  const update = async function(e){
-    const  response_update_webgrupo= await request_updaterow(
+  const deleteButton = async function (e){
+    console.log("DELETE")
+    deleteGW()
+  }
+
+  const deleteGW = async function (e) {
+    const response_update_webgrupo = await request_updaterow(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
         table: 'GD_WebGrupoDesa',
-        main_id: 'id_grupo',
-        body: JSON.stringify({  name: webGroupObjectSelect.name, 
-                                description: reportDescription,
-                                id_tipogrupo: groupTypeObjectSelect.id_tipogrupo})
+        where: JSON.stringify({ 
+          id_grupo: webGroupObjectSelect.id_grupo
+        }),
+        body: JSON.stringify({
+          state: 0
+        })
       })
     )
-    /*const response_update_webreporte = await request_insertrow(
+  }
+
+  const update = async function (e) {
+    const response_update_webgrupo = await request_updaterow(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
-        table: 'GD_WebReporte2',
-        main_id: 'id_reporte',
+        table: 'GD_WebGrupoDesa',
+        where: JSON.stringify({ 
+          id_grupo: webGroupObjectSelect.id_grupo
+        }),
+        body: JSON.stringify({
+          name: webGroupObjectSelect.name,
+          description: reportDescription,
+          id_tipogrupo: groupTypeObjectSelect.id_tipogrupo
+        })
+      })
+    )
+    const response_update_webreporte = await request_updaterow(
+      JSON.stringify({
+        database: 'D_EWAYA_CONFIG',
+        table: 'GD_WebReporteDesa',
+        where: JSON.stringify({ 
+          id_reporte: listView[0].id_reporte
+        }),
         body: JSON.stringify({  desc_qry: viewName, 
                                 database_name: reportTypeObjectSelect.id_tiporeporte==1 ? viewObjectSelect.DataBaseName : 'null',
                                 table_name: reportTypeObjectSelect.id_tiporeporte==1 ? viewObjectSelect.TableName : 'null',
@@ -161,34 +217,36 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
                                 full_qry: reportTypeObjectSelect.id_tiporeporte==2 ? viewQuery : 'null',
                                 id_tiporeporte: reportTypeObjectSelect.id_tiporeporte})
       })
-    )*/
+    )
   }
 
-  const insert = async function(e){
-    const  response_insert_webgrupo= await request_insertrow(
+  const insert = async function (e) {
+    const response_insert_webgrupo = await request_insertrow(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
         table: 'GD_WebGrupoDesa',
         main_id: 'id_grupo',
-        body: JSON.stringify({  name: reportName.value, 
-                                description: reportDescription,
-                                id_tipogrupo: groupTypeObjectSelect.id_tipogrupo})
+        body: JSON.stringify({
+          name: reportName.value,
+          description: reportDescription,
+          id_tipogrupo: groupTypeObjectSelect.id_tipogrupo
+        })
       })
     )
-    console.log('viewObjectSelect')
-    console.log(viewObjectSelect)
     const response_insert_webreporte = await request_insertrow(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
         table: 'GD_WebReporteDesa',
         main_id: 'id_reporte',
-        body: JSON.stringify({  desc_qry: viewName, 
-                                database_name: reportTypeObjectSelect.id_tiporeporte==1 ? viewObjectSelect.DataBaseName : 'null',
-                                table_name: reportTypeObjectSelect.id_tiporeporte==1 ? viewObjectSelect.TableName : 'null',
-                                col_qry: reportTypeObjectSelect.id_tiporeporte==1 ? viewColumns : 'null',
-                                ord_qry: reportTypeObjectSelect.id_tiporeporte==1 ? viewSort : 'null',
-                                full_qry: reportTypeObjectSelect.id_tiporeporte==2 ? viewQuery : 'null',
-                                id_tiporeporte: reportTypeObjectSelect.id_tiporeporte})
+        body: JSON.stringify({
+          desc_qry: viewName,
+          database_name: reportTypeObjectSelect.id_tiporeporte == 1 ? viewObjectSelect.DataBaseName : 'null',
+          table_name: reportTypeObjectSelect.id_tiporeporte == 1 ? viewObjectSelect.TableName : 'null',
+          col_qry: reportTypeObjectSelect.id_tiporeporte == 1 ? viewColumns : 'null',
+          ord_qry: reportTypeObjectSelect.id_tiporeporte == 1 ? viewSort : 'null',
+          full_qry: reportTypeObjectSelect.id_tiporeporte == 2 ? viewQuery : 'null',
+          id_tiporeporte: reportTypeObjectSelect.id_tiporeporte
+        })
       })
     )
 
@@ -196,18 +254,18 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
         table: 'GD_WebGrupoReporteDesa',
-        body: JSON.stringify({  id_grupo: response_insert_webgrupo['id_grupo'], 
-                                id_reporte: response_insert_webreporte['id_reporte'],
-                                description: reportDescription})
+        body: JSON.stringify({
+          id_grupo: response_insert_webgrupo['id_grupo'],
+          id_reporte: response_insert_webreporte['id_reporte'],
+          description: reportDescription
+        })
       })
     )
-
-    console.log(response_insert_webgruporeporte)
   }
 
   const request_gettabledata = async (body) => {
-    //const base_url='http://localhost:8080'
-    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const base_url = 'http://localhost:8080'
+    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/getTableData2'
     const request = {
       method: 'POST',
@@ -218,7 +276,7 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
   }
 
   const request_insertrow = async (body) => {
-    const base_url='http://localhost:8080'
+    const base_url = 'http://localhost:8080'
     //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/insertRow'
     const request = {
@@ -230,7 +288,7 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
   }
 
   const request_updaterow = async (body) => {
-    const base_url='http://localhost:8080'
+    const base_url = 'http://localhost:8080'
     //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/updateRow'
     const request = {
@@ -260,23 +318,39 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
       }
 
       console.log("pasee")
-      const list = await request_gettabledata(
+      /*const list = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
           table: 'VW_DATABASEOBJECT',
           where: JSON.stringify({ databasename: databaseObjectSelect.DataBaseName, tablekind: 'V' })
         })
-      )
-      const dataSelect = [];
+      )*/
+      var dataSelect = [];
       /*listDatabase.sort(function (a, b) {
         return a.id - b.id || a.name.localeCompare(b.name);
       });*/
+      console.log(viewGeneralSelect)
+      console.log(databaseObjectSelect)
+      var list = viewGeneralSelect.filter((el) => {
+        return el.DataBaseName.toUpperCase() === databaseObjectSelect.DataBaseName.toUpperCase()
+      })
+      console.log(list)
       list.map(function (obj) {
         dataSelect.push({ value: obj["TableName"], label: obj["TableName"], object: obj });
       })
+      var viewValue = dataSelect[0]
+      var viewObject = list[0]
+      if(viewElementSelect!==null){
+        var elementGroupType = dataSelect.find((el) => {
+          return el.value.toUpperCase() === viewElementSelect.toUpperCase()
+        })
+        viewValue = elementGroupType
+        viewObject = elementGroupType.object
+      }
       setViewSelect(dataSelect)
-      setViewValueSelect(dataSelect[0])
-      setViewObjectSelect(list[0])
+      setViewValueSelect(viewValue)
+      setViewObjectSelect(viewObject)
+      setViewElementSelect(null)
       console.log(list)
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
@@ -286,11 +360,19 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
   const showTables = async () => {
     console.log("showwwwwwwwTablesssssssssssssssssss")
     try {
+      const listV = await request_gettabledata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'VW_DATABASEOBJECT',
+          where: JSON.stringify({ tablekind: 'V' })
+        })
+      )
+      setViewGeneralSelect(listV)
       //const response = await fetch('http://localhost:8080/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE_GROUP');
       const list = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: '  '
+          table: 'VW_DATABASE'
         })
       )
       const dataSelect = [];
@@ -342,7 +424,8 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
       const listWebGroup = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: 'VW_WebGrupoDesa'
+          table: 'VW_WebGrupoDesa',
+          where: JSON.stringify({ state: 1 })
         })
       )
       const selectWebGroup = [];
@@ -355,136 +438,154 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
       setWebGroupSelect(selectWebGroup)
       //setWebGroupValueSelect("")
       //setWebGroupObjectSelect("")
-      
+
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
     }
   }
 
   useEffect(() => {
-    showTables()
-  }, [])
+    if (open) {
+      showTables()
+    }
+  }, [open])
 
   useEffect(() => {
-    showTableData()
+    if (open) {
+      showTableData()
+    }
   }, [databaseObjectSelect])
 
   useEffect(() => {
     console.log("EJECUTA???????")
-    getReportes()
-    setWebGroup()
+    if (open) {
+      getReportes()
+      setWebGroup()
+      //setWebReport()
+    }
   }, [webGroupValueSelect])
 
-  if(!open) return null;
-  
-  return (
-    <div onClick = {onClose}className='overlay'>
-    <div onClick={(e) => {
-      e.stopPropagation()
+  useEffect(() => {
+    if (open) {
+      setWebReport()
     }
-    }className='modalContainer'>
-      Reporte
-      <div className='modalRight'>
-        <p onClick={onClose} className='closeBtn'>X</p>
-        <div className='content'>
-          <form>
-          <div className="divReport">
-            <div className="divReportName mb-3 row">
-              <label for="reportName" className="col-sm-2 col-form-label">Nombre</label>
-              <div class="col-sm-4">
-                <CreatableSelect  
-                  options={webGroupSelect}
-                  value={reportName}
-                  onCreateOption={handleCreateReport}
-                  onChange={webGroupHandler}/>
+  }, [listView])
+
+  if (!open) return null;
+
+  return (
+    <div onClick={onClose} className='overlay'>
+      <div onClick={(e) => {
+        e.stopPropagation()
+      }
+      } className='modalContainer'>
+        Reporte
+        <div className='modalRight'>
+          <p onClick={onClose} className='closeBtn'>X</p>
+          <div className='content'>
+            <form>
+              <div className="divReport">
+                <div className="divReportName mb-3 row">
+                  <label for="reportName" className="col-sm-2 col-form-label">Nombre</label>
+                  <div class="col-sm-4">
+                    <CreatableSelect
+                      options={webGroupSelect}
+                      value={reportName}
+                      onCreateOption={handleCreateReport}
+                      onChange={webGroupHandler} />
+                  </div>
+                </div>
+                <div className="divReportDescription mb-3 row">
+                  <label for="reportDescription" className="col-sm-2 col-form-label">Descripcion</label>
+                  <div className="col-sm-4">
+                    <input id="reportDescription" type='text' className="form-control input"
+                      value={reportDescription} onInput={e => setReportDescription(e.target.value)}></input>
+                  </div>
+                </div>
+                <div className="divReportType mb-3 row">
+                  <label for="reportType" className="col-sm-2 col-form-label">Tipo</label>
+                  <div className="col-sm-4">
+                    <Select
+                      options={groupTypeSelect}
+                      value={groupTypeValueSelect}
+                      onChange={(e) => groupTypeHandler(e)} />
+                  </div>
+                  <div className="col-sm-4">
+                    <Button
+                      onClick={(e) => deleteButton(e)}>Eliminar</Button>
+                  </div>
+                </div>
+                <div className="divDatatable">
+                  <label for="reportDatatable">Datatable</label>
+                  <AgGrid
+                    p_grouptables={p_grouptables}
+                    p_datatables={p_datatables} />
+                </div>
               </div>
-            </div>
-            <div className="divReportDescription mb-3 row">
-              <label for="reportDescription" className="col-sm-2 col-form-label">Descripcion</label>
-              <div className="col-sm-4">
-                <input id="reportDescription" type='text' className="form-control input" 
-                value={reportDescription} onInput={e => setReportDescription(e.target.value)}></input>
+              <div className="divView">
+                <div className="divTitle mb-3 row">
+                  <label for="viewTitle">Nueva Vista</label>
+                </div>
+                <div className="divViewName mb-3 row">
+                  <label for="viewName" className="col-sm-2 col-form-label">Nombre</label>
+                  <div className="col-sm-4">
+                    <input id="viewName" type='text' className="form-control input"
+                      value={viewName} onInput={e => setViewName(e.target.value)}></input>
+                  </div>
+                </div>
+                <div className="divViewType mb-3 row">
+                  <label for="viewType" className="col-sm-2 col-form-label">Tipo</label>
+                  <div className="col-sm-4">
+                    <Select
+                      options={reportTypeSelect}
+                      value={reportTypeValueSelect}
+                      onChange={(e) => reportTypeHandler(e)} />
+                  </div>
+                </div>
+                <div className={`divViewDatabase mb-3 row ${(reportTypeObjectSelect.id_tiporeporte !== 1 ? "div-hidden" : "")}`}>
+                  <label for="viewDatabase" className="col-sm-2 col-form-label">Base de datos</label>
+                  <div className="col-sm-4">
+                    <Select
+                      options={databaseSelect}
+                      value={databaseValueSelect}
+                      onChange={(e) => databaseHandler(e)} />
+                  </div>
+
+                  <label for="viewView" className="col-sm-2 col-form-label">Vista</label>
+                  <div className="col-sm-4">
+                    <Select
+                      options={viewSelect}
+                      value={viewValueSelect}
+                      onChange={(e) => viewHandler(e)} />
+                  </div>
+                </div>
+                <div className={`divViewColumns mb-3 row ${(reportTypeObjectSelect.id_tiporeporte !== 1 ? "div-hidden" : "")}`}>
+                  <label for="viewColumns" className="col-sm-2 col-form-label">Columnas</label>
+                  <div className="col-sm-4">
+                    <input id="viewColumns" type='text' className="form-control input"
+                      value={viewColumns} onInput={e => setViewColumns(e.target.value)}></input>
+                  </div>
+                </div>
+                <div className={`divViewSort mb-3 row ${(reportTypeObjectSelect.id_tiporeporte !== 1 ? "div-hidden" : "")}`}>
+                  <label for="viewSort" className="col-sm-2 col-form-label">Orden</label>
+                  <div className="col-sm-4">
+                    <input id="viewSort" type='text' className="form-control input"
+                      value={viewSort} onInput={e => setViewSort(e.target.value)}></input>
+                  </div>
+                </div>
+                <div className={`divViewQuery mb-3 row ${(reportTypeObjectSelect.id_tiporeporte !== 2 ? "div-hidden" : "")}`}>
+                  <label for="viewQuery" className="col-sm-2 col-form-label">Query</label>
+                  <div className="col-sm-10">
+                    <textarea id="viewQuery" type='text' className="form-control" rows="3"
+                      value={viewQuery} onInput={e => setViewQuery(e.target.value)}></textarea>
+                  </div>
+                </div>
+                <Button
+                  onClick={(e) => saveButton(e)}>Agregar</Button>
               </div>
-            </div>
-            <div className="divReportType mb-3 row">
-              <label for="reportType" className="col-sm-2 col-form-label">Tipo</label>
-              <div className="col-sm-4">
-              <Select 
-                options={groupTypeSelect}
-                value={groupTypeValueSelect}
-                onChange={(e) => groupTypeHandler(e)}/>
-              </div>
-            </div>
-            <div className="divDatatable">
-              <label for="reportDatatable">Datatable</label>
-              <AgGrid 
-                p_grouptables = {p_grouptables}
-                p_datatables = {p_datatables}/>
-            </div>
+            </form>
           </div>
-          <div className="divView">
-            <div className="divTitle mb-3 row">
-              <label for="viewTitle">Nueva Vista</label>
-            </div>
-            <div className="divViewName mb-3 row">
-              <label for="viewName" className="col-sm-2 col-form-label">Nombre</label>
-              <div className="col-sm-4">
-              <input id="viewName" type='text' className="form-control input"
-              value={viewName} onInput={e => setViewName(e.target.value)}></input>
-              </div>
-            </div>
-            <div className="divViewType mb-3 row">
-              <label for="viewType" className="col-sm-2 col-form-label">Tipo</label>
-              <div className="col-sm-4">
-              <Select 
-                options={reportTypeSelect}
-                value={reportTypeValueSelect}
-                onChange={(e) => reportTypeHandler(e)}/>
-              </div>
-            </div><div className={`divViewDatabase mb-3 row ${(reportTypeObjectSelect.id_tiporeporte !== 1 ? "div-hidden" : "")}`}>
-              <label for="viewDatabase" className="col-sm-2 col-form-label">Base de datos</label>
-              <div className="col-sm-4">
-              <Select 
-                options={databaseSelect}
-                value={databaseValueSelect}
-                onChange={(e) => databaseHandler(e)}/>
-              </div>
-              
-              <label for="viewView" className="col-sm-2 col-form-label">Vista</label>
-              <div className="col-sm-4">
-              <Select 
-                options={viewSelect}
-                value={viewValueSelect}
-                onChange={(e) => viewHandler(e)}/>
-              </div>
-            </div>
-            <div className={`divViewColumns mb-3 row ${(reportTypeObjectSelect.id_tiporeporte !== 1 ? "div-hidden" : "")}`}>
-              <label for="viewColumns" className="col-sm-2 col-form-label">Columnas</label>
-              <div className="col-sm-4">
-              <input id="viewColumns" type='text' className="form-control input"
-              value={viewColumns} onInput={e => setViewColumns(e.target.value)}></input>
-              </div>
-            </div>
-            <div className={`divViewSort mb-3 row ${(reportTypeObjectSelect.id_tiporeporte !== 1 ? "div-hidden" : "")}`}>
-              <label for="viewSort" className="col-sm-2 col-form-label">Orden</label>
-              <div className="col-sm-4">
-              <input id="viewSort" type='text' className="form-control input"
-              value={viewSort} onInput={e => setViewSort(e.target.value)}></input>
-              </div>
-            </div>
-            <div className={`divViewQuery mb-3 row ${(reportTypeObjectSelect.id_tiporeporte !== 2 ? "div-hidden" : "")}`}>
-              <label for="viewQuery" className="col-sm-2 col-form-label">Query</label>
-              <div className="col-sm-10">
-              <textarea id="viewQuery" type='text' className="form-control"  rows="3"
-              value={viewQuery} onInput={e => setViewQuery(e.target.value)}></textarea>
-              </div>
-            </div>
-            <Button
-            onClick={(e) => save(e)}>Agregar</Button>
-          </div>
-          </form>
-        </div>
-        {/*<div className='btnContainer'>
+          {/*<div className='btnContainer'>
           <button className='btnPrimary'>
             <span className='bold'>YES  </span>, I love NFT's
           </button>
@@ -493,7 +594,7 @@ function Modal2({open, onClose, p_datatables, p_grouptables}) {
           </button>
           </div>
           */}
-      </div>
+        </div>
       </div>
     </div>
   );

@@ -16,15 +16,8 @@ function AgGrid(props) {
 
 
   const changeTab = (numberTab) => {
-    console.log("changeTab: "+numberTab)
-    console.log("activeTab: "+activeTab)
     if (activeTab !== numberTab) {
-      console.log("=>setActiveTab")
       setActiveTab(numberTab)
-      console.log(props.p_datatables)
-      console.log(datatablesColumns)
-      console.log(props.p_datatables[numberTab - 1])
-      console.log(datatablesColumns[numberTab - 1])
       setRows(props.p_datatables[numberTab - 1])
       setColumns(datatablesColumns[numberTab - 1])
     }
@@ -85,13 +78,10 @@ function AgGrid(props) {
 
 
   useEffect(() => {
-    console.log("first useEffect")
     setRows([])
     setColumns([])
     setActiveTab(0)
     const dtsColumns = []
-    console.log("props.p_datatables")
-    console.log(props.p_datatables)
     props.p_datatables.map(element => {
       dtsColumns.push(getDynamicColumns(element[0]))
     })
@@ -99,9 +89,7 @@ function AgGrid(props) {
   }, [props.p_datatables])
 
   useEffect(() => {
-    console.log("changeTab useEffect")
     changeTab(1)
-    console.log(datatablesColumns)
   }, [datatablesColumns])
 
 
