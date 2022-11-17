@@ -13,7 +13,7 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
   const [databaseSelect, setDatabaseSelect] = useState([])
   const [databaseValueSelect, setDatabaseValueSelect] = useState({})
   const [databaseObjectSelect, setDatabaseObjectSelect] = useState([])
-  const [viewElementSelect, setViewElementSelect] = useState({})
+  const [viewElementSelect, setViewElementSelect] = useState("")
   const [viewGeneralSelect, setViewGeneralSelect] = useState([])
   const [viewSelect, setViewSelect] = useState([])
   const [viewValueSelect, setViewValueSelect] = useState({})
@@ -59,12 +59,12 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
 
   const createOption = (label) => ({
     label,
-    value: label.toLowerCase().replace(/\W/g, ''),
+    value: label
   });
 
   const handleCreateReport = (inputValue) => {
     const newOption = createOption(inputValue);
-    setWebGroupSelect((prev) => [...prev, newOption]);
+    //setWebGroupSelect((prev) => [...prev, newOption]);
     setReportName(newOption);
     setReportDescription('')
     setFlagAction('insert')
@@ -264,8 +264,8 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
   }
 
   const request_gettabledata = async (body) => {
-    const base_url = 'http://localhost:8080'
-    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    //const base_url = 'http://localhost:8080'
+    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/getTableData2'
     const request = {
       method: 'POST',
@@ -276,8 +276,8 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
   }
 
   const request_insertrow = async (body) => {
-    const base_url = 'http://localhost:8080'
-    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    //const base_url = 'http://localhost:8080'
+    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/insertRow'
     const request = {
       method: 'POST',
@@ -288,8 +288,8 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
   }
 
   const request_updaterow = async (body) => {
-    const base_url = 'http://localhost:8080'
-    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    //const base_url = 'http://localhost:8080'
+    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/updateRow'
     const request = {
       method: 'POST',
@@ -340,7 +340,8 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
       })
       var viewValue = dataSelect[0]
       var viewObject = list[0]
-      if(viewElementSelect!==null){
+
+      if(viewElementSelect!==null && viewElementSelect!==""){
         var elementGroupType = dataSelect.find((el) => {
           return el.value.toUpperCase() === viewElementSelect.toUpperCase()
         })
@@ -486,8 +487,8 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
             <form>
               <div className="divReport">
                 <div className="divReportName mb-3 row">
-                  <label for="reportName" className="col-sm-2 col-form-label">Nombre</label>
-                  <div class="col-sm-4">
+                  <label htmlFor="reportName" className="col-sm-2 col-form-label">Nombre</label>
+                  <div className="col-sm-4">
                     <CreatableSelect
                       options={webGroupSelect}
                       value={reportName}
@@ -496,14 +497,14 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
                   </div>
                 </div>
                 <div className="divReportDescription mb-3 row">
-                  <label for="reportDescription" className="col-sm-2 col-form-label">Descripcion</label>
+                  <label htmlFor="reportDescription" className="col-sm-2 col-form-label">Descripcion</label>
                   <div className="col-sm-4">
                     <input id="reportDescription" type='text' className="form-control input"
                       value={reportDescription} onInput={e => setReportDescription(e.target.value)}></input>
                   </div>
                 </div>
                 <div className="divReportType mb-3 row">
-                  <label for="reportType" className="col-sm-2 col-form-label">Tipo</label>
+                  <label htmlFor="reportType" className="col-sm-2 col-form-label">Tipo</label>
                   <div className="col-sm-4">
                     <Select
                       options={groupTypeSelect}
@@ -516,7 +517,7 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
                   </div>
                 </div>
                 <div className="divDatatable">
-                  <label for="reportDatatable">Datatable</label>
+                  <label htmlFor="reportDatatable">Datatable</label>
                   <AgGrid
                     p_grouptables={p_grouptables}
                     p_datatables={p_datatables} />
@@ -524,17 +525,17 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
               </div>
               <div className="divView">
                 <div className="divTitle mb-3 row">
-                  <label for="viewTitle">Nueva Vista</label>
+                  <label htmlFor="viewTitle">Nueva Vista</label>
                 </div>
                 <div className="divViewName mb-3 row">
-                  <label for="viewName" className="col-sm-2 col-form-label">Nombre</label>
+                  <label htmlFor="viewName" className="col-sm-2 col-form-label">Nombre</label>
                   <div className="col-sm-4">
                     <input id="viewName" type='text' className="form-control input"
                       value={viewName} onInput={e => setViewName(e.target.value)}></input>
                   </div>
                 </div>
                 <div className="divViewType mb-3 row">
-                  <label for="viewType" className="col-sm-2 col-form-label">Tipo</label>
+                  <label htmlFor="viewType" className="col-sm-2 col-form-label">Tipo</label>
                   <div className="col-sm-4">
                     <Select
                       options={reportTypeSelect}
@@ -543,7 +544,7 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
                   </div>
                 </div>
                 <div className={`divViewDatabase mb-3 row ${(reportTypeObjectSelect.id_tiporeporte !== 1 ? "div-hidden" : "")}`}>
-                  <label for="viewDatabase" className="col-sm-2 col-form-label">Base de datos</label>
+                  <label htmlFor="viewDatabase" className="col-sm-2 col-form-label">Base de datos</label>
                   <div className="col-sm-4">
                     <Select
                       options={databaseSelect}
@@ -551,7 +552,7 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
                       onChange={(e) => databaseHandler(e)} />
                   </div>
 
-                  <label for="viewView" className="col-sm-2 col-form-label">Vista</label>
+                  <label htmlFor="viewView" className="col-sm-2 col-form-label">Vista</label>
                   <div className="col-sm-4">
                     <Select
                       options={viewSelect}
@@ -560,21 +561,21 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
                   </div>
                 </div>
                 <div className={`divViewColumns mb-3 row ${(reportTypeObjectSelect.id_tiporeporte !== 1 ? "div-hidden" : "")}`}>
-                  <label for="viewColumns" className="col-sm-2 col-form-label">Columnas</label>
+                  <label htmlFor="viewColumns" className="col-sm-2 col-form-label">Columnas</label>
                   <div className="col-sm-4">
                     <input id="viewColumns" type='text' className="form-control input"
                       value={viewColumns} onInput={e => setViewColumns(e.target.value)}></input>
                   </div>
                 </div>
                 <div className={`divViewSort mb-3 row ${(reportTypeObjectSelect.id_tiporeporte !== 1 ? "div-hidden" : "")}`}>
-                  <label for="viewSort" className="col-sm-2 col-form-label">Orden</label>
+                  <label htmlFor="viewSort" className="col-sm-2 col-form-label">Orden</label>
                   <div className="col-sm-4">
                     <input id="viewSort" type='text' className="form-control input"
                       value={viewSort} onInput={e => setViewSort(e.target.value)}></input>
                   </div>
                 </div>
                 <div className={`divViewQuery mb-3 row ${(reportTypeObjectSelect.id_tiporeporte !== 2 ? "div-hidden" : "")}`}>
-                  <label for="viewQuery" className="col-sm-2 col-form-label">Query</label>
+                  <label htmlFor="viewQuery" className="col-sm-2 col-form-label">Query</label>
                   <div className="col-sm-10">
                     <textarea id="viewQuery" type='text' className="form-control" rows="3"
                       value={viewQuery} onInput={e => setViewQuery(e.target.value)}></textarea>

@@ -30,8 +30,10 @@ function Tablerow() {
 
   const openModalfunction = () => {
     setOpenModal(false)
-    const list = [{position: '1', databasename: 'databasename',objectname:'objectname'}]
-    const grouplist = [{position_table: 1, description: 'Reporte'}]
+    const list = []
+    list[0] = [{position: '1', databasename: 'databasename',objectname:'objectname'}]
+    const grouplist = [] 
+    grouplist[0] = [{position_table: 1, description: 'Reporte'}]
     setTableModal(list)
     setTableGroupModal(grouplist)
   }
@@ -73,8 +75,8 @@ function Tablerow() {
   })
 
   const request_gettabledata = async (body) => {
-    const base_url='http://localhost:8080'
-    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    //const base_url='http://localhost:8080'
+    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/getTableData2'
     const request = {
       method: 'POST',
@@ -85,9 +87,19 @@ function Tablerow() {
   }
 
   const send_post = async (base_url, method, request) => {
-    const response = await fetch(base_url + method, request)
+    const response = await Promise.race(
+      [timeoutAfter(300), fetch(base_url + method, request)]
+    );
     const json = await response.json();
     return json
+  }
+
+  function timeoutAfter(seconds) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        reject(new Error("request timed-out"));
+      }, seconds * 1000);
+    });
   }
 
   const showTableData = async () => {
@@ -102,7 +114,7 @@ function Tablerow() {
       const group_tables = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: 'VW_WebGrupoReporteDesa',
+          table: 'VW_WebGrupoReporte',
           where: JSON.stringify({ id_grupo: tableSelected.id_grupo, state: 1 })
         })
       )
@@ -119,7 +131,7 @@ function Tablerow() {
         const tables = request_gettabledata(
           JSON.stringify({
             database: 'D_EWAYA_CONFIG',
-            table: 'VW_WebReporteDesa',
+            table: 'VW_WebReporte',
             where: JSON.stringify({ id_reporte: key, state: 1 })
           })
         )
@@ -163,7 +175,7 @@ function Tablerow() {
       const data = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: 'VW_WebGrupoDesa',
+          table: 'VW_WebGrupo',
           where: JSON.stringify({ state: 1 })
         })
       )
@@ -207,7 +219,7 @@ function Tablerow() {
   return (
     <div>
     <div className="App">
-      <Button onClick={()=>setOpenModal(true)}>Agregar Reporte</Button>
+      {/*<Button onClick={()=>setOpenModal(true)}>Agregar Reporte</Button>*/}
       <Modal2 open={openModal} onClose={openModalfunction} p_datatables={tableModal} p_grouptables={tableGroupModal}></Modal2>
       <div className="App-title">
         <h2 align="center" className="display-8 fw-bold main-title">Tablero BI</h2>

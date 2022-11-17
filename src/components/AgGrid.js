@@ -78,11 +78,17 @@ function AgGrid(props) {
 
 
   useEffect(() => {
+    console.log("AgGrid useEffect")
     setRows([])
     setColumns([])
     setActiveTab(0)
     const dtsColumns = []
+    console.log("props.p_datatables")
+    console.log(props.p_datatables)
+    console.log("props.p_datatables.map")
     props.p_datatables.map(element => {
+      console.log(element)
+      console.log(element[0])
       dtsColumns.push(getDynamicColumns(element[0]))
     })
     setDatatablesColumns(dtsColumns)
