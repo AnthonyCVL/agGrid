@@ -233,6 +233,9 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
         })
       })
     )
+    if(!response_insert_webgrupo.ok){
+      return 0;
+    }
     const response_insert_webreporte = await request_insertrow(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
@@ -249,7 +252,9 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
         })
       })
     )
-
+    if(!response_insert_webgrupo.ok){
+      return 0;
+    }
     const response_insert_webgruporeporte = await request_insertrow(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
@@ -276,33 +281,39 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
   }
 
   const request_insertrow = async (body) => {
-    //const base_url = 'http://localhost:8080'
-    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const base_url = 'http://localhost:8080'
+    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/insertRow'
     const request = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: body
     };
-    return await send_post(base_url, method, request)
+    return await send_post_status(base_url, method, request)
   }
 
   const request_updaterow = async (body) => {
-    //const base_url = 'http://localhost:8080'
-    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const base_url = 'http://localhost:8080'
+    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/updateRow'
     const request = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: body
     };
-    return await send_post(base_url, method, request)
+    return await send_post_status(base_url, method, request)
   }
 
   const send_post = async (base_url, method, request) => {
     const response = await fetch(base_url + method, request)
     const json = await response.json();
     return json
+  }
+
+  const send_post_status = async (base_url, method, request) => {
+    const response = await fetch(base_url + method, request)
+    //const json = await response.json();
+    return response
   }
 
   const showTableData = async () => {
@@ -479,9 +490,11 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
       <div onClick={(e) => {
         e.stopPropagation()
       }
-      } className='modalContainer'>
-        Reporte
-        <div className='modalRight'>
+      } className='modalContainer card'> 
+      <div class="card-header modalHeader">
+        Maestro de Tablero BI
+      </div>
+        <div className='modalRight modalBody'>
           <p onClick={onClose} className='closeBtn'>X</p>
           <div className='content'>
             <form>
@@ -516,16 +529,18 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
                       onClick={(e) => deleteButton(e)}>Eliminar</Button>
                   </div>
                 </div>
-                <div className="divDatatable">
+                {/*div className="divDatatable">
                   <label htmlFor="reportDatatable">Datatable</label>
                   <AgGrid
                     p_grouptables={p_grouptables}
                     p_datatables={p_datatables} />
-                </div>
+    </div>*/}
               </div>
-              <div className="divView">
-                <div className="divTitle mb-3 row">
-                  <label htmlFor="viewTitle">Nueva Vista</label>
+              <form action="" method="post">
+                    <fieldset className="form-group border border-secondary rounded p-3 viewSection">
+              <div className="divView card-body ">
+                <div className="divTitle mb-3 row card-title">
+                  <legend className="w-auto px-2">Nueva Vista</legend >
                 </div>
                 <div className="divViewName mb-3 row">
                   <label htmlFor="viewName" className="col-sm-2 col-form-label">Nombre</label>
@@ -584,6 +599,8 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
                 <Button
                   onClick={(e) => saveButton(e)}>Agregar</Button>
               </div>
+                        </fieldset>
+                        </form>
             </form>
           </div>
           {/*<div className='btnContainer'>

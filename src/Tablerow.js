@@ -114,7 +114,7 @@ function Tablerow() {
       const group_tables = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: 'VW_WebGrupoReporte',
+          table: 'VW_WebGrupoReporteDesa',
           where: JSON.stringify({ id_grupo: tableSelected.id_grupo, state: 1 })
         })
       )
@@ -131,7 +131,7 @@ function Tablerow() {
         const tables = request_gettabledata(
           JSON.stringify({
             database: 'D_EWAYA_CONFIG',
-            table: 'VW_WebReporte',
+            table: 'VW_WebReporteDesa',
             where: JSON.stringify({ id_reporte: key, state: 1 })
           })
         )
@@ -175,7 +175,7 @@ function Tablerow() {
       const data = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: 'VW_WebGrupo',
+          table: 'VW_WebGrupoDesa',
           where: JSON.stringify({ state: 1 })
         })
       )
@@ -219,7 +219,7 @@ function Tablerow() {
   return (
     <div>
     <div className="App">
-      {/*<Button onClick={()=>setOpenModal(true)}>Agregar Reporte</Button>*/}
+      <Button onClick={()=>setOpenModal(true)}>Agregar Reporte</Button>
       <Modal2 open={openModal} onClose={openModalfunction} p_datatables={tableModal} p_grouptables={tableGroupModal}></Modal2>
       <div className="App-title">
         <h2 align="center" className="display-8 fw-bold main-title">Tablero BI</h2>
