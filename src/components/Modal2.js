@@ -7,6 +7,7 @@ import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import AgGrid from './AgGrid';
 import { Button } from 'reactstrap'
+import Swal from 'sweetalert2'
 
 function Modal2({ open, onClose, p_datatables, p_grouptables }) {
 
@@ -159,17 +160,46 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
     console.log("SAVE")
     console.log(flagAction)
     if (flagAction === 'insert') {
-      insert()
+      show_modal_insert()
       console.log("insert")
     } else {
-      update()
+      show_modal_update()
       console.log("update")
     }
   }
 
   const deleteButton = async function (e){
     console.log("DELETE")
-    deleteGW()
+    show_modal_delete()
+  }
+
+  const show_modal_delete = async function (e){
+    Swal.fire({
+      title: 'Eliminar',
+      text: '¿Está seguro de eliminar este registro?',
+      showCancelButton: true,
+      confirmButtonText: 'Aceptar',
+      showLoaderOnConfirm: true,
+      preConfirm: async () => {
+        const response_update_webgrupo = await request_updaterow(
+          JSON.stringify({
+            database: 'D_EWAYA_CONFIG',
+            table: 'GD_WebGrupoDesa',
+            where: JSON.stringify({ 
+              id_grupo: webGroupObjectSelect.id_grupo
+            }),
+            body: JSON.stringify({
+              state: 0
+            })
+          })
+        )
+        if(!response_update_webgrupo.ok){
+          show_error()
+          return 0;
+        }
+        show_ok('Eliminar','Eliminación exitosa')
+      }
+    })
   }
 
   const deleteGW = async function (e) {
@@ -220,53 +250,141 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
     )
   }
 
-  const insert = async function (e) {
-    const response_insert_webgrupo = await request_insertrow(
-      JSON.stringify({
-        database: 'D_EWAYA_CONFIG',
-        table: 'GD_WebGrupoDesa',
-        main_id: 'id_grupo',
-        body: JSON.stringify({
-          name: reportName.value,
-          description: reportDescription,
-          id_tipogrupo: groupTypeObjectSelect.id_tipogrupo
-        })
-      })
-    )
-    if(!response_insert_webgrupo.ok){
-      return 0;
-    }
-    const response_insert_webreporte = await request_insertrow(
-      JSON.stringify({
-        database: 'D_EWAYA_CONFIG',
-        table: 'GD_WebReporteDesa',
-        main_id: 'id_reporte',
-        body: JSON.stringify({
-          desc_qry: viewName,
-          database_name: reportTypeObjectSelect.id_tiporeporte == 1 ? viewObjectSelect.DataBaseName : 'null',
-          table_name: reportTypeObjectSelect.id_tiporeporte == 1 ? viewObjectSelect.TableName : 'null',
-          col_qry: reportTypeObjectSelect.id_tiporeporte == 1 ? viewColumns : 'null',
-          ord_qry: reportTypeObjectSelect.id_tiporeporte == 1 ? viewSort : 'null',
-          full_qry: reportTypeObjectSelect.id_tiporeporte == 2 ? viewQuery : 'null',
-          id_tiporeporte: reportTypeObjectSelect.id_tiporeporte
-        })
-      })
-    )
-    if(!response_insert_webgrupo.ok){
-      return 0;
-    }
-    const response_insert_webgruporeporte = await request_insertrow(
-      JSON.stringify({
-        database: 'D_EWAYA_CONFIG',
-        table: 'GD_WebGrupoReporteDesa',
-        body: JSON.stringify({
-          id_grupo: response_insert_webgrupo['id_grupo'],
-          id_reporte: response_insert_webreporte['id_reporte'],
-          description: reportDescription
-        })
-      })
-    )
+  const show_modal_insert = async function (e) {
+    Swal.fire({
+      title: 'Registrar',
+      text: 'Verifica los datos ingresados',
+      showCancelButton: true,
+      confirmButtonText: 'Aceptar',
+      showLoaderOnConfirm: true,
+      preConfirm: async () => {
+        const response_insert_webgrupo = await request_insertrow(
+          JSON.stringify({
+            database: 'D_EWAYA_CONFIG',
+            table: 'GD_WebGrupoDesa',
+            main_id: 'id_grupo',
+            body: JSON.stringify({
+              name: reportName.value,
+              description: reportDescription,
+              id_tipogrupo: groupTypeObjectSelect.id_tipogrupo
+            })
+          })
+        )
+        const json_insert_webgrupo = await response_insert_webgrupo.json()
+        if(!response_insert_webgrupo.ok){
+          show_error()
+          return 0;
+        }
+        const response_insert_webreporte = await request_insertrow(
+          JSON.stringify({
+            database: 'D_EWAYA_CONFIG',
+            table: 'GD_WebReporteDesa',
+            main_id: 'id_reporte',
+            body: JSON.stringify({
+              desc_qry: viewName,
+              database_name: reportTypeObjectSelect.id_tiporeporte == 1 ? viewObjectSelect.DataBaseName : 'null',
+              table_name: reportTypeObjectSelect.id_tiporeporte == 1 ? viewObjectSelect.TableName : 'null',
+              col_qry: reportTypeObjectSelect.id_tiporeporte == 1 ? viewColumns : 'null',
+              ord_qry: reportTypeObjectSelect.id_tiporeporte == 1 ? viewSort : 'null',
+              full_qry: reportTypeObjectSelect.id_tiporeporte == 2 ? viewQuery : 'null',
+              id_tiporeporte: reportTypeObjectSelect.id_tiporeporte
+            })
+          })
+        )
+        const json_insert_webreporte = await response_insert_webreporte.json()
+        if(!response_insert_webreporte.ok){
+          show_error()
+          return 0;
+        }
+        const response_insert_webgruporeporte = await request_insertrow(
+          JSON.stringify({
+            database: 'D_EWAYA_CONFIG',
+            table: 'GD_WebGrupoReporteDesa',
+            body: JSON.stringify({
+              id_grupo: json_insert_webgrupo['id_grupo'],
+              id_reporte: json_insert_webreporte['id_reporte'],
+              description: reportDescription
+            })
+          })
+        )
+    
+        if(!response_insert_webgruporeporte.ok){
+          show_error()
+          return 0;
+        }
+        show_ok('Registrar','Registro exitoso')
+      }
+    })
   }
+
+  const show_modal_update = async function (e) {
+    Swal.fire({
+      title: 'Actualizar',
+      text: '¿Está seguro de actualizar este registro?',
+      showCancelButton: true,
+      confirmButtonText: 'Aceptar',
+      showLoaderOnConfirm: true,
+      preConfirm: async () => {
+        const response_update_webgrupo = await request_updaterow(
+          JSON.stringify({
+            database: 'D_EWAYA_CONFIG',
+            table: 'GD_WebGrupoDesa',
+            where: JSON.stringify({ 
+              id_grupo: webGroupObjectSelect.id_grupo
+            }),
+            body: JSON.stringify({
+              name: webGroupObjectSelect.name,
+              description: reportDescription,
+              id_tipogrupo: groupTypeObjectSelect.id_tipogrupo
+            })
+          })
+        )
+        if(!response_update_webgrupo.ok){
+          show_error()
+          return 0;
+        }
+        const response_update_webreporte = await request_updaterow(
+          JSON.stringify({
+            database: 'D_EWAYA_CONFIG',
+            table: 'GD_WebReporteDesa',
+            where: JSON.stringify({ 
+              id_reporte: listView[0].id_reporte
+            }),
+            body: JSON.stringify({  desc_qry: viewName, 
+                                    database_name: reportTypeObjectSelect.id_tiporeporte==1 ? viewObjectSelect.DataBaseName : 'null',
+                                    table_name: reportTypeObjectSelect.id_tiporeporte==1 ? viewObjectSelect.TableName : 'null',
+                                    col_qry: reportTypeObjectSelect.id_tiporeporte==1 ? viewColumns : 'null',
+                                    ord_qry: reportTypeObjectSelect.id_tiporeporte==1 ? viewSort : 'null',
+                                    full_qry: reportTypeObjectSelect.id_tiporeporte==2 ? viewQuery : 'null',
+                                    id_tiporeporte: reportTypeObjectSelect.id_tiporeporte})
+          })
+        )
+        if(!response_update_webreporte.ok){
+          show_error()
+          return 0;
+        }
+        show_ok('Actualizar','Actualización exitosa')
+      }
+    })
+  }
+
+  const show_modal = (title, text, icon, button) => {
+    Swal.fire({
+      title: title,
+      text: text,
+      icon: icon,
+      button: button
+    })
+  }
+
+  const show_ok = (title, text, icon='success', button='Aceptar') => {
+    show_modal(title, text, icon, button)
+  }
+
+  const show_error = (title='Error', text='Ocurrió un error en la operación', icon='error', button ='Aceptar') => {
+    show_modal(title, text, icon, button)
+  }
+
 
   const request_gettabledata = async (body) => {
     //const base_url = 'http://localhost:8080'
@@ -456,6 +574,27 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
     }
   }
 
+  const clear = () => {
+    setReportName("")
+    setReportDescription("")
+    setGroupTypeSelect([])
+    setGroupTypeValueSelect({})
+    setGroupTypeObjectSelect([])
+    setViewName("")
+    setReportTypeSelect([])
+    setReportTypeValueSelect({})
+    setReportTypeObjectSelect([])
+    setViewColumns("")
+    setViewSort("")
+    setViewQuery("")
+    setDatabaseSelect([])
+    setDatabaseValueSelect({})
+    setDatabaseObjectSelect([])
+    setViewSelect([])
+    setViewValueSelect({})
+    setViewObjectSelect([])
+  }
+
   useEffect(() => {
     if (open) {
       showTables()
@@ -495,7 +634,7 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
         Maestro de Tablero BI
       </div>
         <div className='modalRight modalBody'>
-          <p onClick={onClose} className='closeBtn'>X</p>
+          <p onClick={() => { onClose(); clear();}} className='closeBtn'>X</p>
           <div className='content'>
             <form>
               <div className="divReport">
