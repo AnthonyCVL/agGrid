@@ -26,8 +26,8 @@ const Menu = () => {
                                     <Link to="/app"><a id='app' onClick={handleClick} className="nav-a">Tablero BI</a></Link>
                                     <div className="underline"></div>
                                 </li>
-                                <li className={`nav-link ${clicked === 'metadatos' ? 'active-link' : ''}`}>
-                                    <Link to="/metadatos"><a id='metadatos' onClick={handleClick} className="nav-a">Metadatos de Procesos</a></Link>
+                                <li className={`nav-link ${clicked === 'metadatosprocesos' ? 'active-link' : ''}`}>
+                                    <Link to="/metadatosprocesos"><a id='metadatosprocesos' onClick={handleClick} className="nav-a">Metadatos de Procesos</a></Link>
                                     <div className="underline"></div>
                                 </li>
                                 <li className={`nav-link ${clicked === 'metadatostecnicos' ? 'active-link' : ''}`}>

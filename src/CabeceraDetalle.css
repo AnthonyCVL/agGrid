@@ -1,0 +1,124 @@
+@import url("https://cdn.syncfusion.com/ej2/bootstrap5.css");
+
+.App {
+  text-align: center;
+  background-color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+.dropdown {
+  width: 700px !important;
+  padding: 10px;
+  margin: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.reporte-dropdown{
+  padding: 10px;
+  margin: 10px;
+  width: 70%;
+  color: black !important;
+}
+
+.App-header{
+  background: white;
+}
+
+.App-title {
+  padding: 10px;
+  margin: 10px;
+  color: #06f;
+}
+
+.App-subtitle {
+  padding: 10px;
+  margin: 10px;
+  color: #06f;
+}
+
+.App-datatable-header {
+  padding: 10px;
+  margin: 10px;
+  height: 150px;
+}
+
+.App-datatable-detail {
+  margin-top: 30px !important;
+  padding: 10px;
+  margin: 10px;
+  height: 600px;
+}
+
+.baseTab{
+  border: 1px solid #e9ecef !important;
+  cursor: pointer;
+  background-color: white !important;
+  color: black !important;
+}
+
+.baseTab:hover{
+  background-color: #002bff !important;
+  color: white !important;
+}
+
+.activeTab{
+  background-color: #0066ffcf !important;
+  color: white !important;
+  border-color: white !important
+}
+
+.tabs{
+  background-color: white;
+  padding: 10px;
+  margin: 10px;
+}
+
+.main-logo{
+  padding: 10px;
+  margin: 10px;
+  display: flex;
+}
+
+.main-title{
+  color: #06f;
+}
+
+.main-subtitle{
+  color: #06f;
+  font-weight: bold;
+  font-size: 22px;
+}
+
+.datatable-title{
+  color: #06f;
+  flex: 1;
+  text-align: left;
+  padding-left: 20px;
+  margin: 10px;
+  font-weight: bold;
+  font-size: 22px;
+}
+
+.ag-header-cell {
+  color: black;
+}
+
+.grid {
+  flex: 1 1 auto;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.ag-row .ag-cell {
+  display: flex!important;
+  align-items: center;
+}
