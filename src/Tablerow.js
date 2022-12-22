@@ -7,6 +7,7 @@ import { TabContent, TabPane, Nav, NavItem, NavLink, Button } from 'reactstrap'
 import Select from 'react-select';
 import AgGrid from './components/AgGrid';
 import Modal2 from './components/Modal2';
+import ModalMenu from './components/ModalMenu';
 
 function Tablerow() {
   const [groupTables, setGroupTables] = useState([])
@@ -16,8 +17,11 @@ function Tablerow() {
   const [datatables, setDatatables] = useState([])
   const [gridApi, setGridApi] = useState({})
   const [openModal, setOpenModal] = useState(false)
+  const [openModalMenu, setOpenModalMenu] = useState(false)
   const [tableModal, setTableModal] = useState([])
   const [tableGroupModal, setTableGroupModal] = useState([])
+  const [tableModalMenu, setTableModalMenu] = useState([])
+  const [tableGroupModalMenu, setTableGroupModalMenu] = useState([])
 
   const addElementToArray = async (list, element) => {
     list.push(element)
@@ -30,6 +34,16 @@ function Tablerow() {
 
   const openModalfunction = () => {
     setOpenModal(false)
+    const list = []
+    list[0] = [{position: '1', databasename: 'databasename',objectname:'objectname'}]
+    const grouplist = [] 
+    grouplist[0] = [{position_table: 1, description: 'Reporte'}]
+    setTableModal(list)
+    setTableGroupModal(grouplist)
+  }
+
+  const openModalMenufunction = () => {
+    setOpenModalMenu(false)
     const list = []
     list[0] = [{position: '1', databasename: 'databasename',objectname:'objectname'}]
     const grouplist = [] 
@@ -221,6 +235,8 @@ function Tablerow() {
     <div className="App">
       <Button onClick={()=>setOpenModal(true)}>Agregar Reporte</Button>
       <Modal2 open={openModal} onClose={openModalfunction} p_datatables={tableModal} p_grouptables={tableGroupModal}></Modal2>
+      <Button onClick={()=>setOpenModalMenu(true)}>Agregar Menu</Button>
+      <ModalMenu open={openModalMenu} onClose={openModalMenufunction} p_datatables={tableModalMenu} p_grouptables={tableGroupModalMenu}></ModalMenu>
       <div className="App-title">
         <h2 align="center" className="display-8 fw-bold main-title">Tablero BI</h2>
       </div>

@@ -69,3 +69,7 @@
   border-color: #06f !important;
   padding: 0px 0px 0px 0px !important;
 }
+
+.overlay{
+  overflow-y: scroll;
+}
