@@ -34,8 +34,8 @@ const Menu = (links) => {
                                     <Link to="/metadatosprocesos"><a id='metadatosprocesos' onClick={handleClick} className="nav-a">Metadatos Procesos</a></Link>
                                     <div className="underline"></div>
                                 </li>
-                                <li className={`nav-link ${clicked === 'metadatosprocesos' ? 'active-link' : ''}`}>
-                                    <Link to="/metadatosprocesos"><a id='metadatosprocesos' onClick={handleClick} className="nav-a">Metadatos Procesos</a></Link>
+                                <li className={`nav-link ${clicked === 'metadatostecnicos' ? 'active-link' : ''}`}>
+                                    <Link to="/metadatostecnicos"><a id='metadatostecnicos' onClick={handleClick} className="nav-a">Metadatos Tecnicos</a></Link>
                                     <div className="underline"></div>
                                 </li>
                                 {/*{links.p_params && links.p_params.length 
