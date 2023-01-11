@@ -189,7 +189,7 @@ function Tablerow() {
       const data = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: 'VW_WebGrupoDesa',
+          table: 'VW_WebGrupo',
           where: JSON.stringify({ state: 1 })
         })
       )
@@ -233,10 +233,19 @@ function Tablerow() {
   return (
     <div>
     <div className="App">
-      <Button onClick={()=>setOpenModal(true)}>Agregar Reporte</Button>
+      
+    <div className="divReportName mb-3 row">
+    </div>
+      <div className="divReportName mb-3 row">
+      <div className="col-sm-10">
+      </div>
+      <div className="col-sm-2">
+        <Button className="btnAgregar" onClick={()=>setOpenModal(true)}>Agregar Reporte</Button>
+      </div>
+      </div>
       <Modal2 open={openModal} onClose={openModalfunction} p_datatables={tableModal} p_grouptables={tableGroupModal}></Modal2>
-      <Button onClick={()=>setOpenModalMenu(true)}>Agregar Menu</Button>
-      <ModalMenu open={openModalMenu} onClose={openModalMenufunction} p_datatables={tableModalMenu} p_grouptables={tableGroupModalMenu}></ModalMenu>
+      {/*<Button onClick={()=>setOpenModalMenu(true)}>Agregar Menu</Button>
+      <ModalMenu open={openModalMenu} onClose={openModalMenufunction} p_datatables={tableModalMenu} p_grouptables={tableGroupModalMenu}></ModalMenu>*/}
       <div className="App-title">
         <h2 align="center" className="display-8 fw-bold main-title">Tablero BI</h2>
       </div>

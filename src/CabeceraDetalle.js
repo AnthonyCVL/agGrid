@@ -78,8 +78,8 @@ function CabeceraDetalle({p_params}) {
   }
 
   const request_gettabledata = async (body) => {
-    const base_url='http://localhost:8080'
-    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    //const base_url='http://localhost:8080'
+    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/getTableData2'
     const request = {
       method: 'POST',
@@ -120,7 +120,6 @@ function CabeceraDetalle({p_params}) {
       setRowsHeader([tableSelected])
       setColumnsHeader(getDynamicColumns(tableSelected))
       
-      console.log('CONSULTA DETALLEEEEEEEEEEEEEEEEEEE')
       console.log(p_params.detail.full_qry)
       console.log(jsonWhere)
 
@@ -140,7 +139,6 @@ function CabeceraDetalle({p_params}) {
 
   const showTables = async () => {
     try {
-      console.log('CONSULTA CABECERAAAAAAAAAAAAAAAAAA')
       console.log(p_params.header.full_qry)
       const data = await request_gettabledata(
         JSON.stringify({

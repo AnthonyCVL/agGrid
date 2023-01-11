@@ -70,6 +70,7 @@ function Appss() {
             p_params.detail = {}
             p_params.header.titulo = el.titulo
             p_params.header.subtitulo = el.subtitulo
+            p_params.header.nombre_menu = el.nombre_menu
             p_params.header.url = el.url
             p_params.header.full_qry = el.cab_qry
             p_params.header.id_combo = el.id_combo
@@ -112,17 +113,18 @@ function Appss() {
   <Route exact path='/' element={ <Menu p_params={listCabeceraDetalle}/> }>
     <Route index element={ <Tablerow /> } />
     <Route exact path='app' element={ <Tablerow /> } />
-
+    <Route exact path='metadatosprocesos' element={ <Metadatos /> } />
+    <Route exact path='metadatostecnicos' element={ <MetadatosTecnicos /> } />
     
-    {listCabeceraDetalle && listCabeceraDetalle.length 
+    {/*{listCabeceraDetalle && listCabeceraDetalle.length 
     ? 
     listCabeceraDetalle.map((el)=>(
       //return el.header.url
-      <Route exact  path={el.header.url} element={ <CabeceraDetalle p_params={test} /> } />
+      <Route exact  path={el.header.url} element={ <CabeceraDetalle p_params={el} /> } />
       //<Route path='metadatosprocesos' element={ <CabeceraDetalle p_params={el} /> } />
     ))
     : 
-    null }
+    null }*/}
 
     <Route exact path='metadatosoperacionales' element={ <MetadatosOperacionales /> } />
     <Route exact path='*' element={ <Navigate replace to="/"/> }/>

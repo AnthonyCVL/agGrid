@@ -109,7 +109,7 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
     const response_webgroupreport = await request_gettabledata(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
-        table: 'VW_WebGrupoReporteDesa',
+        table: 'VW_WebGrupoReporte',
         where: JSON.stringify({ id_grupo: webGroupObjectSelect.id_grupo })
       })
     )
@@ -117,7 +117,7 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
       const response_webbreport = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: 'VW_WebReporteDesa',
+          table: 'VW_WebReporte',
           where: JSON.stringify({ id_reporte: obj.id_reporte })
         }))
       console.log(response_webbreport)
@@ -130,11 +130,9 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
   const setWebGroup = () => {
     console.log("setWebGroup")
     if (webGroupObjectSelect === '' || webGroupObjectSelect === undefined || webGroupObjectSelect.id_tipogrupo === '' || webGroupObjectSelect.id_tipogrupo === undefined) { 
-      console.log("no pase")
       setGroupTypeObjectSelect(groupTypeSelect[0].object)
       setGroupTypeValueSelect(groupTypeSelect[0])
     } else {
-      console.log("pase")
       var elementGroupType = groupTypeSelect.find((el) => {
         return el.object.id_tipogrupo === webGroupObjectSelect.id_tipogrupo
       })
@@ -217,7 +215,7 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
         const response_update_webgrupo = await request_updaterow(
           JSON.stringify({
             database: 'D_EWAYA_CONFIG',
-            table: 'GD_WebGrupoDesa',
+            table: 'GD_WebGrupo',
             where: JSON.stringify({ 
               id_grupo: webGroupObjectSelect.id_grupo
             }),
@@ -243,7 +241,7 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
     const response_update_webgrupo = await request_updaterow(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
-        table: 'GD_WebGrupoDesa',
+        table: 'GD_WebGrupo',
         where: JSON.stringify({ 
           id_grupo: webGroupObjectSelect.id_grupo
         }),
@@ -258,7 +256,7 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
     const response_update_webgrupo = await request_updaterow(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
-        table: 'GD_WebGrupoDesa',
+        table: 'GD_WebGrupo',
         where: JSON.stringify({ 
           id_grupo: webGroupObjectSelect.id_grupo
         }),
@@ -272,7 +270,7 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
     const response_update_webreporte = await request_updaterow(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
-        table: 'GD_WebReporteDesa',
+        table: 'GD_WebReporte',
         where: JSON.stringify({ 
           id_reporte: listView[0].id_reporte
         }),
@@ -298,7 +296,7 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
         const response_insert_webgrupo = await request_insertrow(
           JSON.stringify({
             database: 'D_EWAYA_CONFIG',
-            table: 'GD_WebGrupoDesa',
+            table: 'GD_WebGrupo',
             main_id: 'id_grupo',
             body: JSON.stringify({
               name: reportName.value,
@@ -312,10 +310,12 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
           show_error()
           return 0;
         }
+        console.log(viewQuery)
+        console.log(viewQuery.replaceAll("'","''"))
         const response_insert_webreporte = await request_insertrow(
           JSON.stringify({
             database: 'D_EWAYA_CONFIG',
-            table: 'GD_WebReporteDesa',
+            table: 'GD_WebReporte',
             main_id: 'id_reporte',
             body: JSON.stringify({
               desc_qry: viewName,
@@ -323,7 +323,7 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
               table_name: reportTypeObjectSelect.id_tiporeporte == 1 ? viewObjectSelect.TableName : 'null',
               col_qry: reportTypeObjectSelect.id_tiporeporte == 1 ? viewColumns : 'null',
               ord_qry: reportTypeObjectSelect.id_tiporeporte == 1 ? viewSort : 'null',
-              full_qry: reportTypeObjectSelect.id_tiporeporte == 2 ? viewQuery : 'null',
+              full_qry: reportTypeObjectSelect.id_tiporeporte == 2 ? viewQuery.replaceAll("'","''") : 'null',
               id_tiporeporte: reportTypeObjectSelect.id_tiporeporte
             })
           })
@@ -336,7 +336,7 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
         const response_insert_webgruporeporte = await request_insertrow(
           JSON.stringify({
             database: 'D_EWAYA_CONFIG',
-            table: 'GD_WebGrupoReporteDesa',
+            table: 'GD_WebGrupoReporte',
             body: JSON.stringify({
               id_grupo: json_insert_webgrupo['id_grupo'],
               id_reporte: json_insert_webreporte['id_reporte'],
@@ -365,7 +365,7 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
         const response_update_webgrupo = await request_updaterow(
           JSON.stringify({
             database: 'D_EWAYA_CONFIG',
-            table: 'GD_WebGrupoDesa',
+            table: 'GD_WebGrupo',
             where: JSON.stringify({ 
               id_grupo: webGroupObjectSelect.id_grupo
             }),
@@ -383,7 +383,7 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
         const response_update_webreporte = await request_updaterow(
           JSON.stringify({
             database: 'D_EWAYA_CONFIG',
-            table: 'GD_WebReporteDesa',
+            table: 'GD_WebReporte',
             where: JSON.stringify({ 
               id_reporte: listView[0].id_reporte
             }),
@@ -392,7 +392,7 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
                                     table_name: reportTypeObjectSelect.id_tiporeporte==1 ? viewObjectSelect.TableName : 'null',
                                     col_qry: reportTypeObjectSelect.id_tiporeporte==1 ? viewColumns : 'null',
                                     ord_qry: reportTypeObjectSelect.id_tiporeporte==1 ? viewSort : 'null',
-                                    full_qry: reportTypeObjectSelect.id_tiporeporte==2 ? viewQuery : 'null',
+                                    full_qry: reportTypeObjectSelect.id_tiporeporte==2 ? viewQuery.replaceAll("'","''") : 'null',
                                     id_tiporeporte: reportTypeObjectSelect.id_tiporeporte})
           })
         )
@@ -436,8 +436,8 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
   }
 
   const request_insertrow = async (body) => {
-    const base_url = 'http://localhost:8080'
-    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    //const base_url = 'http://localhost:8080'
+    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/insertRow'
     const request = {
       method: 'POST',
@@ -448,8 +448,8 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
   }
 
   const request_updaterow = async (body) => {
-    const base_url = 'http://localhost:8080'
-    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    //const base_url = 'http://localhost:8080'
+    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/updateRow'
     const request = {
       method: 'POST',
@@ -479,11 +479,9 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
     console.log(databaseObjectSelect)
     try {
       if (databaseObjectSelect.DataBaseName == "" || databaseObjectSelect.DataBaseName == undefined) {
-        console.log("no pase")
         return;
       }
 
-      console.log("pasee")
       /*const list = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
@@ -525,7 +523,6 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
   }
 
   const showTables = async () => {
-    console.log("showwwwwwwwTablesssssssssssssssssss")
     setHiddenCRUD(true)
     setFlagAction('')
     try {
@@ -593,7 +590,7 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
       const listWebGroup = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: 'VW_WebGrupoDesa',
+          table: 'VW_WebGrupo',
           where: JSON.stringify({ state: 1 })
         })
       )
@@ -665,7 +662,6 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
   }, [flagAction])
 
   useEffect(() => {
-    console.log("EJECUTA???????")
     console.log(webGroupObjectSelect.id_grupo)
     if (open) {
       getReportes()

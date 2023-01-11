@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, Link } from "react-router-dom"
 
 const Menu = (links) => {
-    console.log("LINNNNNNNNNNNNNNNNKS")
     console.log(links)
     const [clicked, setClicked] = useState('')
     const handleClick = (e) => {
@@ -31,18 +30,26 @@ const Menu = (links) => {
                                     <Link to="/app"><a id='app' onClick={handleClick} className="nav-a">Tablero BI</a></Link>
                                     <div className="underline"></div>
                                 </li>
-                                {links.p_params && links.p_params.length 
+                                <li className={`nav-link ${clicked === 'metadatosprocesos' ? 'active-link' : ''}`}>
+                                    <Link to="/metadatosprocesos"><a id='metadatosprocesos' onClick={handleClick} className="nav-a">Metadatos Procesos</a></Link>
+                                    <div className="underline"></div>
+                                </li>
+                                <li className={`nav-link ${clicked === 'metadatosprocesos' ? 'active-link' : ''}`}>
+                                    <Link to="/metadatosprocesos"><a id='metadatosprocesos' onClick={handleClick} className="nav-a">Metadatos Procesos</a></Link>
+                                    <div className="underline"></div>
+                                </li>
+                                {/*{links.p_params && links.p_params.length 
                                 ? 
                                 links.p_params.map((el)=>{
                                     console.log("ITER")
                                     console.log(el)
                                     return (<li className={`nav-link ${clicked === el.header.url ? 'active-link' : ''}`}>
-                                        <Link to={`/${el.header.url}`}><a id={el.header.url} onClick={handleClick} className="nav-a">{el.header.titulo}</a></Link>
+                                        <Link to={`/${el.header.url}`}><a id={el.header.url} onClick={handleClick} className="nav-a">{el.header.nombre_menu}</a></Link>
                                         <div className="underline"></div>
                                     </li>)
                                 })
                                 : 
-                                null }
+                                null }*/}
                                 <li className={`nav-link ${clicked === 'metadatosoperacionales' ? 'active-link' : ''}`}>
                                     <Link to="/metadatosoperacionales"><a id='metadatosoperacionales' onClick={handleClick} className="nav-a">Metadatos Operacionales</a></Link>
                                     <div className="underline"></div>

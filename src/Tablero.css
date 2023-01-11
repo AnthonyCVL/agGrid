@@ -180,6 +180,12 @@ img {
   font-weight: 600;
 }
 
+.btnAgregar{
+  border-color: #06f;
+  background-color: #06f;
+  text-align: right;
+}
+
 @media screen and (max-width: 500px) {
   .modalContainer {
     flex-direction: column;
