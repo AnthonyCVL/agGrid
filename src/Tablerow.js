@@ -128,7 +128,7 @@ function Tablerow() {
       const group_tables = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: 'VW_WebGrupoReporteDesa',
+          table: 'VW_WebGrupoReporte',
           where: JSON.stringify({ id_grupo: tableSelected.id_grupo, state: 1 })
         })
       )
@@ -145,7 +145,7 @@ function Tablerow() {
         const tables = request_gettabledata(
           JSON.stringify({
             database: 'D_EWAYA_CONFIG',
-            table: 'VW_WebReporteDesa',
+            table: 'VW_WebReporte',
             where: JSON.stringify({ id_reporte: key, state: 1 })
           })
         )
