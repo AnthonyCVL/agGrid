@@ -720,7 +720,7 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
       }
       } className='modalContainer card'> 
       <div class="card-header modalHeader">
-        Tablero BI (CRUD) - Reporte
+        Mantenimiento de Tablero BI
       </div>
         <div className='modalRight modalBody'>
           
