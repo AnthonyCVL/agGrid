@@ -340,7 +340,7 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
             body: JSON.stringify({
               id_grupo: json_insert_webgrupo['id_grupo'],
               id_reporte: json_insert_webreporte['id_reporte'],
-              description: reportDescription
+              description: viewName
             })
           })
         )
@@ -400,6 +400,23 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
           show_error()
           return 0;
         }
+
+        const response_update_webgruporeporte = await request_updaterow(
+          JSON.stringify({
+            database: 'D_EWAYA_CONFIG',
+            table: 'GD_WebGrupoReporte',
+            where: JSON.stringify({ 
+              id_grupo: webGroupObjectSelect.id_grupo,
+              id_reporte: listView[0].id_reporte
+            }),
+            body: JSON.stringify({  description: viewName })
+          })
+        )
+        if(!response_update_webgruporeporte.ok){
+          show_error()
+          return 0;
+        }
+
         show_ok('Actualizar','Actualización exitosa')
       }
     })

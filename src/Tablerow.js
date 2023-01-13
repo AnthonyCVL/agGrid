@@ -140,7 +140,6 @@ function Tablerow() {
       Object.keys(group_tables).forEach(async function (key) {
         promises.push(group_tables[key].id_reporte)
       });
-
       const resultados = await Promise.all(promises.map(function (key) {
         const tables = request_gettabledata(
           JSON.stringify({
@@ -174,7 +173,6 @@ function Tablerow() {
           }
         )
       )
-
       setDatatables(resultados)
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
@@ -240,7 +238,7 @@ function Tablerow() {
       <div className="col-sm-10">
       </div>
       <div className="col-sm-2">
-        <Button className="btnAgregar" onClick={()=>setOpenModal(true)}>Agregar Reporte</Button>
+        <Button className="btnAgregar" onClick={()=>setOpenModal(true)}>Crear Reporte</Button>
       </div>
       </div>
       <Modal2 open={openModal} onClose={openModalfunction} p_datatables={tableModal} p_grouptables={tableGroupModal}></Modal2>

@@ -123,15 +123,17 @@ function AgGrid(props) {
         </Button>
       </div>
       <Nav tabs>
-        {props.p_grouptables.map(element => (
+        {props.p_grouptables.map(element => {
+          return (
           <NavItem>
             <NavLink
-              className={(activeTab == element.position_table ? "activeTab baseTab" : "baseTab")}
+              className={(activeTab === element.position_table ? "activeTab baseTab" : "baseTab")}
               onClick={() => changeTab(element.position_table)}>
               {element.description}
             </NavLink>
           </NavItem>
-        ))}
+        )})
+      }
       </Nav>
       <TabContent activeTab={activeTab}>
         {props.p_grouptables.map(element => (
