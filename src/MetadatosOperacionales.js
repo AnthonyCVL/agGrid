@@ -78,8 +78,8 @@ function MetadatosOperacionales() {
   }
 
   const request_gettabledata = async (body) => {
-    const base_url='http://localhost:8080'
-    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    //const base_url='http://localhost:8080'
+    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/getTableData2'
     const request = {
       method: 'POST',
