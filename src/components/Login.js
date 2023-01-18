@@ -2,10 +2,14 @@
 import React from 'react';
 import '../stylesheet/Login.css';
 import App from '../App';
+import { Button } from 'reactstrap'
+import { useNavigate } from "react-router-dom";
 
-const Login = props => (
-    <LoginForm />
-);
+function Login () {
+ 
+
+    return (<LoginForm />)
+};
   
 export default Login;
 
@@ -21,9 +25,39 @@ class LoginForm extends React.Component{
   }
 }
 
+const request_gettabledata = async (body) => {
+  //const base_url='http://localhost:8080'
+  const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+  const method = '/getTableData2'
+  const request = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: body
+  };
+  return await send_post(base_url, method, request)
+}
+
+const send_post = async (base_url, method, request) => {
+  const response = await Promise.race(
+    [timeoutAfter(300), fetch(base_url + method, request)]
+  );
+  const json = await response.json();
+  return json
+}
+
+function timeoutAfter(seconds) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      reject(new Error("request timed-out"));
+    }, seconds * 1000);
+  });
+}
+
+
 const FormHeader = props => (
     <h2 id="headerTitle">{props.title}</h2>
 );
+
 
 
 const Form = props => (
@@ -39,11 +73,28 @@ const login = async function (e){
     return (<App />)
 }
 
-const FormButton = props => (
-  <div id="button" class="row">
-    <button onClick={login}>{props.title}</button>
-  </div>
-);
+const FormButton = props => {
+  let navigate = useNavigate(); 
+const routeChange = async () =>{ 
+  console.log('routeChange')
+  const data = await request_gettabledata(
+    JSON.stringify({
+      database: 'D_EWAYA_CONFIG',
+      table: 'GD_WebUsuario',
+      where: JSON.stringify({ usuario: 'avillacortal', contrasena: 'telefonica' })
+    })
+  )
+  console.log(data)
+  if(data.length>0){
+    let path = `app`; 
+    navigate(path);
+  }
+}
+
+  return (<div id="button" class="row">
+    <Button  onClick={routeChange}>{props.title}</Button >
+  </div>)
+};
 
 const FormInput = props => (
   <div class="row">

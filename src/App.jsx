@@ -108,7 +108,6 @@ function Appss() {
 
   return (
     <div className="App">
-<BrowserRouter>
 <Routes>
   <Route exact path='/' element={ <Menu p_params={listCabeceraDetalle}/> }>
     <Route index element={ <Tablerow /> } />
@@ -130,7 +129,6 @@ function Appss() {
     <Route exact path='*' element={ <Navigate replace to="/"/> }/>
   </Route>
 </Routes> 
-</BrowserRouter>
     </div>
     
   );
