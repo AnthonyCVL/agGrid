@@ -543,31 +543,7 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
     setHiddenCRUD(true)
     setFlagAction('')
     try {
-      const listV = await request_gettabledata(
-        JSON.stringify({
-          database: 'D_EWAYA_CONFIG',
-          table: 'VW_DATABASEOBJECT',
-          where: JSON.stringify({ tablekind: 'V' })
-        })
-      )
-      setViewGeneralSelect(listV)
-      //const response = await fetch('http://localhost:8080/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE_GROUP');
-      const list = await request_gettabledata(
-        JSON.stringify({
-          database: 'D_EWAYA_CONFIG',
-          table: 'VW_DATABASE'
-        })
-      )
-      const dataSelect = [];
-      /*listDatabase.sort(function (a, b) {
-        return a.id - b.id || a.name.localeCompare(b.name);
-      });*/
-      list.map(function (obj) {
-        dataSelect.push({ value: obj["DataBaseName"], label: obj["DataBaseName"], object: obj });
-      })
-      setDatabaseSelect(dataSelect)
-      setDatabaseValueSelect(dataSelect[0])
-      setDatabaseObjectSelect(list[0])
+
 
       const listGroupType = await request_gettabledata(
         JSON.stringify({
@@ -621,7 +597,36 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
       setWebGroupSelect(selectWebGroup)
       //setWebGroupValueSelect("")
       //setWebGroupObjectSelect("")
-
+      console.log("pre-await VW_DATABASEOBJECT")
+      const listV = await request_gettabledata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'VW_DATABASEOBJECT',
+          where: JSON.stringify({ tablekind: 'V' })
+        })
+      )
+      console.log("post-await VW_DATABASEOBJECT")
+      console.log("pre-await VW_DATABASE")
+      setViewGeneralSelect(listV)
+      //const response = await fetch('http://localhost:8080/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE_GROUP');
+      const list = await request_gettabledata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'VW_DATABASE'
+        })
+      )
+      console.log("post-await VW_DATABASE")
+           
+      const dataSelect = [];
+      /*listDatabase.sort(function (a, b) {
+        return a.id - b.id || a.name.localeCompare(b.name);
+      });*/
+      list.map(function (obj) {
+        dataSelect.push({ value: obj["DataBaseName"], label: obj["DataBaseName"], object: obj });
+      })
+      setDatabaseSelect(dataSelect)
+      setDatabaseValueSelect(dataSelect[0])
+      setDatabaseObjectSelect(list[0])
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
     }
