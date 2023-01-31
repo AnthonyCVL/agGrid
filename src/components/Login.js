@@ -87,6 +87,8 @@ const routeChange = async () =>{
   console.log(data)
   if(data.length>0){
     let path = `app`; 
+    console.log("cambio")
+    window.location.href="./app"
     navigate(path);
   }
 }
