@@ -214,7 +214,6 @@ function Tablerow() {
     showTableData()
   }, [tableSelected])
 
-
   function onRowDataChanged(params) {
     const colIds = params.columnApi.getAllGridColumns().map(c => c.colId)
     params.columnApi.autoSizeColumns(colIds)

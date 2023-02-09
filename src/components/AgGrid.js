@@ -4,6 +4,26 @@ import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Button } from 'reactstrap'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+import data from '../data.json'
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 function AgGrid(props) {
   const headerGrid = useRef(null);
@@ -12,8 +32,77 @@ function AgGrid(props) {
   const [datatablesColumns, setDatatablesColumns] = useState([])
   const [activeTab, setActiveTab] = useState("0")
   const [gridApi, setGridApi] = useState({})
+  const [chartData, setChartData] = useState({})
+  
+  useEffect(() => {
+    console.log("start useEffect testst")
+    console.log(props.p_datatables)
+    if(props.p_datatables.length==0){
+      return;
+    }
+    const array = props.p_datatables[0].map((item)=> item);
+    console.log(array)
+    const arrayGroup = groupBy(array,'Tipo_Tabla','Cantidad_Registros')
+    console.log(arrayGroup)
+    console.log("end useEffect testt")
+    setTimeout(() =>{
+      setChartData({
+        labels: arrayGroup.map(item => item['Tipo_Tabla']),
+        datasets: [
+          {
+            label: 'Revenue',
+            data: arrayGroup.map(item => item['Cantidad_Registros']),
+            backgroundColor: 'rgba(255, 99, 132, 0.5)'
+          }
+        ]
+      })
+    }, [])
+  }, [props.p_datatables])
 
+  const groupBy = (data, category, values) => {
+    const resultArr = [];
+    const groupByLocation = data.reduce(getReducer(category, values), {});
+    // Finally calculating the sum based on the location array we have.
+    Object.keys(groupByLocation).forEach((item) => {
+        groupByLocation[item] = groupByLocation[item].reduce((a, b) => a + b);
+        const array = []
+        array[category] = item
+        array[values] = groupByLocation[item]
+        resultArr.push(array)
+    })
+    return resultArr
+  }
 
+  function getReducer(category, values) {
+    // Child function (reducer)
+    function reducer(group, item) {
+      const cat = item[category];
+      group[cat] = group[cat] ?? [];
+      group[cat].push(item[values]);
+      return group;
+    }
+    
+    return reducer
+}
+  const groupBy2 = (data, category, values) => {
+    const resultArr = [];
+    const groupByLocation = data.reduce(category, values, (group, item) => {
+      const cat = item[category];
+      group[cat] = group[cat] ?? [];
+      group[cat].push(item[values]);
+      return group;
+    }, {});
+    
+    // Finally calculating the sum based on the location array we have.
+    Object.keys(groupByLocation).forEach(category, values, (item) => {
+        groupByLocation[item] = groupByLocation[item].reduce((a, b) => a + b);
+        const arr = []
+        arr[category]=item
+        arr[values]=groupByLocation[item]
+        resultArr.push(arr)
+    })
+    console.log(resultArr)
+  }
 
   const changeTab = (numberTab) => {
     if (activeTab !== numberTab) {
@@ -113,6 +202,7 @@ function AgGrid(props) {
   };
 
   return (
+    <div>
     <div className="tabs">
       <div className='reporte-button'>
         <Button color="success"
@@ -155,6 +245,28 @@ function AgGrid(props) {
           </TabPane>
         ))}
       </TabContent>
+    </div>
+    <div className='chart' style={{ maxHeight: '200px', height: '100%'}}>
+        {
+          chartData && chartData?.datasets && (
+            <Bar 
+              options={{
+                resposive: true,
+                plugins: {
+                  legend: {
+                    position: 'top',
+                  },
+                  title: {
+                    display: true,
+                    text: 'Revenue',
+                  },
+                },
+              }}
+              data={chartData}
+            />
+          )
+        }
+    </div>
     </div>
   );
 }

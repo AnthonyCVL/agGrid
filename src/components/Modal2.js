@@ -39,6 +39,10 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
   const [viewQuery, setViewQuery] = useState("")
   const [flagAction, setFlagAction] = useState("")
   const [reportDate, setReportDate] = useState(new Date().toLocaleString().replace(",",""))
+  const [chartSelect, setChartSelect] = useState([])
+  const [chartValueSelect, setChartValueSelect] = useState({})
+  const [chartObjectSelect, setChartObjectSelect] = useState([])
+  const [numChart, setNumChart] = useState(0)
 
   const databaseHandler = function (e) {
     setDatabaseObjectSelect(e.object)
@@ -59,6 +63,12 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
     setReportTypeObjectSelect(e.object)
     setReportTypeValueSelect(e)
   }
+
+  const chartSelectHandler = function (e) {
+    setChartObjectSelect(e.object)
+    setChartValueSelect(e)
+  }
+
 
 
   const createOption = (label) => ({
@@ -89,6 +99,7 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
     setReportName(createOption(e.object.name))
     setReportDate(webGroupObjectSelect.create_ts)
     setFlagAction('update')
+    setNumChart(0)
   }
 
   const showFormCRUD = function (e){
@@ -200,6 +211,39 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
     if(flagAction==='update'){
       show_modal_delete()
     }
+  }
+
+  const addChart = async function (e){
+    const list = await request_gettabledata(
+      JSON.stringify({
+        database: 'D_EWAYA_CONFIG',
+        table: 'GD_WebGrafico',
+        where: JSON.stringify({ 
+          estado: 1
+        })
+      })
+    )
+    const dataSelect = []
+    list.map(function (obj) {
+      dataSelect.push({ value: obj["id_grafico"], label: obj["nombre"], object: obj });
+    })
+    setChartSelect(dataSelect)
+    setNumChart((oldNumChart) => oldNumChart + 1)
+    console.log(chartSelect)
+    console.log(numChart)
+  }
+
+  const getChartForm = function (e){
+    return (<div className="mb-3 row">
+              <div className="col-sm-5">
+              <Select
+                        styles={style}
+                        options={chartSelect}
+                        value={chartValueSelect}
+                        onChange={(e) => chartSelectHandler(e)} />
+              </div>
+            </div>
+            )
   }
 
   const show_modal_delete = async function (e){
@@ -843,21 +887,33 @@ function Modal2({ open, onClose, p_datatables, p_grouptables }) {
                       value={viewQuery} onInput={e => setViewQuery(e.target.value)}></textarea>
                   </div>
                 </div>
+
                 <div className="mb-3 row">
-                <div className="col-sm-5"></div>
-                <div className="col-sm-1">
-                <Button disabled={`${(flagAction === '' ? 'true' : '')}`} color="primary"
-                  onClick={(e) => saveButton(e)}>{(flagAction === 'update' ? 'Modificar' : 'Crear')}</Button>
+                  <div className="col-sm-5"></div>
+                  <div className="col-sm-1">
+                  <Button disabled={`${(flagAction === '' ? 'true' : '')}`} color="primary"
+                    onClick={(e) => saveButton(e)}>{(flagAction === 'update' ? 'Modificar' : 'Crear')}</Button>
+                  </div>
+                  <div className="col-sm-4"></div>
+                  <div className="col-sm-1">
+                  <Button color="danger" className={`${(flagAction==='update' ? '' : 'div-hidden')}`}
+                        onClick={(e) => deleteButton(e)}>Eliminar</Button>
+                  </div>
                 </div>
-                <div className="col-sm-4"></div>
-                <div className="col-sm-1">
-                 <Button color="danger" className={`${(flagAction==='update' ? '' : 'div-hidden')}`}
-                      onClick={(e) => deleteButton(e)}>Eliminar</Button>
+                {[...Array(numChart)].map((e, i) => {
+                    return getChartForm()
+                })}
+                <div className="mb-3 row">
+
+                  <div className="col-sm-3">
+                  <Button color="primary" className={`${(flagAction==='update' ? '' : 'div-hidden')}`}
+                        onClick={(e) => addChart(e)}>Agregar Grafico</Button>
+                  </div>
                 </div>
-                </div>
+
               </div>
-                        </fieldset>
-                        </form>
+              </fieldset>
+              </form>
             </form>
           </div>
           {/*<div className='btnContainer'>
