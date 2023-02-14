@@ -54,6 +54,10 @@ const Menu = (links) => {
                                     <Link to="/metadatosoperacionales"><a id='metadatosoperacionales' onClick={handleClick} className="nav-a">Metadatos Operacionales</a></Link>
                                     <div className="underline"></div>
                                 </li>
+                                <li className={`nav-link ${clicked === 'mantenimiento' ? 'active-link' : ''}`}>
+                                    <Link to="/mantenimiento"><a id='mantenimiento' onClick={handleClick} className="nav-a">Mantenimiento</a></Link>
+                                    <div className="underline"></div>
+                                </li>
                             </ul>
                     </div>
                 </div>

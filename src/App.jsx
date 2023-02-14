@@ -9,6 +9,7 @@ import Metadatos from './Metadatos';
 import MetadatosTecnicos from './MetadatosTecnicos';
 import Menu from './Menu';
 import MetadatosOperacionales from './MetadatosOperacionales';
+import Mantenimiento from './Mantenimiento';
 import CabeceraDetalle from './CabeceraDetalle';
 
 function Appss() {
@@ -126,6 +127,7 @@ function Appss() {
     null }*/}
 
     <Route exact path='metadatosoperacionales' element={ <MetadatosOperacionales /> } />
+    <Route exact path='mantenimiento' element={ <Mantenimiento /> } />
     <Route exact path='*' element={ <Navigate replace to="/"/> }/>
   </Route>
 </Routes> 
