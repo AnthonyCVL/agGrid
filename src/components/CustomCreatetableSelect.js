@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Select from "react-select";
 
-function CustomSelect({options, styles, setValue}){
+function CustomCreatetableSelect({options, styles, setValue, onCreateOption, onChange}){
     const defaultSelected = options[0]
     const [selected, setSelected] = useState(defaultSelected);
     const onChange = (option) => { setSelected(option); setValue(option)}

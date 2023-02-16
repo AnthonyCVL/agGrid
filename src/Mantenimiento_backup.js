@@ -10,6 +10,20 @@ import CustomSelect from './components/CustomSelect';
 
 function Mantenimiento() {
 
+  const [databaseSelect, setDatabaseSelect] = useState([])
+  const [databaseValueSelect, setDatabaseValueSelect] = useState({})
+  const [databaseObjectSelect, setDatabaseObjectSelect] = useState([])
+  const [viewElementSelect, setViewElementSelect] = useState("")
+  const [viewGeneralSelect, setViewGeneralSelect] = useState([])
+  const [viewSelect, setViewSelect] = useState([])
+  const [viewValueSelect, setViewValueSelect] = useState({})
+  const [viewObjectSelect, setViewObjectSelect] = useState([])
+  const [groupTypeSelect, setGroupTypeSelect] = useState([])
+  const [groupTypeValueSelect, setGroupTypeValueSelect] = useState({})
+  const [groupTypeObjectSelect, setGroupTypeObjectSelect] = useState([])
+  const [reportTypeSelect, setReportTypeSelect] = useState([])
+  const [reportTypeValueSelect, setReportTypeValueSelect] = useState({})
+  const [reportTypeObjectSelect, setReportTypeObjectSelect] = useState([])
   const [webGroupSelect, setWebGroupSelect] = useState([])
   const [webGroupValueSelect, setWebGroupValueSelect] = useState({})
   const [listView, setListView] = useState([])
@@ -19,20 +33,49 @@ function Mantenimiento() {
   const [enableCRUD, setEnableCRUD] = useState("")
   const [hiddenCRUD, setHiddenCRUD] = useState(true)
   const [viewName, setViewName] = useState("")
+  const [viewColumns, setViewColumns] = useState("")
+  const [viewSort, setViewSort] = useState("")
   const [viewQuery, setViewQuery] = useState("")
   const [flagAction, setFlagAction] = useState("")
   const [reportDate, setReportDate] = useState(new Date().toLocaleString().replace(",", ""))
   const [chartSelect, setChartSelect] = useState([])
   const [chartValueSelect, setChartValueSelect] = useState({})
   const [chartObjectSelect, setChartObjectSelect] = useState([])
-  const [chartOptions, setChartOptions] = useState([])
-  const [chartValue, setChartValue] = useState({})
   const [numChart, setNumChart] = useState(0)
+
+  const [groupTypeOptions, setGroupTypeOptions] = useState([])
+  const [groupTypeValueSelected, setGroupTypeValueSelected] = useState({})
+  const [reportTypeOptions, setReportTypeOptions] = useState([])
+  const [reportTypeValueSelected, setReportTypeValueSelected] = useState({})
+
+  const [ejemplo, setEjemplo] = useState("hola")
+
+  const databaseHandler = function (e) {
+    setDatabaseObjectSelect(e.object)
+    setDatabaseValueSelect(e)
+  }
+
+  const viewHandler = function (e) {
+    setViewObjectSelect(e.object)
+    setViewValueSelect(e)
+  }
+
+  const groupTypeHandler = function (e) {
+    setGroupTypeObjectSelect(e.object)
+    setGroupTypeValueSelect(e)
+  }
+
+  const reportTypeHandler = function (e) {
+    setReportTypeObjectSelect(e.object)
+    setReportTypeValueSelect(e)
+  }
 
   const chartSelectHandler = function (e) {
     setChartObjectSelect(e.object)
     setChartValueSelect(e)
   }
+
+
 
   const createOption = (label) => ({
     label,
@@ -101,6 +144,74 @@ function Mantenimiento() {
     })
   }
 
+  const setWebGroup = () => {
+    console.log("setWebGroup")
+    if (webGroupObjectSelect === '' || webGroupObjectSelect === undefined || webGroupObjectSelect.id_tipogrupo === '' || webGroupObjectSelect.id_tipogrupo === undefined) {
+      setGroupTypeObjectSelect(groupTypeSelect[0].object)
+      setGroupTypeValueSelect(groupTypeSelect[0])
+      setGroupTypeValueSelected(groupTypeOptions[0])
+    } else {
+      var elementGroupType = groupTypeSelect.find((el) => {
+        return el.object.id_tipogrupo === webGroupObjectSelect.id_tipogrupo
+      })
+      setGroupTypeObjectSelect(elementGroupType.object)
+      setGroupTypeValueSelect(elementGroupType)
+      var elementGroupType = groupTypeOptions.find((el) => {
+        return el.object.id_tipogrupo === webGroupObjectSelect.id_tipogrupo
+      })
+      setGroupTypeObjectSelect(elementGroupType.object)
+      setGroupTypeValueSelect(elementGroupType)
+      setGroupTypeValueSelected(elementGroupType)
+    }
+  }
+
+  const setWebReport = () => {
+    console.log("setWebReport")
+    console.log(listView)
+    console.log(viewSelect)
+    if (listView.length > 0) {
+      setViewName(listView[0].desc_qry)
+      setViewQuery(listView[0].full_qry)
+      setViewColumns(listView[0].col_qry)
+      setViewSort(listView[0].ord_qry)
+    }
+    if (webGroupObjectSelect === '' || webGroupObjectSelect === undefined || webGroupObjectSelect.id_tipogrupo === '' || webGroupObjectSelect.id_tipogrupo === undefined) {
+      setReportTypeObjectSelect(reportTypeSelect[0].object)
+      setReportTypeValueSelect(reportTypeSelect[0])
+      setReportTypeValueSelected(reportTypeOptions[0])
+      setDatabaseObjectSelect(databaseSelect[0].object)
+      setDatabaseValueSelect(databaseSelect[0])
+      setViewObjectSelect(viewSelect[0].object)
+      setViewValueSelect(viewSelect[0])
+    } else {
+      if (listView.length > 0) {
+        var elementReportType = reportTypeSelect.find((el) => {
+          return el.object.id_tiporeporte === listView[0].id_tiporeporte
+        })
+        setReportTypeObjectSelect(elementReportType.object)
+        setReportTypeValueSelect(elementReportType)
+
+        elementReportType = reportTypeOptions.find((el) => {
+          return el.object.id_tiporeporte === listView[0].id_tiporeporte
+        })
+        setReportTypeValueSelected(elementReportType)
+
+        if (listView[0].id_tiporeporte === 1) {
+          var elementDatabaseType = databaseSelect.find((el) => {
+            return el.object.DataBaseName.toUpperCase() === listView[0].database_name.toUpperCase()
+          })
+          setDatabaseObjectSelect(elementDatabaseType.object)
+          setDatabaseValueSelect(elementDatabaseType)
+          /*var elementViewType = viewGeneralSelect.find((el) => {
+            return el.DataBaseName.toUpperCase() === listView[0].database_name.toUpperCase() && el.TableName.toUpperCase() === listView[0].table_name.toUpperCase()
+          })
+          setViewObjectSelect(elementViewType.object)
+          setViewValueSelect(elementViewType)*/
+          setViewElementSelect(listView[0].table_name)
+        }
+      }
+    }
+  }
 
   const saveButton = async function (e) {
     console.log("SAVE")
@@ -123,6 +234,8 @@ function Mantenimiento() {
 
   const test = function(e){
     console.log("test")
+    console.log(groupTypeValueSelected)
+    console.log(reportTypeValueSelected)
   }
   const addChart = async function (e) {
     const list = await request_gettabledata(
@@ -138,7 +251,6 @@ function Mantenimiento() {
     list.map(function (obj) {
       dataSelect.push({ value: obj["id_grafico"], label: obj["nombre"], object: obj });
     })
-    setChartOptions(dataSelect)
     setChartSelect(dataSelect)
     setNumChart((oldNumChart) => oldNumChart + 1)
     console.log(chartSelect)
@@ -148,10 +260,11 @@ function Mantenimiento() {
   const getChartForm = function (e) {
     return (<div className="mb-3 row">
       <div className="col-sm-5">
-        <CustomSelect
+        <Select
           styles={style}
-          options={chartOptions}
-          setValue={setChartValue} />
+          options={chartSelect}
+          value={chartValueSelect}
+          onChange={(e) => chartSelectHandler(e)} />
       </div>
     </div>
     )
@@ -192,6 +305,56 @@ function Mantenimiento() {
     })
   }
 
+  const deleteGW = async function (e) {
+    const response_update_webgrupo = await request_updaterow(
+      JSON.stringify({
+        database: 'D_EWAYA_CONFIG',
+        table: 'GD_WebGrupo',
+        where: JSON.stringify({
+          id_grupo: webGroupObjectSelect.id_grupo
+        }),
+        body: JSON.stringify({
+          state: 0
+        })
+      })
+    )
+  }
+
+  const update = async function (e) {
+    const response_update_webgrupo = await request_updaterow(
+      JSON.stringify({
+        database: 'D_EWAYA_CONFIG',
+        table: 'GD_WebGrupo',
+        where: JSON.stringify({
+          id_grupo: webGroupObjectSelect.id_grupo
+        }),
+        body: JSON.stringify({
+          name: webGroupObjectSelect.name,
+          description: reportDescription,
+          id_tipogrupo: groupTypeObjectSelect.id_tipogrupo
+        })
+      })
+    )
+    const response_update_webreporte = await request_updaterow(
+      JSON.stringify({
+        database: 'D_EWAYA_CONFIG',
+        table: 'GD_WebReporte',
+        where: JSON.stringify({
+          id_reporte: listView[0].id_reporte
+        }),
+        body: JSON.stringify({
+          desc_qry: viewName,
+          database_name: reportTypeObjectSelect.id_tiporeporte == 1 ? viewObjectSelect.DataBaseName : 'null',
+          table_name: reportTypeObjectSelect.id_tiporeporte == 1 ? viewObjectSelect.TableName : 'null',
+          col_qry: reportTypeObjectSelect.id_tiporeporte == 1 ? viewColumns : 'null',
+          ord_qry: reportTypeObjectSelect.id_tiporeporte == 1 ? viewSort : 'null',
+          full_qry: reportTypeObjectSelect.id_tiporeporte == 2 ? viewQuery : 'null',
+          id_tiporeporte: reportTypeObjectSelect.id_tiporeporte
+        })
+      })
+    )
+  }
+
   const show_modal_insert = async function (e) {
     Swal.fire({
       title: 'Registrar',
@@ -208,7 +371,7 @@ function Mantenimiento() {
             body: JSON.stringify({
               name: reportName.value,
               description: reportDescription,
-              id_tipogrupo: 1
+              id_tipogrupo: groupTypeObjectSelect.id_tipogrupo
             })
           })
         )
@@ -226,8 +389,12 @@ function Mantenimiento() {
             main_id: 'id_reporte',
             body: JSON.stringify({
               desc_qry: viewName,
-              full_qry: viewQuery.replaceAll("'", "''"),
-              id_tiporeporte: 2
+              database_name: reportTypeObjectSelect.id_tiporeporte == 1 ? viewObjectSelect.DataBaseName : 'null',
+              table_name: reportTypeObjectSelect.id_tiporeporte == 1 ? viewObjectSelect.TableName : 'null',
+              col_qry: reportTypeObjectSelect.id_tiporeporte == 1 ? viewColumns : 'null',
+              ord_qry: reportTypeObjectSelect.id_tiporeporte == 1 ? viewSort : 'null',
+              full_qry: reportTypeObjectSelect.id_tiporeporte == 2 ? viewQuery.replaceAll("'", "''") : 'null',
+              id_tiporeporte: reportTypeObjectSelect.id_tiporeporte
             })
           })
         )
@@ -252,9 +419,6 @@ function Mantenimiento() {
           show_error()
           return 0;
         }
-        
-        clear()
-        showTables()
         show_ok('Registrar', 'Registro exitoso')
       }
     })
@@ -277,7 +441,8 @@ function Mantenimiento() {
             }),
             body: JSON.stringify({
               name: webGroupObjectSelect.name,
-              description: reportDescription
+              description: reportDescription,
+              id_tipogrupo: groupTypeObjectSelect.id_tipogrupo
             })
           })
         )
@@ -294,7 +459,12 @@ function Mantenimiento() {
             }),
             body: JSON.stringify({
               desc_qry: viewName,
-              full_qry: viewQuery.replaceAll("'", "''")
+              database_name: reportTypeObjectSelect.id_tiporeporte == 1 ? viewObjectSelect.DataBaseName : 'null',
+              table_name: reportTypeObjectSelect.id_tiporeporte == 1 ? viewObjectSelect.TableName : 'null',
+              col_qry: reportTypeObjectSelect.id_tiporeporte == 1 ? viewColumns : 'null',
+              ord_qry: reportTypeObjectSelect.id_tiporeporte == 1 ? viewSort : 'null',
+              full_qry: reportTypeObjectSelect.id_tiporeporte == 2 ? viewQuery.replaceAll("'", "''") : 'null',
+              id_tiporeporte: reportTypeObjectSelect.id_tiporeporte
             })
           })
         )
@@ -390,10 +560,93 @@ function Mantenimiento() {
     return response
   }
 
+  const showTableData = async () => {
+    console.log("showTableData")
+    //setViewSelect([])
+    setViewValueSelect("")
+    setViewObjectSelect([])
+    console.log(databaseObjectSelect)
+    try {
+      if (databaseObjectSelect.DataBaseName == "" || databaseObjectSelect.DataBaseName == undefined) {
+        console.log("return")
+        return;
+      }
+
+      /*const list = await request_gettabledata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'VW_DATABASEOBJECT',
+          where: JSON.stringify({ databasename: databaseObjectSelect.DataBaseName, tablekind: 'V' })
+        })
++      )*/
+      var dataSelect = [];
+      /*listDatabase.sort(function (a, b) {
+        return a.id - b.id || a.name.localeCompare(b.name);
+      });*/
+      console.log(viewGeneralSelect)
+      console.log(databaseObjectSelect)
+      var list = viewGeneralSelect.filter((el) => {
+        return el.DataBaseName.toUpperCase() === databaseObjectSelect.DataBaseName.toUpperCase()
+      })
+      console.log(list)
+      list.map(function (obj) {
+        dataSelect.push({ value: obj["TableName"], label: obj["TableName"], object: obj });
+      })
+      var viewValue = dataSelect[0]
+      var viewObject = list[0]
+
+      if (viewElementSelect !== null && viewElementSelect !== "") {
+        var elementGroupType = dataSelect.find((el) => {
+          return el.value.toUpperCase() === viewElementSelect.toUpperCase()
+        })
+        viewValue = elementGroupType
+        viewObject = elementGroupType.object
+      }
+      setViewSelect(dataSelect)
+      setViewValueSelect(viewValue)
+      setViewObjectSelect(viewObject)
+      setViewElementSelect(null)
+      console.log(list)
+    } catch (error) {
+      console.error("There has been a problem with your fetch operation:", error);
+    }
+  }
+
   const showTables = async () => {
+    setHiddenCRUD(true)
     setFlagAction('')
     console.log("showTables")
     try {
+      const listGroupType = await request_gettabledata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'VW_TipoWebGrupo'
+        })
+      )
+      const selectGroupType = [];
+      listGroupType.map(function (obj) {
+        selectGroupType.push({ value: obj["id_tipogrupo"], label: obj["nombre"], object: obj });
+      })
+      setGroupTypeSelect(selectGroupType)
+      setGroupTypeOptions(selectGroupType)
+      setGroupTypeValueSelect(selectGroupType[0])
+      setGroupTypeObjectSelect(listGroupType[0])
+
+      const listReportType = await request_gettabledata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'VW_TipoWebReporte'
+        })
+      )
+      const selectReportType = [];
+      listReportType.map(function (obj) {
+        selectReportType.push({ value: obj["nombre"], label: obj["nombre"], object: obj });
+      })
+      setReportTypeSelect(selectReportType)
+      setReportTypeOptions(selectReportType)
+      setReportTypeValueSelect(selectReportType[0])
+      setReportTypeObjectSelect(listReportType[0])
+
       const listWebGroup = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
@@ -406,15 +659,41 @@ function Mantenimiento() {
         selectWebGroup.push({ value: obj["name"], label: obj["name"], object: obj });
       })
       setWebGroupSelect(selectWebGroup)
+      //setWebGroupValueSelect("")
+      //setWebGroupObjectSelect("")
+      console.log("pre-await VW_DATABASEOBJECT")
+      const listV = await request_gettabledata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'VW_DATABASEOBJECT',
+          where: JSON.stringify({ tablekind: 'V' })
+        })
+      )
+      console.log("post-await VW_DATABASEOBJECT")
+      console.log("pre-await VW_DATABASE")
+      setViewGeneralSelect(listV)
+      //const response = await fetch('http://localhost:8080/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE_GROUP');
+      const list = await request_gettabledata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'VW_DATABASE'
+        })
+      )
+      console.log("post-await VW_DATABASE")
+
+      const dataSelect = [];
+      /*listDatabase.sort(function (a, b) {
+        return a.id - b.id || a.name.localeCompare(b.name);
+      });*/
+      list.map(function (obj) {
+        dataSelect.push({ value: obj["DataBaseName"], label: obj["DataBaseName"], object: obj });
+      })
+      console.log("databaseee")
+      setDatabaseSelect(dataSelect)
+      setDatabaseValueSelect(dataSelect[0])
+      setDatabaseObjectSelect(list[0])
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
-    }
-  }
-
-  const setWebReport = () => {
-    if(listView.length>0){
-      setViewName(listView[0].desc_qry)
-      setViewQuery(listView[0].full_qry)
     }
   }
 
@@ -428,15 +707,39 @@ function Mantenimiento() {
     console.log(webGroupObjectSelect.id_grupo)
     setReportName("")
     setReportDescription("")
+    //setGroupTypeSelect([])
+    //setGroupTypeValueSelect({})
+    //setGroupTypeObjectSelect([])
+    setGroupTypeObjectSelect(groupTypeSelect[0].object)
+    setGroupTypeValueSelect(groupTypeSelect[0])
+    setGroupTypeValueSelected(groupTypeOptions[0])
     setViewName("")
+    //setReportTypeSelect([])
+    //setReportTypeValueSelect({})
+    //setReportTypeObjectSelect([])
+    setReportTypeObjectSelect(reportTypeSelect[0].object)
+    setReportTypeValueSelect(reportTypeSelect[0])
+    setReportTypeValueSelected(reportTypeOptions[0])
+    setViewColumns("")
+    setViewSort("")
     setViewQuery("")
+    //setDatabaseSelect([])
+    setDatabaseValueSelect({})
+    setDatabaseObjectSelect([])
+    //setViewSelect([])
+    setViewValueSelect({})
+    setViewObjectSelect([])
+    //showTables()
   }
 
   useEffect(() => {
     console.log("useEffect showTables")
-    setHiddenCRUD(true)
     showTables()
   }, [])
+
+  useEffect(() => {
+    showTableData()
+  }, [databaseObjectSelect])
 
   useEffect(() => {
   }, [flagAction])
@@ -457,7 +760,7 @@ function Mantenimiento() {
 
   useEffect(() => {
     console.log("useEffect setWebReport")
-    setWebReport()
+    //setWebReport()
   }, [listView])
 
   useEffect(() => {
@@ -479,20 +782,18 @@ function Mantenimiento() {
       <div className="App-title">
         <h2 align="center" className="display-8 fw-bold main-title">Mantenimiento de Tablero BI</h2>
         </div>
-
+        <Button color="primary" onClick={(e) => test(e)}>Test</Button>
       <div className='modalRight modalBody'>
-      <div class="d-flex justify-content-center bd-highlight mb-3">
-        <div className={`divPassword col-sm-3 ${(!hiddenCRUD ? "div-hidden" : "")}`} >
+        <div className={`divPassword col-sm-12 ${(!hiddenCRUD ? "div-hidden" : "")}`} >
           <input id="inputEnableCRUD" type='text' className="form-control input"
             value={enableCRUD} onInput={e => setEnableCRUD(e.target.value)}></input>
-        </div>
         </div>
         <div className={`content ${(hiddenCRUD ? "div-hidden" : "")}`}>
           <form>
             <div className="divReport">
               <div className="divReportName mb-3 row">
-                <label htmlFor="reportName" className="col-sm-1 col-form-label labelForm">Nombre</label>
-                <div className="col-sm-3">
+                <label htmlFor="reportName" className="col-sm-2 col-form-label labelForm">Nombre</label>
+                <div className="col-sm-4">
                   <CreatableSelect
                     styles={style}
                     options={webGroupSelect}
@@ -500,18 +801,31 @@ function Mantenimiento() {
                     onCreateOption={handleCreateReport}
                     onChange={webGroupHandler} />
                 </div>
-                <div className="col-sm-1">
+                <div className="col-sm-1" />
+                <div className="col-sm-2">
                   <label className="col-form-label labelForm">Fecha mod:</label>
                 </div>
-                <div className="col-sm-2">
+                <div className="col-sm-3">
                   <label className="date-update col-form-label labelForm">{reportDate}</label>
                 </div>
               </div>
               <div className="divReportDescription mb-3 row">
-                <label htmlFor="reportDescription" className="col-sm-1 col-form-label labelForm">Descripcion</label>
-                <div className="col-sm-3">
+                <label htmlFor="reportDescription" className="col-sm-2 col-form-label labelForm">Descripcion</label>
+                <div className="col-sm-10">
                   <input id="reportDescription" type='text' className="form-control input"
                     value={reportDescription} onInput={e => setReportDescription(e.target.value)}></input>
+                </div>
+              </div>
+              <div className="divReportType mb-3 row">
+                <label htmlFor="reportType" className="col-sm-2 col-form-label labelForm">Tipo</label>
+                <div className="col-sm-4">
+                  <CustomSelect
+                    styles={style}
+                    options={groupTypeOptions}
+                    value={groupTypeValueSelected}
+                    setValue={setGroupTypeValueSelected} />
+                </div>
+                <div className="col-sm-2">
                 </div>
               </div>
               {/*<div className="divDatatable">
@@ -525,18 +839,58 @@ function Mantenimiento() {
               <fieldset className="form-group border border-secondary rounded p-3 viewSection legend-detail">
                 <div className="divView card-body ">
                   <div className="divTitle mb-3 row card-title">
-                    <legend className="w-auto px-4 title-viewform">Detalle</legend >
+                    <legend className="w-auto px-2 title-viewform">Detalle</legend >
                   </div>
                   <div className="divViewName mb-3 row">
-                    <label htmlFor="viewName" className="col-sm-1 px-4 col-form-label labelForm">Nombre</label>
-                    <div className="col-sm-3">
+                    <label htmlFor="viewName" className="col-sm-2 col-form-label labelForm">Nombre</label>
+                    <div className="col-sm-4">
                       <input id="viewName" type='text' className="form-control input"
                         value={viewName} onInput={e => setViewName(e.target.value)}></input>
                     </div>
-                  </div>
-                  <div className={`divViewQuery mb-3 row`}>
-                    <label htmlFor="viewQuery" className="col-sm-1 px-4 col-form-label labelForm">Query</label>
+                    <label htmlFor="viewType" className="col-sm-1 col-form-label labelForm">Tipo</label>
                     <div className="col-sm-5">
+                      <CustomSelect
+                        styles={style}
+                        options={reportTypeOptions}
+                        value={reportTypeValueSelected}
+                        setValue={setReportTypeValueSelected} />
+                    </div>
+                  </div>
+                  <div className={`divViewDatabase mb-3 row ${(reportTypeObjectSelect.id_tiporeporte !== 1 ? "div-hidden" : "")}`}>
+                    <label htmlFor="viewDatabase" className="col-sm-2 col-form-label labelForm">Base de datos</label>
+                    <div className="col-sm-4">
+                      <Select
+                        styles={style}
+                        options={databaseSelect}
+                        value={databaseValueSelect}
+                        onChange={(e) => databaseHandler(e)} />
+                    </div>
+                    <label htmlFor="viewView" className="col-sm-1 col-form-label labelForm">Vista</label>
+                    <div className="col-sm-5">
+                      <Select
+                        styles={style}
+                        options={viewSelect}
+                        value={viewValueSelect}
+                        onChange={(e) => viewHandler(e)} />
+                    </div>
+                  </div>
+                  <div className={`divViewColumns mb-3 row ${(reportTypeValueSelected.object.id_tiporeporte !== 1 ? "div-hidden" : "")}`}>
+                    <label htmlFor="viewColumns" className="col-sm-2 col-form-label labelForm">Columnas</label>
+                    <div className="col-sm-10">
+                      <input id="viewColumns" type='text' className="form-control input"
+                        value={viewColumns} onInput={e => setViewColumns(e.target.value)}></input>
+                    </div>
+                  </div>
+                  <div className={`divViewSort mb-3 row ${(reportTypeValueSelected.object.id_tiporeporte !== 1 ? "div-hidden" : "")}`}>
+                    <label htmlFor="viewSort" className="col-sm-2 col-form- labelForm">Orden</label>
+                    <div className="col-sm-10">
+                      <input id="viewSort" type='text' className="form-control input"
+                        value={viewSort} onInput={e => setViewSort(e.target.value)}></input>
+                    </div>
+                  </div>
+                  <div className={`divViewQuery mb-3 row ${(reportTypeValueSelected.object.id_tiporeporte !== 2 ? "div-hidden" : "")}`}>
+                    <label htmlFor="viewQuery" className="col-sm-2 col-form-label labelForm">Query</label>
+                    <div className="col-sm-10">
                       <textarea id="viewQuery" type='text' className="form-control" rows="6"
                         value={viewQuery} onInput={e => setViewQuery(e.target.value)}></textarea>
                     </div>
