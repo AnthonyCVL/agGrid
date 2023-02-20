@@ -22,17 +22,12 @@ function Mantenimiento() {
   const [viewQuery, setViewQuery] = useState("")
   const [flagAction, setFlagAction] = useState("")
   const [reportDate, setReportDate] = useState(new Date().toLocaleString().replace(",", ""))
-  const [chartSelect, setChartSelect] = useState([])
-  const [chartValueSelect, setChartValueSelect] = useState({})
-  const [chartObjectSelect, setChartObjectSelect] = useState([])
   const [chartOptions, setChartOptions] = useState([])
   const [chartValue, setChartValue] = useState({})
   const [numChart, setNumChart] = useState(0)
+  const [reportColumns, setReportColumns] = useState([])
 
-  const chartSelectHandler = function (e) {
-    setChartObjectSelect(e.object)
-    setChartValueSelect(e)
-  }
+  const [listChart, setListChart] = useState([])
 
   const createOption = (label) => ({
     label,
@@ -125,34 +120,46 @@ function Mantenimiento() {
     console.log("test")
   }
   const addChart = async function (e) {
-    const list = await request_gettabledata(
-      JSON.stringify({
-        database: 'D_EWAYA_CONFIG',
-        table: 'GD_WebGrafico',
-        where: JSON.stringify({
-          estado: 1
+    console.log("addChart")
+    if(reportColumns.length==0){
+      const result_columns = await request_getquerycolumns(
+        JSON.stringify({
+          query: viewQuery
         })
+      )
+      const columns = Object.keys(result_columns[0]).map(obj => { 
+        return ({value: obj, label: obj})
       })
-    )
-    const dataSelect = []
-    list.map(function (obj) {
-      dataSelect.push({ value: obj["id_grafico"], label: obj["nombre"], object: obj });
-    })
-    setChartOptions(dataSelect)
-    setChartSelect(dataSelect)
+      setReportColumns(columns)
+    }
+    const newChart= { id_grafico: null, categoria: null, valor: null, mesa: null, action: 'INSERT'}
+    setListChart([...listChart, newChart])
     setNumChart((oldNumChart) => oldNumChart + 1)
-    console.log(chartSelect)
     console.log(numChart)
   }
 
-  const getChartForm = function (e) {
+  const getChartForm = function (e, i) {
     return (<div className="mb-3 row">
-      <div className="col-sm-5">
-        <CustomSelect
-          styles={style}
-          options={chartOptions}
-          setValue={setChartValue} />
-      </div>
+              <div className="col-sm-1">
+                Gráfico {i+1}
+              </div>
+              <div className="col-sm-3">
+                <CustomSelect
+                  styles={style}
+                  options={chartOptions}
+                  setValue={setChartValue} />
+              </div>
+              <div className="col-sm-3">
+              <CustomSelect
+                  styles={style}
+                  options={reportColumns}
+                  setValue={setChartValue} />
+              </div>
+              
+              <div className="col-sm-3">
+              <input id={"chartValue"+i} type='text' className="form-control input" placeholder="valor"
+                        onInput={e => setViewName(e.target.value)}></input>
+              </div>
     </div>
     )
   }
@@ -354,6 +361,18 @@ function Mantenimiento() {
     return await send_post(base_url, method, request)
   }
 
+  const request_getquerycolumns = async (body) => {
+    const base_url = 'http://localhost:8080'
+    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const method = '/getQueryColumns'
+    const request = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: body
+    };
+    return await send_post(base_url, method, request)
+  }
+
   const request_insertrow = async (body) => {
     //const base_url = 'http://localhost:8080'
     const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
@@ -394,7 +413,7 @@ function Mantenimiento() {
     setFlagAction('')
     console.log("showTables")
     try {
-      const listWebGroup = await request_gettabledata(
+      const response_list_webgroup = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
           table: 'VW_WebGrupo',
@@ -402,10 +421,25 @@ function Mantenimiento() {
         })
       )
       const selectWebGroup = [];
-      listWebGroup.map(function (obj) {
+      response_list_webgroup.map(function (obj) {
         selectWebGroup.push({ value: obj["name"], label: obj["name"], object: obj });
       })
       setWebGroupSelect(selectWebGroup)
+
+      const response_list_chart = await request_gettabledata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'GD_WebGrafico',
+          where: JSON.stringify({
+            estado: 1
+          })
+        })
+      )
+      const dataSelect = []
+      response_list_chart.map(function (obj) {
+        dataSelect.push({ value: obj["id_grafico"], label: obj["nombre"], object: obj });
+      })
+      setChartOptions(dataSelect)
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
     }
@@ -416,6 +450,10 @@ function Mantenimiento() {
       setViewName(listView[0].desc_qry)
       setViewQuery(listView[0].full_qry)
     }
+  }
+
+  const getKeysFromJson = (obj) => {
+    return Object.keys(obj).map(key => key)
   }
 
   const clear = () => {
@@ -555,7 +593,7 @@ function Mantenimiento() {
                     </div>
                   </div>
                   {[...Array(numChart)].map((e, i) => {
-                    return getChartForm()
+                    return getChartForm(e, i)
                   })}
                   <div className="mb-3 row">
 
