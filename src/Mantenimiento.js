@@ -24,6 +24,7 @@ function Mantenimiento() {
   const [reportDate, setReportDate] = useState(new Date().toLocaleString().replace(",", ""))
   const [chartOptions, setChartOptions] = useState([])
   const [chartValue, setChartValue] = useState({})
+  const [chartColumnValue, setChartColumnValue] = useState({})
   const [numChart, setNumChart] = useState(0)
   const [reportColumns, setReportColumns] = useState([])
 
@@ -93,7 +94,29 @@ function Mantenimiento() {
       if (response_webbreport.length > 0) {
         setListView(listView => [...listView, response_webbreport[0]])
       }
+      console.log("GD_WebReporteGrafico")
+      console.log(obj.id_reporte)
+      const response_webreportegrafico = await request_gettabledata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'GD_WebReporteGrafico',
+          where: JSON.stringify({ id_reporte: obj.id_reporte })
+        }))
+      console.log("POST QUERY")
+      console.log("response: "+response_webreportegrafico)
+      console.log(response_webreportegrafico)
+      if (response_webreportegrafico.length > 0) {
+        console.log("iffffff")
+        var list = []
+        response_webreportegrafico.map(function (obj) {
+          list.push({ id_grafico: obj["id_grafico"], categoria: obj["categoria"], valor: obj["valor"], object: obj });
+        })
+        console.log(list)
+        console.log("ifffend")
+        setListChart(list)
+      }
     })
+     
   }
 
 
@@ -116,49 +139,99 @@ function Mantenimiento() {
     }
   }
 
-  const test = function(e){
+  const test = async function(e){
     console.log("test")
+    console.log("end test")
   }
-  const addChart = async function (e) {
-    console.log("addChart")
+
+  const getQueryColumns = async function(e){
+    console.log("getChart")
+    var columnsOptions=[]
     if(reportColumns.length==0){
       const result_columns = await request_getquerycolumns(
         JSON.stringify({
           query: viewQuery
         })
       )
-      const columns = Object.keys(result_columns[0]).map(obj => { 
+      var columns = Object.keys(result_columns[0]).map(obj => { 
         return ({value: obj, label: obj})
       })
       setReportColumns(columns)
     }
-    const newChart= { id_grafico: null, categoria: null, valor: null, mesa: null, action: 'INSERT'}
-    setListChart([...listChart, newChart])
+  }
+
+  const addChart = async function (e) {
     setNumChart((oldNumChart) => oldNumChart + 1)
-    console.log(numChart)
+    const newChart= { id_grafico: chartOptions[0].value, categoria: reportColumns[0].value, valor: reportColumns[0].value, action: 'INSERT'}
+    setListChart([...listChart, newChart])
+  }
+
+  const onChangeChartSelect = (list, i, key) => (option) => {
+    let newList = [...list]
+    newList[i][key] =  option.value
+    setListChart(newList)
+  };
+
+  const onChangeChartInput = (list, i, key) => (option)  => {
+    let newList = [...list]
+    newList[i][key] =  option.target.value
+    setListChart(newList)
+  };
+
+  const deleteChart =  function(i) {
+    console.log("deleteChart")
+    console.log(i)
+    console.log(listChart)
+    console.log("end deleteChart")
+    setNumChart(numChart-1)
+    listChart.splice(i, 1)
+  }
+
+  const getElementByValue = (list, value) => {
+    return list.filter(el => el.value === value)
   }
 
   const getChartForm = function (e, i) {
+    console.log("getChartForm")
+    console.log(i)
+    console.log(listChart)
+    /*let newListChart = [...listChart]
+    newListChart[i] = 
+    setListChart(newListChart)*/
+    if(listChart.length==0){
+      return
+    }
     return (<div className="mb-3 row">
               <div className="col-sm-1">
                 Gráfico {i+1}
               </div>
-              <div className="col-sm-3">
-                <CustomSelect
-                  styles={style}
-                  options={chartOptions}
-                  setValue={setChartValue} />
+              <div className="col-sm-2">
+                <Select styles={style} 
+                        options={chartOptions} 
+                        value={getElementByValue(chartOptions,listChart[i]['id_grafico'])}
+                        defaultValue={chartOptions[0]}
+                        onChange={onChangeChartSelect(listChart,i,'id_grafico')}/>
               </div>
-              <div className="col-sm-3">
-              <CustomSelect
-                  styles={style}
-                  options={reportColumns}
-                  setValue={setChartValue} />
+              <div className="col-sm-2">
+                <Select styles={style} 
+                        options={reportColumns} 
+                        value={getElementByValue(reportColumns,listChart[i]['categoria'])}
+                        defaultValue={reportColumns[0]}
+                        onChange={onChangeChartSelect(listChart,i,'categoria')}/>
               </div>
               
-              <div className="col-sm-3">
-              <input id={"chartValue"+i} type='text' className="form-control input" placeholder="valor"
-                        onInput={e => setViewName(e.target.value)}></input>
+              <div className="col-sm-2">
+              <Select styles={style} 
+                        options={reportColumns} 
+                        value={getElementByValue(reportColumns,listChart[i]['valor'])}
+                        defaultValue={reportColumns[0]}
+                        onChange={onChangeChartSelect(listChart,i,'valor')}/>
+              {/*<input id={"chartValue"+i} type='text' className="form-control input" placeholder="valor"
+                        value={listChart[i]['valor']}
+                        onInput={onChangeChartInput(listChart,i,'valor')}></input>*/}
+              </div>
+              <div className="col-sm-1">
+                <Button color="danger"  onClick={() => deleteChart(i)}>X</Button>
               </div>
     </div>
     )
@@ -259,7 +332,6 @@ function Mantenimiento() {
           show_error()
           return 0;
         }
-        
         clear()
         showTables()
         show_ok('Registrar', 'Registro exitoso')
@@ -326,6 +398,43 @@ function Mantenimiento() {
           return 0;
         }
 
+        const response_delete_webreportegrafico = await request_deleterow(
+          JSON.stringify({
+            database: 'D_EWAYA_CONFIG',
+            table: 'GD_WebReporteGrafico',
+            where: JSON.stringify({
+              id_reporte: listView[0].id_reporte
+            })
+          })
+        )
+        if (!response_delete_webreportegrafico.ok) {
+          show_error()
+          return 0;
+        }
+        
+        listChart.map(function (obj) {
+          console.log(listChart)
+          const response_insert_webreportegrafico = request_insertrow(
+            JSON.stringify({
+              database: 'D_EWAYA_CONFIG',
+              table: 'GD_WebReporteGrafico',
+              main_id: 'id_reportegrafico',
+              body: JSON.stringify({
+                id_reporte: listView[0].id_reporte,
+                id_grafico: obj['id_grafico'],
+                estado: 1,
+                categoria: obj['categoria'],
+                valor: obj['valor']
+              })
+            })
+          )
+          if (!response_insert_webreportegrafico.ok) {
+            show_error()
+            return 0;
+          }
+        }
+        )
+        
         show_ok('Actualizar', 'Actualización exitosa')
       }
     })
@@ -374,8 +483,8 @@ function Mantenimiento() {
   }
 
   const request_insertrow = async (body) => {
-    //const base_url = 'http://localhost:8080'
-    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const base_url = 'http://localhost:8080'
+    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/insertRow'
     const request = {
       method: 'POST',
@@ -389,6 +498,18 @@ function Mantenimiento() {
     //const base_url = 'http://localhost:8080'
     const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/updateRow'
+    const request = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: body
+    };
+    return await send_post_status(base_url, method, request)
+  }
+
+  const request_deleterow = async (body) => {
+    const base_url = 'http://localhost:8080'
+    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const method = '/deleteRow'
     const request = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -432,7 +553,8 @@ function Mantenimiento() {
           table: 'GD_WebGrafico',
           where: JSON.stringify({
             estado: 1
-          })
+          }),
+          order: 1
         })
       )
       const dataSelect = []
@@ -477,7 +599,12 @@ function Mantenimiento() {
   }, [])
 
   useEffect(() => {
-  }, [flagAction])
+    setNumChart(listChart.length)
+  }, [reportColumns])
+
+  useEffect(() => {
+    getQueryColumns()
+  }, [viewQuery])
 
   useEffect(() => {
     console.log("useEffect setWebGroup")
@@ -517,7 +644,10 @@ function Mantenimiento() {
       <div className="App-title">
         <h2 align="center" className="display-8 fw-bold main-title">Mantenimiento de Tablero BI</h2>
         </div>
-
+        <div className="col-sm-3">
+                      <Button color="primary"
+                        onClick={(e) => test(e)}>Test</Button>
+                    </div>
       <div className='modalRight modalBody'>
       <div class="d-flex justify-content-center bd-highlight mb-3">
         <div className={`divPassword col-sm-3 ${(!hiddenCRUD ? "div-hidden" : "")}`} >
@@ -538,6 +668,7 @@ function Mantenimiento() {
                     onCreateOption={handleCreateReport}
                     onChange={webGroupHandler} />
                 </div>
+                
                 <div className="col-sm-1">
                   <label className="col-form-label labelForm">Fecha mod:</label>
                 </div>
