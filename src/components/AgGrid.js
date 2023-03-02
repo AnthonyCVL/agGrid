@@ -32,30 +32,36 @@ function AgGrid(props) {
   const [datatablesColumns, setDatatablesColumns] = useState([])
   const [activeTab, setActiveTab] = useState("0")
   const [gridApi, setGridApi] = useState({})
+  const [listChart, setListChart] = useState([])
   const [chartData, setChartData] = useState({})
   
   useEffect(() => {
     console.log("start useEffect testst")
-    console.log(props.p_datatables)
+    console.log(props.p_datatables[0])
     if(props.p_datatables.length==0){
       return;
     }
-    const array = props.p_datatables[0].map((item)=> item);
-    console.log(array)
-    const arrayGroup = groupBy(array,'Tipo_Tabla','Cantidad_Registros')
-    console.log(arrayGroup)
-    console.log("end useEffect testt")
-    setTimeout(() =>{
-      setChartData({
-        labels: arrayGroup.map(item => item['Tipo_Tabla']),
-        datasets: [
-          {
-            label: 'Revenue',
-            data: arrayGroup.map(item => item['Cantidad_Registros']),
-            backgroundColor: 'rgba(255, 99, 132, 0.5)'
-          }
-        ]
+    const list =[]
+    props.p_datatables.map( dt =>{
+      dt.listChart.map(chart => {
+        const array = dt.data.map((item) => item)
+        const arrayGroup = groupBy(array, chart.categoria, chart.valor)
+        const chartObject = {
+          labels: arrayGroup.map(item => item[chart.categoria]),
+          datasets: [
+            {
+              label: 'Revenue4',
+              data: arrayGroup.map(item => item[chart.valor]),
+              backgroundColor: 'rgba(255, 99, 132, 0.5)'
+            }
+          ]
+        }
+        list.push(chartObject)
       })
+    })
+    console.log(list)
+    setTimeout(() =>{
+      setListChart(list)
     }, [])
   }, [props.p_datatables])
 
@@ -107,8 +113,10 @@ function AgGrid(props) {
   const changeTab = (numberTab) => {
     if (activeTab !== numberTab) {
       setActiveTab(numberTab)
-      setRows(props.p_datatables[numberTab - 1])
-      setColumns(datatablesColumns[numberTab - 1])
+      if(props.p_datatables.length>0){
+        setRows(props.p_datatables[numberTab - 1].data)
+        setColumns(datatablesColumns[numberTab - 1])
+      }
     }
   }
 
@@ -176,9 +184,9 @@ function AgGrid(props) {
     console.log(props.p_datatables)
     console.log("props.p_datatables.map")
     props.p_datatables.map(element => {
-      console.log(element)
-      console.log(element[0])
-      dtsColumns.push(getDynamicColumns(element[0]))
+      console.log(element.data)
+      console.log(element.data[0])
+      dtsColumns.push(getDynamicColumns(element.data[0]))
     })
     setDatatablesColumns(dtsColumns)
   }, [props.p_datatables])
@@ -247,25 +255,23 @@ function AgGrid(props) {
       </TabContent>
     </div>
     <div className='chart' style={{ maxHeight: '200px', height: '100%'}}>
-        {
-          chartData && chartData?.datasets && (
-            <Bar 
-              options={{
-                resposive: true,
-                plugins: {
-                  legend: {
-                    position: 'top',
-                  },
-                  title: {
-                    display: true,
-                    text: 'Revenue',
-                  },
+        {listChart.map((chartData) => {
+          return chartData && chartData?.datasets && (<Bar 
+            options={{
+              resposive: true,
+              plugins: {
+                legend: {
+                  position: 'top',
                 },
-              }}
-              data={chartData}
-            />
-          )
-        }
+                title: {
+                  display: true,
+                  text: 'Revenue',
+                },
+              },
+            }}
+            data={chartData}
+          />)
+        })} 
     </div>
     </div>
   );

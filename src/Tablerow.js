@@ -153,7 +153,7 @@ function Tablerow() {
       ).then(
         tables => Promise.all(tables.map(async function (tables) {
           const table = tables[0]
-          const dt = await request_gettabledata(
+          const response = await request_gettabledata(
             JSON.stringify({
               database: table.database_name,
               table: table.table_name,
@@ -163,6 +163,19 @@ function Tablerow() {
               query: table.full_qry
             })
           )
+          const response_webreportegrafico = await request_gettabledata(
+            JSON.stringify({
+              database: 'D_EWAYA_CONFIG',
+              table: 'GD_WebReporteGrafico',
+              where: JSON.stringify({ id_reporte: table.id_reporte })
+          }))
+          const listChart = []
+          if (response_webreportegrafico.length > 0) {
+            response_webreportegrafico.map(function (obj) {
+              listChart.push({ id_grafico: obj["id_grafico"], categoria: obj["categoria"], valor: obj["valor"], object: obj });
+            })
+          }
+          const dt = { id_reporte: table.id_reporte, listChart: listChart , data: response }
           addElementToArray(dts, dt)
           return dt
         }

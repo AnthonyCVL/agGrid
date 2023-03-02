@@ -58,6 +58,8 @@ function Mantenimiento() {
     setReportName(createOption(e.object.name))
     setReportDate(webGroupObjectSelect.create_ts)
     setFlagAction('update')
+    setReportColumns([])
+    setListChart([])
     setNumChart(0)
   }
 
@@ -147,7 +149,7 @@ function Mantenimiento() {
   const getQueryColumns = async function(e){
     console.log("getChart")
     var columnsOptions=[]
-    if(reportColumns.length==0){
+    if(reportColumns.length==0 && viewQuery!==null && viewQuery!==""){
       const result_columns = await request_getquerycolumns(
         JSON.stringify({
           query: viewQuery
@@ -412,7 +414,33 @@ function Mantenimiento() {
           return 0;
         }
         
+        var listInsert = []
         listChart.map(function (obj) {
+          console.log(listChart)
+          var insert = JSON.stringify({
+            database: 'D_EWAYA_CONFIG',
+            table: 'GD_WebReporteGrafico',
+            main_id: 'id_reportegrafico',
+            body: JSON.stringify({
+              id_reporte: listView[0].id_reporte,
+              id_grafico: obj['id_grafico'],
+              estado: 1,
+              categoria: obj['categoria'],
+              valor: obj['valor']
+            })
+          })
+          listInsert.push(insert)
+        }
+        )
+        console.log("===========listInsert===========")
+        console.log(listInsert)
+        const response_insert_webreportegrafico = await request_insertrow(
+          JSON.stringify(listInsert)
+        )
+        console.log("===========response_insert_webreportegrafico===========")
+        console.log(response_insert_webreportegrafico)
+          
+        /*listChart.map(function (obj) {
           console.log(listChart)
           const response_insert_webreportegrafico = request_insertrow(
             JSON.stringify({
@@ -427,13 +455,11 @@ function Mantenimiento() {
                 valor: obj['valor']
               })
             })
-          )
+          )*/
           if (!response_insert_webreportegrafico.ok) {
             show_error()
             return 0;
           }
-        }
-        )
         
         show_ok('Actualizar', 'Actualización exitosa')
       }
