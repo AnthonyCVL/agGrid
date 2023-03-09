@@ -274,13 +274,13 @@ function AgGrid(props) {
           ))}
         </TabContent>
       </div>
-      <div className='chart' style={{ maxHeight: '300px', height: '100%' }}>
+      <div className='chart' style={{ display:'inline' }}>
         {listChart.map((chartData) => {
           return chartData && chartData?.datasets && (
-            <div className='chartElement'>
+            <div className=''>
               <Bar
                 options={{
-                  resposive: true,
+                  resposive: false,
                   plugins: {
                     legend: {
                       position: 'top',

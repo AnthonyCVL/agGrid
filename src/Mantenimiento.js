@@ -27,7 +27,6 @@ function Mantenimiento() {
   const [chartColumnValue, setChartColumnValue] = useState({})
   const [numChart, setNumChart] = useState(0)
   const [reportColumns, setReportColumns] = useState([])
-  const [reportColumnsValue, setReportColumnsValue] = useState([])
 
   const [listChart, setListChart] = useState([])
 
@@ -60,7 +59,6 @@ function Mantenimiento() {
     setReportDate(webGroupObjectSelect.create_ts)
     setFlagAction('update')
     setReportColumns([])
-    setReportColumnsValue([])
     setListChart([])
     setNumChart(0)
   }
@@ -160,15 +158,13 @@ function Mantenimiento() {
       var columns = Object.keys(result_columns[0]).map(obj => { 
         return ({value: obj, label: obj})
       })
-      var columnsValue = [{value: "contar", label: "contar"}, ...columns]
       setReportColumns(columns)
-      setReportColumnsValue(columnsValue)
     }
   }
 
   const addChart = async function (e) {
     setNumChart((oldNumChart) => oldNumChart + 1)
-    const newChart= { id_grafico: chartOptions[0].value, categoria: reportColumns[0].value, valor: reportColumnsValue[0].value, action: 'INSERT'}
+    const newChart= { id_grafico: chartOptions[0].value, categoria: reportColumns[0].value, valor: reportColumns[0].value, action: 'INSERT'}
     setListChart([...listChart, newChart])
   }
 
@@ -211,9 +207,6 @@ function Mantenimiento() {
               <div className="col-sm-1">
                 Gráfico {i+1}
               </div>
-              <input id={"chartValue"+i} type='text' className="form-control input" placeholder="valor"
-                        value={listChart[i]['valor']}
-                        onInput={onChangeChartInput(listChart,i,'valor')}></input>
               <div className="col-sm-2">
                 <Select styles={style} 
                         options={chartOptions} 
@@ -231,9 +224,9 @@ function Mantenimiento() {
               
               <div className="col-sm-2">
               <Select styles={style} 
-                        options={reportColumnsValue} 
-                        value={getElementByValue(reportColumnsValue,listChart[i]['valor'])}
-                        defaultValue={reportColumnsValue[0]}
+                        options={reportColumns} 
+                        value={getElementByValue(reportColumns,listChart[i]['valor'])}
+                        defaultValue={reportColumns[0]}
                         onChange={onChangeChartSelect(listChart,i,'valor')}/>
               {/*<input id={"chartValue"+i} type='text' className="form-control input" placeholder="valor"
                         value={listChart[i]['valor']}
@@ -677,7 +670,10 @@ function Mantenimiento() {
       <div className="App-title">
         <h2 align="center" className="display-8 fw-bold main-title">Mantenimiento de Tablero BI</h2>
         </div>
-
+        <div className="col-sm-3">
+                      <Button color="primary"
+                        onClick={(e) => test(e)}>Test</Button>
+                    </div>
       <div className='modalRight modalBody'>
       <div class="d-flex justify-content-center bd-highlight mb-3">
         <div className={`divPassword col-sm-3 ${(!hiddenCRUD ? "div-hidden" : "")}`} >
