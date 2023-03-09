@@ -34,15 +34,15 @@ function AgGrid(props) {
   const [gridApi, setGridApi] = useState({})
   const [listChart, setListChart] = useState([])
   const [chartData, setChartData] = useState({})
-  
+
   useEffect(() => {
     console.log("start useEffect testst")
     console.log(props.p_datatables[0])
-    if(props.p_datatables.length==0){
+    if (props.p_datatables.length == 0) {
       return;
     }
-    const list =[]
-    props.p_datatables.map( dt =>{
+    const list = []
+    props.p_datatables.map(dt => {
       dt.listChart.map(chart => {
         const array = dt.data.map((item) => item)
         const arrayGroup = groupBy(array, chart.categoria, chart.valor)
@@ -50,17 +50,20 @@ function AgGrid(props) {
           labels: arrayGroup.map(item => item[chart.categoria]),
           datasets: [
             {
-              label: 'Revenue4',
+              label: chart.categoria,
               data: arrayGroup.map(item => item[chart.valor]),
-              backgroundColor: 'rgba(255, 99, 132, 0.5)'
+              backgroundColor: getRandomColor()
             }
-          ]
+          ],
+          p_categoria: chart.categoria,
+          p_valor: chart.valor,
+          p_titulo: chart.titulo,
         }
         list.push(chartObject)
       })
     })
     console.log(list)
-    setTimeout(() =>{
+    setTimeout(() => {
       setListChart(list)
     }, [])
   }, [props.p_datatables])
@@ -70,12 +73,13 @@ function AgGrid(props) {
     const groupByLocation = data.reduce(getReducer(category, values), {});
     // Finally calculating the sum based on the location array we have.
     Object.keys(groupByLocation).forEach((item) => {
-        groupByLocation[item] = groupByLocation[item].reduce((a, b) => a + b);
-        const array = []
-        array[category] = item
-        array[values] = groupByLocation[item]
-        resultArr.push(array)
+      groupByLocation[item] = groupByLocation[item].reduce((a, b) => a + b);
+      const array = []
+      array[category] = item
+      array[values] = groupByLocation[item]
+      resultArr.push(array)
     })
+    resultArr.sort((a, b) => b[values] - a[values]);
     return resultArr
   }
 
@@ -84,12 +88,12 @@ function AgGrid(props) {
     function reducer(group, item) {
       const cat = item[category];
       group[cat] = group[cat] ?? [];
-      group[cat].push(item[values]);
+      group[cat].push(parseFloat(values == "contar" ? 1 : item[values]));
       return group;
     }
-    
+
     return reducer
-}
+  }
   const groupBy2 = (data, category, values) => {
     const resultArr = [];
     const groupByLocation = data.reduce(category, values, (group, item) => {
@@ -98,14 +102,14 @@ function AgGrid(props) {
       group[cat].push(item[values]);
       return group;
     }, {});
-    
+
     // Finally calculating the sum based on the location array we have.
     Object.keys(groupByLocation).forEach(category, values, (item) => {
-        groupByLocation[item] = groupByLocation[item].reduce((a, b) => a + b);
-        const arr = []
-        arr[category]=item
-        arr[values]=groupByLocation[item]
-        resultArr.push(arr)
+      groupByLocation[item] = groupByLocation[item].reduce((a, b) => a + b);
+      const arr = []
+      arr[category] = item
+      arr[values] = groupByLocation[item]
+      resultArr.push(arr)
     })
     console.log(resultArr)
   }
@@ -113,11 +117,26 @@ function AgGrid(props) {
   const changeTab = (numberTab) => {
     if (activeTab !== numberTab) {
       setActiveTab(numberTab)
-      if(props.p_datatables.length>0){
+      if (props.p_datatables.length > 0) {
         setRows(props.p_datatables[numberTab - 1].data)
         setColumns(datatablesColumns[numberTab - 1])
       }
     }
+  }
+
+  function getRandomColor() {
+    var r = Math.floor(Math.random() * 255);
+    var g = Math.floor(Math.random() * 255);
+    var b = Math.floor(Math.random() * 255);
+    return "rgb(" + r + "," + g + "," + b + ")";
+  }
+
+  function getChartTitle(title, category, value) {
+    return title === '' || title === undefined
+      ? category + (value === 'contar'
+        ? ''
+        : ' vs ' + value)
+      : title
   }
 
   const columnDefs = (key) => ({
@@ -211,68 +230,73 @@ function AgGrid(props) {
 
   return (
     <div>
-    <div className="tabs">
-      <div className='reporte-button'>
-        <Button color="success"
-          onClick={() => onBtnExportDataAsCsv()}
-          style={{ fontSize: '12px' }}
-        >
-          Exportar a CSV
-        </Button>
+      <div className="tabs">
+        <div className='reporte-button'>
+          <Button color="success"
+            onClick={() => onBtnExportDataAsCsv()}
+            style={{ fontSize: '12px' }}
+          >
+            Exportar a CSV
+          </Button>
+        </div>
+        <Nav tabs>
+          {props.p_grouptables.map(element => {
+            return (
+              <NavItem>
+                <NavLink
+                  className={(activeTab === element.position_table ? "activeTab baseTab" : "baseTab")}
+                  onClick={() => changeTab(element.position_table)}>
+                  {element.description}
+                </NavLink>
+              </NavItem>
+            )
+          })
+          }
+        </Nav>
+        <TabContent activeTab={activeTab}>
+          {props.p_grouptables.map(element => (
+            <TabPane tabId={element.position_table}>
+              <div className="App-datatable ag-theme-alpine" >
+                <AgGridReact
+                  ref={headerGrid}
+                  alignedGrids={headerGrid.current ? [headerGrid.current] : undefined}
+                  rowData={rows}
+                  columnDefs={columns}
+                  defaultColDef={defColumnDefs}
+                  pagination={true}
+                  paginationPageSize={100}
+                  onRowDataChanged={onRowDataChanged}
+                  rowHeight={30}
+                  onGridReady={onGridReady}
+                />
+              </div>
+            </TabPane>
+          ))}
+        </TabContent>
       </div>
-      <Nav tabs>
-        {props.p_grouptables.map(element => {
-          return (
-          <NavItem>
-            <NavLink
-              className={(activeTab === element.position_table ? "activeTab baseTab" : "baseTab")}
-              onClick={() => changeTab(element.position_table)}>
-              {element.description}
-            </NavLink>
-          </NavItem>
-        )})
-      }
-      </Nav>
-      <TabContent activeTab={activeTab}>
-        {props.p_grouptables.map(element => (
-          <TabPane tabId={element.position_table}>
-            <div className="App-datatable ag-theme-alpine" >
-              <AgGridReact
-                ref={headerGrid}
-                alignedGrids={headerGrid.current ? [headerGrid.current] : undefined}
-                rowData={rows}
-                columnDefs={columns}
-                defaultColDef={defColumnDefs}
-                pagination={true}
-                paginationPageSize={100}
-                onRowDataChanged={onRowDataChanged}
-                rowHeight={30}
-                onGridReady={onGridReady}
-              />
-            </div>
-          </TabPane>
-        ))}
-      </TabContent>
-    </div>
-    <div className='chart' style={{ maxHeight: '200px', height: '100%'}}>
+      <div className='chart' style={{ maxHeight: '300px', height: '100%' }}>
         {listChart.map((chartData) => {
-          return chartData && chartData?.datasets && (<Bar 
-            options={{
-              resposive: true,
-              plugins: {
-                legend: {
-                  position: 'top',
-                },
-                title: {
-                  display: true,
-                  text: 'Revenue',
-                },
-              },
-            }}
-            data={chartData}
-          />)
-        })} 
-    </div>
+          return chartData && chartData?.datasets && (
+            <div className='chartElement'>
+              <Bar
+                options={{
+                  resposive: true,
+                  plugins: {
+                    legend: {
+                      position: 'top',
+                    },
+                    title: {
+                      display: true,
+                      text: getChartTitle(chartData.p_titulo, chartData.p_categoria, chartData.p_valor),
+                    },
+
+                  },
+                }}
+                data={chartData}
+              />
+            </div>)
+        })}
+      </div>
     </div>
   );
 }

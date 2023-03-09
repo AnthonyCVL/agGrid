@@ -12,6 +12,7 @@
     "ag-grid-react": "^26.2.0",
     "bootstrap-select": "^1.13.18",
     "chart.js": "^4.2.0",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "moment": "^2.29.4",
     "promise": "^8.2.0",
     "react": "^17.0.2",
