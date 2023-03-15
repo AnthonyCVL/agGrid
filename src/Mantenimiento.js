@@ -111,7 +111,7 @@ function Mantenimiento() {
         console.log("iffffff")
         var list = []
         response_webreportegrafico.map(function (obj) {
-          list.push({ id_grafico: obj["id_grafico"], categoria: obj["categoria"], valor: obj["valor"], object: obj });
+          list.push({ id_grafico: obj["id_grafico"], categoria: obj["categoria"], valor: obj["valor"], titulo: obj["titulo"], object: obj });
         })
         console.log(list)
         console.log("ifffend")
@@ -158,8 +158,11 @@ function Mantenimiento() {
       var columns = Object.keys(result_columns[0]).map(obj => { 
         return ({value: obj, label: obj})
       })
+      var elementContar = {value: "contar", label: "contar"}
+      columns.unshift(elementContar)
       setReportColumns(columns)
     }
+    console.log("end if")
   }
 
   const addChart = async function (e) {
@@ -203,39 +206,49 @@ function Mantenimiento() {
     if(listChart.length==0){
       return
     }
-    return (<div className="mb-3 row">
-              <div className="col-sm-1">
-                Gráfico {i+1}
+    return (<div>
+              <div className="mb-3 row">
+                <div className="col-sm-1">
+                  Gráfico {i+1}
+                </div>
+                <div className="col-sm-6">
+                  <input id={"chartValue"+i} type='text' className="form-control input" placeholder="titulo"
+                            value={listChart[i]['titulo']}
+                            onInput={onChangeChartInput(listChart,i,'titulo')}></input>
+                </div>
               </div>
-              <div className="col-sm-2">
-                <Select styles={style} 
-                        options={chartOptions} 
-                        value={getElementByValue(chartOptions,listChart[i]['id_grafico'])}
-                        defaultValue={chartOptions[0]}
-                        onChange={onChangeChartSelect(listChart,i,'id_grafico')}/>
+              <div className="mb-3 row">
+                <div className="col-sm-1"/>
+                <div className="col-sm-2">
+                    <Select styles={style} 
+                            options={chartOptions} 
+                            value={getElementByValue(chartOptions,listChart[i]['id_grafico'])}
+                            defaultValue={chartOptions[0]}
+                            onChange={onChangeChartSelect(listChart,i,'id_grafico')}/>
+                  </div>
+                  <div className="col-sm-2">
+                    <Select styles={style} 
+                            options={reportColumns} 
+                            value={getElementByValue(reportColumns,listChart[i]['categoria'])}
+                            defaultValue={reportColumns[0]}
+                            onChange={onChangeChartSelect(listChart,i,'categoria')}/>
+                  </div>
+                  
+                  <div className="col-sm-2">
+                  <Select styles={style} 
+                            options={reportColumns} 
+                            value={getElementByValue(reportColumns,listChart[i]['valor'])}
+                            defaultValue={reportColumns[0]}
+                            onChange={onChangeChartSelect(listChart,i,'valor')}/>
+                  {/*<input id={"chartValue"+i} type='text' className="form-control input" placeholder="valor"
+                            value={listChart[i]['valor']}
+                            onInput={onChangeChartInput(listChart,i,'valor')}></input>*/}
+                  </div>
+                  <div className="col-sm-1">
+                    <Button color="danger"  onClick={() => deleteChart(i)}>X</Button>
+                  </div>
               </div>
-              <div className="col-sm-2">
-                <Select styles={style} 
-                        options={reportColumns} 
-                        value={getElementByValue(reportColumns,listChart[i]['categoria'])}
-                        defaultValue={reportColumns[0]}
-                        onChange={onChangeChartSelect(listChart,i,'categoria')}/>
-              </div>
-              
-              <div className="col-sm-2">
-              <Select styles={style} 
-                        options={reportColumns} 
-                        value={getElementByValue(reportColumns,listChart[i]['valor'])}
-                        defaultValue={reportColumns[0]}
-                        onChange={onChangeChartSelect(listChart,i,'valor')}/>
-              {/*<input id={"chartValue"+i} type='text' className="form-control input" placeholder="valor"
-                        value={listChart[i]['valor']}
-                        onInput={onChangeChartInput(listChart,i,'valor')}></input>*/}
-              </div>
-              <div className="col-sm-1">
-                <Button color="danger"  onClick={() => deleteChart(i)}>X</Button>
-              </div>
-    </div>
+            </div>
     )
   }
 
@@ -425,6 +438,7 @@ function Mantenimiento() {
               id_reporte: listView[0].id_reporte,
               id_grafico: obj['id_grafico'],
               estado: 1,
+              titulo: !obj['titulo'] ? "" : obj['titulo'],
               categoria: obj['categoria'],
               valor: obj['valor']
             })

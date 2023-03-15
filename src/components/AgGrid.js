@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
+import ChartDataLabels from "chartjs-plugin-datalabels";
 import { TabContent, TabPane, Nav, NavItem, NavLink, Button } from 'reactstrap'
 import {
   Chart as ChartJS,
@@ -20,12 +21,15 @@ ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
+  ChartDataLabels,
   Title,
   Tooltip,
   Legend
 );
 
+
 function AgGrid(props) {
+
   const headerGrid = useRef(null);
   const [rows, setRows] = useState([])
   const [columns, setColumns] = useState([])
@@ -228,6 +232,10 @@ function AgGrid(props) {
     gridApi.exportDataAsCsv();
   };
 
+  function formatDatalabel(value){
+    return Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
   return (
     <div>
       <div className="tabs">
@@ -277,7 +285,7 @@ function AgGrid(props) {
       <div className='chart' style={{ display:'inline' }}>
         {listChart.map((chartData) => {
           return chartData && chartData?.datasets && (
-            <div className=''>
+            <div className='subchart'>
               <Bar
                 options={{
                   resposive: false,
@@ -289,7 +297,14 @@ function AgGrid(props) {
                       display: true,
                       text: getChartTitle(chartData.p_titulo, chartData.p_categoria, chartData.p_valor),
                     },
-
+                    datalabels: {
+                      display: true,
+                      color: "black",
+                      formatter: formatDatalabel,
+                      anchor: "end",
+                      offset: -20,
+                      align: "start"
+                    }
                   },
                 }}
                 data={chartData}

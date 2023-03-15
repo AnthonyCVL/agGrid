@@ -50,8 +50,17 @@
   justify-content: center;
   display: inline-block;
 }
-.chart {
+.subchart {
+  height: 500px;
+  padding: 2%;
+  width: 96%;
   display: inline-block;
+}
+
+@media (min-width: 700px) {
+  .subchart {
+    width: 50%;
+  }
 }
 
 canvas {

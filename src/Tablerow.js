@@ -172,7 +172,7 @@ function Tablerow() {
           const listChart = []
           if (response_webreportegrafico.length > 0) {
             response_webreportegrafico.map(function (obj) {
-              listChart.push({ id_grafico: obj["id_grafico"], categoria: obj["categoria"], valor: obj["valor"], object: obj });
+              listChart.push({ id_grafico: obj["id_grafico"], categoria: obj["categoria"], valor: obj["valor"], titulo: obj["titulo"], object: obj });
             })
           }
           const dt = { id_reporte: table.id_reporte, listChart: listChart , data: response }
