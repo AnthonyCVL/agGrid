@@ -201,6 +201,7 @@ function AgGrid(props) {
     console.log("AgGrid useEffect")
     setRows([])
     setColumns([])
+    setListChart([])
     setActiveTab(0)
     const dtsColumns = []
     console.log("props.p_datatables")

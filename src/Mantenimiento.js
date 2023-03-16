@@ -155,12 +155,15 @@ function Mantenimiento() {
           query: viewQuery
         })
       )
+      console.log("result_columns")
+      console.log(result_columns)
       var columns = Object.keys(result_columns[0]).map(obj => { 
         return ({value: obj, label: obj})
       })
       var elementContar = {value: "contar", label: "contar"}
       columns.unshift(elementContar)
       setReportColumns(columns)
+      console.log(columns)
     }
     console.log("end if")
   }
@@ -295,8 +298,20 @@ function Mantenimiento() {
       confirmButtonText: 'Aceptar',
       showLoaderOnConfirm: true,
       preConfirm: async () => {
+        const postrequest = JSON.stringify([{
+          database: 'D_EWAYA_CONFIG',
+          table: 'GD_WebGrupo',
+          main_id: 'id_grupo',
+          body: JSON.stringify({
+            name: reportName.value,
+            description: reportDescription,
+            id_tipogrupo: 1
+          })
+        }])
+        console.log("postrequest")
+        console.log(postrequest)
         const response_insert_webgrupo = await request_insertrow(
-          JSON.stringify({
+          JSON.stringify([{
             database: 'D_EWAYA_CONFIG',
             table: 'GD_WebGrupo',
             main_id: 'id_grupo',
@@ -305,7 +320,7 @@ function Mantenimiento() {
               description: reportDescription,
               id_tipogrupo: 1
             })
-          })
+          }])
         )
         const json_insert_webgrupo = await response_insert_webgrupo.json()
         if (!response_insert_webgrupo.ok) {
@@ -315,7 +330,7 @@ function Mantenimiento() {
         console.log(viewQuery)
         console.log(viewQuery.replaceAll("'", "''"))
         const response_insert_webreporte = await request_insertrow(
-          JSON.stringify({
+          JSON.stringify([{
             database: 'D_EWAYA_CONFIG',
             table: 'GD_WebReporte',
             main_id: 'id_reporte',
@@ -324,7 +339,7 @@ function Mantenimiento() {
               full_qry: viewQuery.replaceAll("'", "''"),
               id_tiporeporte: 2
             })
-          })
+          }])
         )
         const json_insert_webreporte = await response_insert_webreporte.json()
         if (!response_insert_webreporte.ok) {
@@ -332,7 +347,7 @@ function Mantenimiento() {
           return 0;
         }
         const response_insert_webgruporeporte = await request_insertrow(
-          JSON.stringify({
+          JSON.stringify([{
             database: 'D_EWAYA_CONFIG',
             table: 'GD_WebGrupoReporte',
             body: JSON.stringify({
@@ -340,7 +355,7 @@ function Mantenimiento() {
               id_reporte: json_insert_webreporte['id_reporte'],
               description: viewName
             })
-          })
+          }])
         )
 
         if (!response_insert_webgruporeporte.ok) {
@@ -430,7 +445,7 @@ function Mantenimiento() {
         var listInsert = []
         listChart.map(function (obj) {
           console.log(listChart)
-          var insert = JSON.stringify({
+          var insert = {
             database: 'D_EWAYA_CONFIG',
             table: 'GD_WebReporteGrafico',
             main_id: 'id_reportegrafico',
@@ -442,7 +457,7 @@ function Mantenimiento() {
               categoria: obj['categoria'],
               valor: obj['valor']
             })
-          })
+          }
           listInsert.push(insert)
         }
         )
