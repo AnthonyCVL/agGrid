@@ -38,6 +38,7 @@ function AgGrid(props) {
   const [gridApi, setGridApi] = useState({})
   const [listChart, setListChart] = useState([])
   const [chartData, setChartData] = useState({})
+  const [rowsFiltered, setRowsFiltered] = useState({})
 
   useEffect(() => {
     console.log("start useEffect testst")
@@ -45,10 +46,14 @@ function AgGrid(props) {
     if (props.p_datatables.length == 0) {
       return;
     }
-    const list = []
-    props.p_datatables.map(dt => {
-      dt.listChart.map(chart => {
-        const array = dt.data.map((item) => item)
+    buildListChart(props.p_datatables[0].listChart,props.p_datatables[0].data)
+    console.log("end main")
+  }, [props.p_datatables])
+
+  function buildListChart(lChart, data){
+    let list = []
+    lChart.map(chart => {
+        const array = data.map((item) => item)
         const arrayGroup = groupBy(array, chart.categoria, chart.valor)
         const chartObject = {
           labels: arrayGroup.map(item => item[chart.categoria]),
@@ -65,12 +70,10 @@ function AgGrid(props) {
         }
         list.push(chartObject)
       })
-    })
-    console.log(list)
-    setTimeout(() => {
-      setListChart(list)
-    }, [])
-  }, [props.p_datatables])
+      setTimeout(() => {
+        setListChart(list)
+      }, [])
+  }
 
   const groupBy = (data, category, values) => {
     const resultArr = [];
@@ -219,10 +222,31 @@ function AgGrid(props) {
     changeTab(1)
   }, [datatablesColumns])
 
+  useEffect(() => {
+    setRowsFiltered(rows)
+  }, [rows])
+
+  useEffect(() => {
+    console.log("rowsFiltered")
+    console.log(props)
+    console.log(rowsFiltered)
+    if(props!==undefined && props.p_datatables.length>0){
+      buildListChart(props.p_datatables[0].listChart,rowsFiltered)
+    }
+  }, [rowsFiltered])
 
   function onRowDataChanged(params) {
     const colIds = params.columnApi.getAllGridColumns().map(c => c.colId)
     params.columnApi.autoSizeColumns(colIds)
+  }
+
+  function onFilterChanged(){
+    console.log("onFilterChanged")
+    let rowData = [];
+    gridApi.forEachNodeAfterFilter(node => {
+      rowData.push(node.data);
+    });
+    setRowsFiltered(rowData)
   }
 
   const onGridReady = params => {
@@ -234,7 +258,7 @@ function AgGrid(props) {
   };
 
   function formatDatalabel(value){
-    return Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return value<1000 ? value : Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
 
   return (
@@ -277,6 +301,7 @@ function AgGrid(props) {
                   onRowDataChanged={onRowDataChanged}
                   rowHeight={30}
                   onGridReady={onGridReady}
+                  onFilterChanged={onFilterChanged} 
                 />
               </div>
             </TabPane>

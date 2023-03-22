@@ -699,10 +699,10 @@ function Mantenimiento() {
       <div className="App-title">
         <h2 align="center" className="display-8 fw-bold main-title">Mantenimiento de Tablero BI</h2>
         </div>
-        <div className="col-sm-3">
+        {/*<div className="col-sm-3">
                       <Button color="primary"
                         onClick={(e) => test(e)}>Test</Button>
-                    </div>
+  </div>*/} 
       <div className='modalRight modalBody'>
       <div class="d-flex justify-content-center bd-highlight mb-3">
         <div className={`divPassword col-sm-3 ${(!hiddenCRUD ? "div-hidden" : "")}`} >
