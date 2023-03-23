@@ -16,6 +16,7 @@ import {
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import data from '../data.json'
+import Chart from './Chart';
 
 ChartJS.register(
   CategoryScale,
@@ -53,20 +54,13 @@ function AgGrid(props) {
   function buildListChart(lChart, data){
     let list = []
     lChart.map(chart => {
-        const array = data.map((item) => item)
-        const arrayGroup = groupBy(array, chart.categoria, chart.valor)
         const chartObject = {
-          labels: arrayGroup.map(item => item[chart.categoria]),
-          datasets: [
-            {
-              label: chart.categoria,
-              data: arrayGroup.map(item => item[chart.valor]),
-              backgroundColor: getRandomColor()
-            }
-          ],
+          p_tipo: chart.id_grafico === 1 ? 'Bar' : 'Pie',
+          p_data: data,
           p_categoria: chart.categoria,
           p_valor: chart.valor,
           p_titulo: chart.titulo,
+          p_limite: chart.limite
         }
         list.push(chartObject)
       })
@@ -75,32 +69,7 @@ function AgGrid(props) {
       }, [])
   }
 
-  const groupBy = (data, category, values) => {
-    const resultArr = [];
-    const groupByLocation = data.reduce(getReducer(category, values), {});
-    // Finally calculating the sum based on the location array we have.
-    Object.keys(groupByLocation).forEach((item) => {
-      groupByLocation[item] = groupByLocation[item].reduce((a, b) => a + b);
-      const array = []
-      array[category] = item
-      array[values] = groupByLocation[item]
-      resultArr.push(array)
-    })
-    resultArr.sort((a, b) => b[values] - a[values]);
-    return resultArr
-  }
-
-  function getReducer(category, values) {
-    // Child function (reducer)
-    function reducer(group, item) {
-      const cat = item[category];
-      group[cat] = group[cat] ?? [];
-      group[cat].push(parseFloat(values == "contar" ? 1 : item[values]));
-      return group;
-    }
-
-    return reducer
-  }
+  
   const groupBy2 = (data, category, values) => {
     const resultArr = [];
     const groupByLocation = data.reduce(category, values, (group, item) => {
@@ -138,13 +107,6 @@ function AgGrid(props) {
     return "rgb(" + r + "," + g + "," + b + ")";
   }
 
-  function getChartTitle(title, category, value) {
-    return title === '' || title === undefined
-      ? category + (value === 'contar'
-        ? ''
-        : ' vs ' + value)
-      : title
-  }
 
   const columnDefs = (key) => ({
     field: key,
@@ -257,10 +219,6 @@ function AgGrid(props) {
     gridApi.exportDataAsCsv();
   };
 
-  function formatDatalabel(value){
-    return value<1000 ? value : Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  }
-
   return (
     <div>
       <div className="tabs">
@@ -310,30 +268,11 @@ function AgGrid(props) {
       </div>
       <div className='chart' style={{ display:'inline' }}>
         {listChart.map((chartData) => {
-          return chartData && chartData?.datasets && (
+          return chartData && chartData?.p_data && (
             <div className='subchart'>
-              <Bar
-                options={{
-                  resposive: false,
-                  plugins: {
-                    legend: {
-                      position: 'top',
-                    },
-                    title: {
-                      display: true,
-                      text: getChartTitle(chartData.p_titulo, chartData.p_categoria, chartData.p_valor),
-                    },
-                    datalabels: {
-                      display: true,
-                      color: "black",
-                      formatter: formatDatalabel,
-                      anchor: "end",
-                      offset: -20,
-                      align: "start"
-                    }
-                  },
-                }}
-                data={chartData}
+              <Chart
+                type={chartData.p_tipo}
+                chartData={chartData}
               />
             </div>)
         })}

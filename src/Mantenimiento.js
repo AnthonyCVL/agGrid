@@ -248,6 +248,17 @@ function Mantenimiento() {
                             onInput={onChangeChartInput(listChart,i,'valor')}></input>*/}
                   </div>
                   <div className="col-sm-1">
+                    <input  type='number' className="form-control input" placeholder="limite"
+                              value={listChart[i]['limite']}
+                              onInput={onChangeChartInput(listChart,i,'limite')}
+                              min="0"
+                              onKeyPress={(event) => {
+                                if (!/[0-9]/.test(event.key)) {
+                                  event.preventDefault();
+                                }
+                              }}></input>
+                  </div>
+                  <div className="col-sm-1">
                     <Button color="danger"  onClick={() => deleteChart(i)}>X</Button>
                   </div>
               </div>
@@ -455,7 +466,8 @@ function Mantenimiento() {
               estado: 1,
               titulo: !obj['titulo'] ? "" : obj['titulo'],
               categoria: obj['categoria'],
-              valor: obj['valor']
+              valor: obj['valor'],
+              limite: obj['limite']
             })
           }
           listInsert.push(insert)
