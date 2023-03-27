@@ -44,11 +44,9 @@ function Chart(props) {
         })
         console.log('arrayPercentage')
         console.log(arrayPercentage)
-        let arrayDisplay = arrayPercentage.map(item => {
-            if(item.percentage >= chart.p_limite){
-                return item
-            }
-        })
+        let arrayDisplay = arrayPercentage.filter(item => item.percentage>=chart.p_limite/100).map(item => item)
+        console.log('arrayDisplay')
+        console.log(arrayDisplay)
         let others = arrayPercentage.reduce((a, b) => a + (b['percentage']*100 < chart.p_limite ? b : 0), 0)
         let dataDisplay = arrayDisplay.map(item => item.percentage)
         let labelDisplay = arrayDisplay.map(item => item[chart.p_categoria])
