@@ -8,6 +8,7 @@ import Select from 'react-select';
 import AgGrid from './components/AgGrid';
 import Modal2 from './components/Modal2';
 import ModalMenu from './components/ModalMenu';
+import { FaUndoAlt} from 'react-icons/fa';
 
 function Tablerow() {
   const [groupTables, setGroupTables] = useState([])
@@ -89,8 +90,8 @@ function Tablerow() {
   })
 
   const request_gettabledata = async (body) => {
-    const base_url='http://localhost:8080'
-    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    //const base_url='http://localhost:8080'
+    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/getTableData2'
     const request = {
       method: 'POST',
@@ -223,10 +224,10 @@ function Tablerow() {
     showTables()
   }, [])
 
-  useEffect(() => {
+  /*useEffect(() => {
     showTableData()
   }, [tableSelected])
-
+*/
   function onRowDataChanged(params) {
     const colIds = params.columnApi.getAllGridColumns().map(c => c.colId)
     params.columnApi.autoSizeColumns(colIds)
@@ -240,6 +241,10 @@ function Tablerow() {
     gridApi.exportDataAsCsv();
   };
 
+  const consultarReporte = () => {
+    showTableData()
+  }
+
   return (
     <div>
     <div className="App">
@@ -248,9 +253,6 @@ function Tablerow() {
     </div>
       <div className="divReportName mb-3 row">
       <div className="col-sm-10">
-      </div>
-      <div className="col-sm-2">
-        <Button className="btnAgregar" onClick={()=>setOpenModal(true)}>Crear Reporte</Button>
       </div>
       </div>
       <Modal2 open={openModal} onClose={openModalfunction} p_datatables={tableModal} p_grouptables={tableGroupModal}></Modal2>
@@ -267,6 +269,9 @@ function Tablerow() {
             value={valueSelect}
             onChange={(e) => handlerTable(e)}
           />
+        </div>
+        <div className="col-sm-2">
+          <Button className="btnGeneral" onClick={()=>consultarReporte()}><FaUndoAlt /></Button>
         </div>
       </div>
       <AgGrid 

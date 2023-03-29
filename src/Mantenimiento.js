@@ -538,8 +538,8 @@ function Mantenimiento() {
   }
 
   const request_getquerycolumns = async (body) => {
-    const base_url = 'http://localhost:8080'
-    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    //const base_url = 'http://localhost:8080'
+    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/getQueryColumns'
     const request = {
       method: 'POST',
@@ -550,8 +550,8 @@ function Mantenimiento() {
   }
 
   const request_insertrow = async (body) => {
-    const base_url = 'http://localhost:8080'
-    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    //const base_url = 'http://localhost:8080'
+    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/insertRow'
     const request = {
       method: 'POST',
@@ -574,8 +574,8 @@ function Mantenimiento() {
   }
 
   const request_deleterow = async (body) => {
-    const base_url = 'http://localhost:8080'
-    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    //const base_url = 'http://localhost:8080'
+    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/deleteRow'
     const request = {
       method: 'POST',

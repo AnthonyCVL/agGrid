@@ -439,8 +439,8 @@ function ModalMenu({ open, onClose, p_datatables, p_grouptables }) {
   }
 
   const request_insertrow = async (body) => {
-    const base_url = 'http://localhost:8080'
-    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    //const base_url = 'http://localhost:8080'
+    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/insertRow'
     const request = {
       method: 'POST',
@@ -451,8 +451,8 @@ function ModalMenu({ open, onClose, p_datatables, p_grouptables }) {
   }
 
   const request_updaterow = async (body) => {
-    const base_url = 'http://localhost:8080'
-    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    //const base_url = 'http://localhost:8080'
+    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/updateRow'
     const request = {
       method: 'POST',

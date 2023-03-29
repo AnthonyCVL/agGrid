@@ -181,9 +181,12 @@ img {
 }
 
 .btnAgregar{
+  text-align: right;
+}
+
+.btnGeneral{
   border-color: #06f;
   background-color: #06f;
-  text-align: right;
 }
 
 @media screen and (max-width: 500px) {

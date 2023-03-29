@@ -222,7 +222,7 @@ function AgGrid(props) {
   return (
     <div>
       <div className="tabs">
-        <div className='reporte-button'>
+        <div className={`reporte-button ${(props.p_datatables.length == 0 ? "div-hidden" : "")}`}>
           <Button color="success"
             onClick={() => onBtnExportDataAsCsv()}
             style={{ fontSize: '12px' }}
