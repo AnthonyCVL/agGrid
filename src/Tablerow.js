@@ -232,10 +232,10 @@ function Tablerow() {
     showTables()
   }, [])
 
-  /*useEffect(() => {
+  useEffect(() => {
     showTableData()
   }, [tableSelected])
-*/
+
   function onRowDataChanged(params) {
     const colIds = params.columnApi.getAllGridColumns().map(c => c.colId)
     params.columnApi.autoSizeColumns(colIds)
@@ -285,14 +285,9 @@ function Tablerow() {
             />
           </div>
           <div className="col-sm-1">
-            <Button className="btnGeneral" onClick={() => consultarReporte()}><FaUndoAlt /></Button>
+            <Button className="btnGeneral" onClick={() => refreshReporte()}><FaSyncAlt /></Button>
           </div>
-          <div className="col-sm-2">
-          </div>
-          <div className="col-sm-1">
-            <Button className="btnRefrescar" onClick={() => refreshReporte()}><FaSyncAlt /></Button>
-          </div>
-          <div className="col-sm-1">
+          <div className="col-sm-4">
           </div>
         </div>
         <div>
