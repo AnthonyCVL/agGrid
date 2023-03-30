@@ -8,7 +8,7 @@ import Select from 'react-select';
 import AgGrid from './components/AgGrid';
 import Modal2 from './components/Modal2';
 import ModalMenu from './components/ModalMenu';
-import { FaUndoAlt} from 'react-icons/fa';
+import { FaSyncAlt, FaUndoAlt } from 'react-icons/fa';
 
 function Tablerow() {
   const [groupTables, setGroupTables] = useState([])
@@ -36,9 +36,9 @@ function Tablerow() {
   const openModalfunction = () => {
     setOpenModal(false)
     const list = []
-    list[0] = [{position: '1', databasename: 'databasename',objectname:'objectname'}]
-    const grouplist = [] 
-    grouplist[0] = [{position_table: 1, description: 'Reporte'}]
+    list[0] = [{ position: '1', databasename: 'databasename', objectname: 'objectname' }]
+    const grouplist = []
+    grouplist[0] = [{ position_table: 1, description: 'Reporte' }]
     setTableModal(list)
     setTableGroupModal(grouplist)
   }
@@ -46,9 +46,9 @@ function Tablerow() {
   const openModalMenufunction = () => {
     setOpenModalMenu(false)
     const list = []
-    list[0] = [{position: '1', databasename: 'databasename',objectname:'objectname'}]
-    const grouplist = [] 
-    grouplist[0] = [{position_table: 1, description: 'Reporte'}]
+    list[0] = [{ position: '1', databasename: 'databasename', objectname: 'objectname' }]
+    const grouplist = []
+    grouplist[0] = [{ position_table: 1, description: 'Reporte' }]
     setTableModal(list)
     setTableGroupModal(grouplist)
   }
@@ -90,8 +90,8 @@ function Tablerow() {
   })
 
   const request_gettabledata = async (body) => {
-    //const base_url='http://localhost:8080'
-    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const base_url = 'http://localhost:8080'
+    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/getTableData2'
     const request = {
       method: 'POST',
@@ -117,7 +117,7 @@ function Tablerow() {
     });
   }
 
-  const showTableData = async () => {
+  const showTableData = async (refresh = 'false') => {
     console.log("showTableData")
     setGroupTables([])
     setDatatables([])
@@ -130,6 +130,8 @@ function Tablerow() {
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
           table: 'VW_WebGrupoReporte',
+          cache_enabled: 'true',
+          cache_refresh: refresh,
           where: JSON.stringify({ id_grupo: tableSelected.id_grupo, state: 1 })
         })
       )
@@ -146,6 +148,8 @@ function Tablerow() {
           JSON.stringify({
             database: 'D_EWAYA_CONFIG',
             table: 'VW_WebReporte',
+            cache_enabled: 'true',
+            cache_refresh: refresh,
             where: JSON.stringify({ id_reporte: key, state: 1 })
           })
         )
@@ -161,22 +165,26 @@ function Tablerow() {
               select: table.col_qry,
               order: table.ord_qry,
               type: table.id_tiporeporte,
-              query: table.full_qry
+              query: table.full_qry,
+              cache_enabled: 'true',
+              cache_refresh: refresh
             })
           )
           const response_webreportegrafico = await request_gettabledata(
             JSON.stringify({
               database: 'D_EWAYA_CONFIG',
               table: 'GD_WebReporteGrafico',
+              cache_enabled: 'true',
+              cache_refresh: refresh,
               where: JSON.stringify({ id_reporte: table.id_reporte })
-          }))
+            }))
           const listChart = []
           if (response_webreportegrafico.length > 0) {
             response_webreportegrafico.map(function (obj) {
               listChart.push({ id_grafico: obj["id_grafico"], categoria: obj["categoria"], valor: obj["valor"], titulo: obj["titulo"], limite: obj["limite"], object: obj });
             })
           }
-          const dt = { id_reporte: table.id_reporte, listChart: listChart , data: response }
+          const dt = { id_reporte: table.id_reporte, listChart: listChart, data: response }
           addElementToArray(dts, dt)
           return dt
         }
@@ -245,39 +253,54 @@ function Tablerow() {
     showTableData()
   }
 
+  const refreshReporte = () => {
+    showTableData('true')
+  }
+
   return (
     <div>
-    <div className="App">
-      
-    <div className="divReportName mb-3 row">
-    </div>
-      <div className="divReportName mb-3 row">
-      <div className="col-sm-10">
-      </div>
-      </div>
-      <Modal2 open={openModal} onClose={openModalfunction} p_datatables={tableModal} p_grouptables={tableGroupModal}></Modal2>
-      {/*<Button onClick={()=>setOpenModalMenu(true)}>Agregar Menu</Button>
+      <div className="App">
+
+        <div className="divReportName mb-3 row">
+        </div>
+        <div className="divReportName mb-3 row">
+          <div className="col-sm-10">
+          </div>
+        </div>
+        <Modal2 open={openModal} onClose={openModalfunction} p_datatables={tableModal} p_grouptables={tableGroupModal}></Modal2>
+        {/*<Button onClick={()=>setOpenModalMenu(true)}>Agregar Menu</Button>
       <ModalMenu open={openModalMenu} onClose={openModalMenufunction} p_datatables={tableModalMenu} p_grouptables={tableGroupModalMenu}></ModalMenu>*/}
-      <div className="App-title">
-        <h2 align="center" className="display-8 fw-bold main-title">Tablero BI</h2>
-      </div>
-      <div className="dropdown">
-        <div><h5 className="n5 main-subtitle">Reporte: </h5></div>
-        <div className="reporte-dropdown">
-          <Select
-            options={rowsTableSelect}
-            value={valueSelect}
-            onChange={(e) => handlerTable(e)}
-          />
+        <div className="App-title">
+          <h2 align="center" className="display-8 fw-bold main-title">Tablero BI</h2>
         </div>
-        <div className="col-sm-2">
-          <Button className="btnGeneral" onClick={()=>consultarReporte()}><FaUndoAlt /></Button>
+        <div className="dropdown-tablero mb-3 row">
+          <div className="col-sm-2">
+            <h5 className="n5 main-subtitle">Reporte: </h5>
+          </div>
+          <div className="reporte-dropdown-tablero col-sm-5 ">
+            <Select
+              options={rowsTableSelect}
+              value={valueSelect}
+              onChange={(e) => handlerTable(e)}
+            />
+          </div>
+          <div className="col-sm-1">
+            <Button className="btnGeneral" onClick={() => consultarReporte()}><FaUndoAlt /></Button>
+          </div>
+          <div className="col-sm-2">
+          </div>
+          <div className="col-sm-1">
+            <Button className="btnRefrescar" onClick={() => refreshReporte()}><FaSyncAlt /></Button>
+          </div>
+          <div className="col-sm-1">
+          </div>
+        </div>
+        <div>
+          <AgGrid
+            p_grouptables={groupTables}
+            p_datatables={datatables} />
         </div>
       </div>
-      <AgGrid 
-        p_grouptables = {groupTables}
-        p_datatables = {datatables}/>
-    </div>
     </div>
   );
 }

@@ -10,19 +10,17 @@
   color: #61dafb;
 }
 
-.dropdown {
-  width: 700px !important;
+.dropdown-tablero {
   padding: 0px !important;
-  margin: 0px !important;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.reporte-dropdown{
+.reporte-dropdown-tablero{
   padding: 0px !important;
   margin: 0px !important;
-  width: 70%;
+  color: black !important;
 }
 
 .reporte-button{
@@ -187,6 +185,11 @@ img {
 .btnGeneral{
   border-color: #06f;
   background-color: #06f;
+}
+
+.btnRefrescar{
+  border-color: green;
+  background-color: green;
 }
 
 @media screen and (max-width: 500px) {
