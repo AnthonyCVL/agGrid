@@ -15,6 +15,9 @@ function Tablerow() {
   const [rowsTableSelect, setRowTablesSelect] = useState([])
   const [valueSelect, setValueSelect] = useState({})
   const [tableSelected, setTableSelected] = useState([])
+  const [categoryRowSelect, setCategoryRowSelect] = useState([])
+  const [categoryValueSelect, setCategoryValueSelect] = useState({})
+  const [categorySelected, setCategorySelected] = useState([])
   const [datatables, setDatatables] = useState([])
   const [gridApi, setGridApi] = useState({})
   const [openModal, setOpenModal] = useState(false)
@@ -31,6 +34,11 @@ function Tablerow() {
   const handlerTable = function (e) {
     setTableSelected(e.object)
     setValueSelect(e)
+  }
+
+  const handlerCategory = function (e) {
+    setCategorySelected(e.object)
+    setCategoryValueSelect(e)
   }
 
   const openModalfunction = () => {
@@ -213,16 +221,48 @@ function Tablerow() {
     }
   }
 
-  const showTables = async () => {
+  const showCategory = async () => {
     try {
-      //const response = await fetch('http://localhost:8080/getTableData?database=D_EWAYA_CONFIG&table=VW_WebGrupo');
-      //const response = await fetch('http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet/getTableData?database=D_EWAYA_CONFIG&table=VW_WebGrupo');
-      //const data = await response.json();
+      console.log('showCategory')
+      const category = await request_gettabledata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'VW_WebReporteCategoria',
+          where: JSON.stringify({ state: 1 })
+        })
+      )
+      console.log('category')
+      console.log(category)
+      const categorySelect = [];
+      category.sort(function (a, b) {
+        return a.id_categoria - b.id_categoria || a.desc_categoria.localeCompare(b.desc_categoria);
+      });
+      console.log(category)
+      category.map(function (obj) {
+        categorySelect.push({ value: obj["desc_categoria"], label: obj["desc_categoria"], object: obj });
+      })
+      console.log(categorySelect)
+      setCategoryRowSelect(categorySelect)
+      setCategoryValueSelect(categorySelect[0])
+      setCategorySelected(category[0])
+    } catch (error) {
+      console.error("There has been a problem with your fetch operation:", error);
+    }
+  }
+
+  const showReportes = async () =>{
+    try {
+      console.log('showReportes')
+      console.log(categorySelected)
+      if (categorySelected.id_categoria <= 0 || categorySelected.id_categoria == undefined) {
+        return;
+      }
+      
       const data = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
           table: 'VW_WebGrupo',
-          where: JSON.stringify({ state: 1 })
+          where: JSON.stringify({ state: 1 , id_categoria: categorySelected.id_categoria})
         })
       )
       const dataSelect = [];
@@ -240,9 +280,14 @@ function Tablerow() {
     }
   }
 
+
   useEffect(() => {
-    showTables()
+    showCategory()
   }, [])
+
+  useEffect(() => {
+    showReportes()
+  }, [categorySelected])
 
   useEffect(() => {
     showTableData()
@@ -284,6 +329,20 @@ function Tablerow() {
       <ModalMenu open={openModalMenu} onClose={openModalMenufunction} p_datatables={tableModalMenu} p_grouptables={tableGroupModalMenu}></ModalMenu>*/}
         <div className="App-title">
           <h2 align="center" className="display-8 fw-bold main-title">Tablero BI</h2>
+        </div>
+        <div className="dropdown-tablero mb-3 row">
+          <div className="col-sm-2">
+            <h5 className="n5 main-subtitle">Categoria: </h5>
+          </div>
+          <div className="reporte-dropdown-tablero col-sm-5 ">
+            <Select
+              options={categoryRowSelect}
+              value={categoryValueSelect}
+              onChange={(e) => handlerCategory(e)}
+            />
+          </div>
+          <div className="col-sm-5">
+          </div>
         </div>
         <div className="dropdown-tablero mb-3 row">
           <div className="col-sm-2">

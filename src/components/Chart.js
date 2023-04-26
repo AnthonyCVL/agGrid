@@ -69,6 +69,8 @@ function Chart(props) {
     }
 
     const groupBy = (data, category, values) => {
+        console.log('groupBy')
+        console.log(category)
         const resultArr = [];
         const groupByLocation = data.reduce(getReducer(category, values), {});
         // Finally calculating the sum based on the location array we have.
@@ -79,7 +81,8 @@ function Chart(props) {
             array[values] = groupByLocation[item]
             resultArr.push(array)
         })
-        resultArr.sort((a, b) => b[values] - a[values]);
+        //resultArr.sort((a, b) => b[values] - a[values]);
+        resultArr.sort((a, b) => a[category].localeCompare(b[category]))
         return resultArr
     }
 
