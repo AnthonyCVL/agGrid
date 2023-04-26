@@ -111,7 +111,7 @@ function Mantenimiento() {
         console.log("iffffff")
         var list = []
         response_webreportegrafico.map(function (obj) {
-          list.push({ id_grafico: obj["id_grafico"], categoria: obj["categoria"], valor: obj["valor"], titulo: obj["titulo"], object: obj });
+          list.push({ id_grafico: obj["id_grafico"], categoria: obj["categoria"], valor: obj["valor"], titulo: obj["titulo"], limite: obj["limite"], object: obj });
         })
         console.log(list)
         console.log("ifffend")
