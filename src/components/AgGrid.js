@@ -37,6 +37,7 @@ function AgGrid(props) {
   const [datatablesColumns, setDatatablesColumns] = useState([])
   const [activeTab, setActiveTab] = useState("0")
   const [gridApi, setGridApi] = useState({})
+  const [gridParams, setGridParams] = useState({})
   const [listChart, setListChart] = useState([])
   const [chartData, setChartData] = useState({})
   const [rowsFiltered, setRowsFiltered] = useState({})
@@ -91,6 +92,8 @@ function AgGrid(props) {
   }
 
   const changeTab = (numberTab) => {
+    console.log('changeTab')
+    console.log(gridParams)
     if (activeTab !== numberTab) {
       setActiveTab(numberTab)
       if (props.p_datatables.length > 0) {
@@ -188,6 +191,27 @@ function AgGrid(props) {
     setRowsFiltered(rows)
   }, [rows])
 
+  useEffect(() => { 
+    async function makeRequest() {
+      console.log('before');
+
+      await delay(3000);
+      if(gridParams!==undefined && Object.keys(gridParams).length !== 0){
+        console.log('autosizeeeeee')
+        autoSizeColumns(gridParams)
+      }
+
+      console.log('after');
+    }
+
+    makeRequest();
+
+  }, [activeTab])
+
+  const delay = ms => new Promise(
+    resolve => setTimeout(resolve, ms)
+  );
+
   useEffect(() => {
     console.log("rowsFiltered")
     console.log(props)
@@ -198,9 +222,24 @@ function AgGrid(props) {
   }, [rowsFiltered])
 
   function onRowDataChanged(params) {
-    const colIds = params.columnApi.getAllGridColumns().map(c => c.colId)
-    params.columnApi.autoSizeColumns(colIds)
+    autoSizeColumns(params)
   }
+
+  function autoSizeColumns(params) {
+    console.log("autoSizeColumns")
+    console.log(params)
+    const colIds = params.columnApi
+      .getAllDisplayedColumns()
+      .map(col => col.getColId());
+    console.log(colIds)
+    var column = params.columnApi.getColumn('modelo'); // where field = name
+    var column2 = params.columnApi.getColumn('F6_SUM_tmin_90'); // where field = name
+    console.log('column info' );
+    console.log(column );
+    console.log('column info' );
+    console.log(column2 );
+    params.columnApi.autoSizeColumns(colIds);
+  };
 
   function onFilterChanged(){
     console.log("onFilterChanged")
@@ -212,17 +251,34 @@ function AgGrid(props) {
   }
 
   const onGridReady = params => {
+    console.log('onGridReady')
     setGridApi(params.api);
+    setGridParams(params)
+    autoSizeColumns(params)
   };
 
   const onBtnExportDataAsCsv = () => {
     gridApi.exportDataAsCsv();
   };
 
+  const btnAutosize = () => {
+    autoSizeColumns(gridParams);
+  };
+
+  const columnVisible = params => {
+    autoSizeColumns(params);
+  }
+
   return (
     <div>
       <div className="tabs">
         <div className={`reporte-button ${(props.p_datatables.length == 0 ? "div-hidden" : "")}`}>
+        <Button color="success"
+            onClick={() => btnAutosize()}
+            style={{ fontSize: '12px' }}
+          >
+            Autosize
+          </Button>
           <Button color="success"
             onClick={() => onBtnExportDataAsCsv()}
             style={{ fontSize: '12px' }}
@@ -253,6 +309,7 @@ function AgGrid(props) {
                   alignedGrids={headerGrid.current ? [headerGrid.current] : undefined}
                   rowData={rows}
                   columnDefs={columns}
+                  //suppressColumnVirtualisation={true}
                   defaultColDef={defColumnDefs}
                   pagination={true}
                   paginationPageSize={100}
@@ -260,6 +317,7 @@ function AgGrid(props) {
                   rowHeight={30}
                   onGridReady={onGridReady}
                   onFilterChanged={onFilterChanged} 
+                  //onBodyScroll={columnVisible}
                 />
               </div>
             </TabPane>

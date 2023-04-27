@@ -1,5 +1,5 @@
 import './Mantenimiento.css';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import Select from 'react-select';
@@ -148,6 +148,8 @@ function Mantenimiento() {
 
   const getQueryColumns = async function(e){
     console.log("getChart")
+    console.log(reportColumns)
+    console.log(viewQuery)
     var columnsOptions=[]
     if(reportColumns.length==0 && viewQuery!==null && viewQuery!==""){
       const result_columns = await request_getquerycolumns(
@@ -666,12 +668,27 @@ function Mantenimiento() {
   }, [])
 
   useEffect(() => {
-    setNumChart(listChart.length)
+    //console.log('setting numchart')
+    //console.log(listChart.length)
+    //setNumChart(listChart.length)
   }, [reportColumns])
+
+  const previousValues = useRef({ listChart, reportColumns });
+
+  useEffect(() => {
+    if (
+      previousValues.current.listChart.length !== listChart.length &&
+      previousValues.current.reportColumns.length !== reportColumns.length
+    ) {
+    setNumChart(listChart.length)
+      previousValues.current = { listChart, reportColumns };
+    }
+  });
 
   useEffect(() => {
     getQueryColumns()
   }, [viewQuery])
+
 
   useEffect(() => {
     console.log("useEffect setWebGroup")
@@ -791,6 +808,7 @@ function Mantenimiento() {
                     </div>
                   </div>
                   {[...Array(numChart)].map((e, i) => {
+                    console.log(e)
                     return getChartForm(e, i)
                   })}
                   <div className="mb-3 row">
