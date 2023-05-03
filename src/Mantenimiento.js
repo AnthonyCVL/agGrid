@@ -27,6 +27,10 @@ function Mantenimiento() {
   const [chartColumnValue, setChartColumnValue] = useState({})
   const [numChart, setNumChart] = useState(0)
   const [reportColumns, setReportColumns] = useState([])
+  const [categorySelect, setCategorySelect] = useState([])
+  const [categoryValueSelect, setCategoryValueSelect] = useState({})
+  const [categoryObjectSelect, setCategoryObjectSelect] = useState({})
+  const [categoryName, setCategoryName] = useState("")
 
   const [listChart, setListChart] = useState([])
 
@@ -54,6 +58,7 @@ function Mantenimiento() {
     console.log(e)
     setWebGroupObjectSelect(e.object)
     setWebGroupValueSelect(e)
+    setCategoryValueSelect(e.id_categoria)
     setReportDescription(e.object.description)
     setReportName(createOption(e.object.name))
     setReportDate(webGroupObjectSelect.create_ts)
@@ -63,12 +68,18 @@ function Mantenimiento() {
     setNumChart(0)
   }
 
+  const handlerCategory = function (e) {
+    setCategoryObjectSelect(e.object)
+    setCategoryValueSelect(e)
+  }
+
   const showFormCRUD = function (e) {
     console.log("showFormCRUD")
     if (enableCRUD === "tablerobi") {
       setHiddenCRUD(false)
     }
   }
+  
 
 
   const getReportes = async function (e) {
@@ -616,6 +627,22 @@ function Mantenimiento() {
       })
       setWebGroupSelect(selectWebGroup)
 
+      const category = await request_gettabledata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'VW_WebReporteCategoria',
+          where: JSON.stringify({ state: 1 })
+        })
+      )
+      const arr_category = [];
+      category.sort(function (a, b) {
+        return a.id_categoria - b.id_categoria || a.desc_categoria.localeCompare(b.desc_categoria);
+      });
+      category.map(function (obj) {
+        arr_category.push({ value: obj["desc_categoria"], label: obj["desc_categoria"], object: obj });
+      })
+      setCategorySelect(arr_category)
+
       const response_list_chart = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
@@ -653,6 +680,8 @@ function Mantenimiento() {
     setWebGroupObjectSelect([])
     console.log(webGroupObjectSelect)
     setWebGroupValueSelect({})
+    setCategoryObjectSelect([])
+    setCategoryValueSelect([])
     //setWebGroupSelect([])
     console.log(webGroupObjectSelect.id_grupo)
     setReportName("")
@@ -765,6 +794,16 @@ function Mantenimiento() {
                 <div className="col-sm-3">
                   <input id="reportDescription" type='text' className="form-control input"
                     value={reportDescription} onInput={e => setReportDescription(e.target.value)}></input>
+                </div>
+                <div className="col-sm-1">
+                  <label className="col-form-label labelForm">Categoria</label>
+                </div>
+                <div className="col-sm-2">
+                <Select
+                  options={categorySelect}
+                  value={categoryName}
+                  onChange={(e) => handlerCategory(e)}
+                />
                 </div>
               </div>
               {/*<div className="divDatatable">
