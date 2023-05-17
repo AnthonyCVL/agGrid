@@ -322,6 +322,20 @@ function Mantenimiento() {
       confirmButtonText: 'Aceptar',
       showLoaderOnConfirm: true,
       preConfirm: async () => {
+        const p_query = viewQuery.replaceAll("'", "''");
+        const validate_query = await request_gettabledata(
+          JSON.stringify({
+            query: p_query,
+            type: 2
+          })
+        )
+        const json_validate_query = await validate_query.json()
+        console.log("show_modal_inserttttttttttttttttttt")
+        console.log(json_validate_query)
+        if (!json_validate_query.ok) {
+          show_error()
+          return 0;
+        }
         const postrequest = JSON.stringify([{
           database: 'D_EWAYA_CONFIG',
           table: 'GD_WebGrupo',
@@ -352,7 +366,7 @@ function Mantenimiento() {
           return 0;
         }
         console.log(viewQuery)
-        console.log(viewQuery.replaceAll("'", "''"))
+        console.log(p_query)
         const response_insert_webreporte = await request_insertrow(
           JSON.stringify([{
             database: 'D_EWAYA_CONFIG',
@@ -360,7 +374,7 @@ function Mantenimiento() {
             main_id: 'id_reporte',
             body: JSON.stringify({
               desc_qry: viewName,
-              full_qry: viewQuery.replaceAll("'", "''"),
+              full_qry: p_query,
               id_tiporeporte: 2
             })
           }])
@@ -539,8 +553,8 @@ function Mantenimiento() {
 
 
   const request_gettabledata = async (body) => {
-    //const base_url = 'http://localhost:8080'
-    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const base_url = 'http://localhost:8080'
+    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/getTableData2'
     const request = {
       method: 'POST',
@@ -551,8 +565,8 @@ function Mantenimiento() {
   }
 
   const request_getquerycolumns = async (body) => {
-    //const base_url = 'http://localhost:8080'
-    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const base_url = 'http://localhost:8080'
+    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/getQueryColumns'
     const request = {
       method: 'POST',
@@ -563,8 +577,8 @@ function Mantenimiento() {
   }
 
   const request_insertrow = async (body) => {
-    //const base_url = 'http://localhost:8080'
-    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const base_url = 'http://localhost:8080'
+    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/insertRow'
     const request = {
       method: 'POST',
@@ -575,8 +589,8 @@ function Mantenimiento() {
   }
 
   const request_updaterow = async (body) => {
-    //const base_url = 'http://localhost:8080'
-    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const base_url = 'http://localhost:8080'
+    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/updateRow'
     const request = {
       method: 'POST',
@@ -587,8 +601,8 @@ function Mantenimiento() {
   }
 
   const request_deleterow = async (body) => {
-    //const base_url = 'http://localhost:8080'
-    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const base_url = 'http://localhost:8080'
+    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/deleteRow'
     const request = {
       method: 'POST',
