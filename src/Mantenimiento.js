@@ -89,39 +89,42 @@ function Mantenimiento() {
     if (webGroupObjectSelect === "" || webGroupObjectSelect === undefined || webGroupObjectSelect.id_grupo === '' || webGroupObjectSelect.id_grupo === undefined) {
       return 0
     }
-    const response_webgroupreport = await request_gettabledata(
+    const response_webgroupreport = await request_getquerydata(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
         table: 'VW_WebGrupoReporte',
         where: JSON.stringify({ id_grupo: webGroupObjectSelect.id_grupo })
       })
     )
-    response_webgroupreport.map(async function (obj) {
-      const response_webbreport = await request_gettabledata(
+    const webgroupreport = response_webgroupreport.result
+    webgroupreport.map(async function (obj) {
+      const response_webbreport = await request_getquerydata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
           table: 'VW_WebReporte',
           where: JSON.stringify({ id_reporte: obj.id_reporte })
         }))
-      console.log(response_webbreport)
-      if (response_webbreport.length > 0) {
-        setListView(listView => [...listView, response_webbreport[0]])
+      webbreport = response_webbreport.result
+      console.log(webbreport)
+      if (webbreport.length > 0) {
+        setListView(listView => [...listView, webbreport[0]])
       }
       console.log("GD_WebReporteGrafico")
       console.log(obj.id_reporte)
-      const response_webreportegrafico = await request_gettabledata(
+      const response_webreportegrafico = await request_getquerydata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
           table: 'GD_WebReporteGrafico',
           where: JSON.stringify({ id_reporte: obj.id_reporte })
         }))
+      const webreportegrafico = response_webreportegrafico.result
       console.log("POST QUERY")
-      console.log("response: "+response_webreportegrafico)
-      console.log(response_webreportegrafico)
-      if (response_webreportegrafico.length > 0) {
+      console.log("response: "+webreportegrafico)
+      console.log(webreportegrafico)
+      if (webreportegrafico.length > 0) {
         console.log("iffffff")
         var list = []
-        response_webreportegrafico.map(function (obj) {
+        webreportegrafico.map(function (obj) {
           list.push({ id_grafico: obj["id_grafico"], categoria: obj["categoria"], valor: obj["valor"], titulo: obj["titulo"], limite: obj["limite"], object: obj });
         })
         console.log(list)
@@ -551,6 +554,17 @@ function Mantenimiento() {
     show_modal(title, text, icon, button)
   }
 
+  const request_getquerydata = async (body) => {
+    //const base_url = 'http://localhost:8080'
+    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const method = '/getQueryData'
+    const request = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: body
+    };
+    return await send_post(base_url, method, request)
+  }
 
   const request_gettabledata = async (body) => {
     //const base_url = 'http://localhost:8080'
@@ -628,26 +642,28 @@ function Mantenimiento() {
     setFlagAction('')
     console.log("showTables")
     try {
-      const response_list_webgroup = await request_gettabledata(
+      const response_webgroup = await request_getquerydata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
           table: 'VW_WebGrupo',
           where: JSON.stringify({ state: 1 })
         })
       )
+      list_webgroup = response_webgroup.result
       const selectWebGroup = [];
-      response_list_webgroup.map(function (obj) {
+      list_webgroup.map(function (obj) {
         selectWebGroup.push({ value: obj["name"], label: obj["name"], object: obj });
       })
       setWebGroupSelect(selectWebGroup)
 
-      const category = await request_gettabledata(
+      response_category = await request_getquerydata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
           table: 'VW_WebReporteCategoria',
           where: JSON.stringify({ state: 1 })
         })
       )
+      const category = response_category.result
       const arr_category = [];
       category.sort(function (a, b) {
         return a.id_categoria - b.id_categoria || a.desc_categoria.localeCompare(b.desc_categoria);
@@ -657,7 +673,7 @@ function Mantenimiento() {
       })
       setCategorySelect(arr_category)
 
-      const response_list_chart = await request_gettabledata(
+      const response_list_chart = await request_getquerydata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
           table: 'GD_WebGrafico',
@@ -667,8 +683,9 @@ function Mantenimiento() {
           order: 1
         })
       )
+      const list_chart = response_list_chart.result
       const dataSelect = []
-      response_list_chart.map(function (obj) {
+      list_chart.map(function (obj) {
         dataSelect.push({ value: obj["id_grafico"], label: obj["nombre"], object: obj });
       })
       setChartOptions(dataSelect)

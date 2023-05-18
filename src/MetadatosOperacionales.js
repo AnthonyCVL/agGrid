@@ -77,6 +77,18 @@ function MetadatosOperacionales() {
     //minWidth: 100
   }
 
+  const request_getquerydata = async (body) => {
+    //const base_url = 'http://localhost:8080'
+    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const method = '/getQueryData'
+    const request = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: body
+    };
+    return await send_post(base_url, method, request)
+  }
+
   const request_gettabledata = async (body) => {
     //const base_url='http://localhost:8080'
     const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
@@ -105,24 +117,26 @@ function MetadatosOperacionales() {
       }
       setRowsHeader([tableSelected])
       setColumnsHeader(getDynamicColumns(tableSelected))
-      console.log("request_gettabledata")
-      const data = await request_gettabledata(
+      console.log("request_getquerydata")
+      const response_data = await request_getquerydata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
           table: 'GD_WebMaestroConsultaDetalle',
           where: JSON.stringify({ state: 1, id_consulta: 1})
         })
       )
+      const data = response.data.result
       console.log(data)
       const q = data[0].full_qry
       console.log(q)
       const fullQuery=q+" where msr.id_proceso="+tableSelected.id_proceso;
-      const resultados = await request_gettabledata(
+      const response_resultados = await request_getquerydata(
         JSON.stringify({
           type: 2,
           query: fullQuery
         })
       )
+      const resultados = response_resultados.result
       setRowsDetail(resultados)
       setColumnsDetail(getDynamicColumns(resultados[0]))
     } catch (error) {
@@ -132,13 +146,14 @@ function MetadatosOperacionales() {
 
   const showTables = async () => {
     try {
-      const data = await request_gettabledata(
+      const response_data = await request_getquerydata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
           table: 'vw_metadatosprocesoscab',
           where: JSON.stringify({ estado: 1 })
         })
       )
+      const data = response_data.result
       const dataSelect = [];
       data.map(function (obj) {
         dataSelect.push({ value: obj["nombre_proceso"], label: obj["nombre_proceso"], object: obj });
