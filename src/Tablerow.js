@@ -26,6 +26,7 @@ function Tablerow() {
   const [tableGroupModal, setTableGroupModal] = useState([])
   const [tableModalMenu, setTableModalMenu] = useState([])
   const [tableGroupModalMenu, setTableGroupModalMenu] = useState([])
+  const [lastUpdateLabel, setLastUpdateLabel] = useState('')
 
   const addElementToArray = async (list, element) => {
     list.push(element)
@@ -97,9 +98,21 @@ function Tablerow() {
     }
   })
 
+  const request_getquerydata = async (body) => {
+    const base_url = 'http://localhost:8080'
+    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const method = '/getQueryData'
+    const request = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: body
+    };
+    return await send_post(base_url, method, request)
+  }
+
   const request_gettabledata = async (body) => {
-    //const base_url = 'http://localhost:8080'
-    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const base_url = 'http://localhost:8080'
+    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/getTableData2'
     const request = {
       method: 'POST',
@@ -146,7 +159,7 @@ function Tablerow() {
         return;
       }
 
-      const group_tables = await request_gettabledata(
+      const response = await request_getquerydata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
           table: 'VW_WebGrupoReporte',
@@ -155,6 +168,7 @@ function Tablerow() {
           where: JSON.stringify({ id_grupo: tableSelected.id_grupo, state: 1 })
         })
       )
+      const group_tables = response.result
       setGroupTables(group_tables.sort((a, b) => a.position_table > b.position_table ? 1 : -1))
       const dts = []
       const promises = []
@@ -164,7 +178,7 @@ function Tablerow() {
         promises.push(group_tables[key].id_reporte)
       });
       const resultados = await Promise.all(promises.map(function (key) {
-        const tables = request_gettabledata(
+        const tables = request_getquerydata(
           JSON.stringify({
             database: 'D_EWAYA_CONFIG',
             table: 'VW_WebReporte',
@@ -173,12 +187,14 @@ function Tablerow() {
             where: JSON.stringify({ id_reporte: key, state: 1 })
           })
         )
+        console.log("responseeeeee")
+        console.log(tables)
         return tables
       })
       ).then(
         tables => Promise.all(tables.map(async function (tables) {
-          const table = tables[0]
-          const response = await request_gettabledata(
+          const table = tables.result[0]
+          const response_query_result = await request_getquerydata(
             JSON.stringify({
               database: table.database_name,
               table: table.table_name,
@@ -190,7 +206,9 @@ function Tablerow() {
               cache_refresh: refresh
             })
           )
-          const response_webreportegrafico = await request_gettabledata(
+          const last_update = response.last_update
+          const query_result = response_query_result.result
+          const response_webreportegrafico = await request_getquerydata(
             JSON.stringify({
               database: 'D_EWAYA_CONFIG',
               table: 'GD_WebReporteGrafico',
@@ -198,13 +216,15 @@ function Tablerow() {
               cache_refresh: refresh,
               where: JSON.stringify({ id_reporte: table.id_reporte })
             }))
+          const webreportegrafico_result = response_webreportegrafico.result
           const listChart = []
-          if (response_webreportegrafico.length > 0) {
-            response_webreportegrafico.map(function (obj) {
+          if (webreportegrafico_result.length > 0) {
+            webreportegrafico_result.map(function (obj) {
               listChart.push({ id_grafico: obj["id_grafico"], categoria: obj["categoria"], valor: obj["valor"], titulo: obj["titulo"], limite: obj["limite"], object: obj });
             })
           }
-          const dt = { id_reporte: table.id_reporte, listChart: listChart, data: response }
+          const dt = { id_reporte: table.id_reporte, listChart: listChart, data: query_result }
+          setLastUpdateLabel(last_update)
           addElementToArray(dts, dt)
           return dt
         }
@@ -224,13 +244,14 @@ function Tablerow() {
   const showCategory = async () => {
     try {
       console.log('showCategory')
-      const category = await request_gettabledata(
+      const response = await request_getquerydata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
           table: 'VW_WebReporteCategoria',
           where: JSON.stringify({ state: 1 })
         })
       )
+      const category = response.result
       console.log('category')
       console.log(category)
       const categorySelect = [];
@@ -258,13 +279,14 @@ function Tablerow() {
         return;
       }
       
-      const data = await request_gettabledata(
+      const response = await request_getquerydata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
           table: 'VW_WebGrupo',
           where: JSON.stringify({ state: 1 , id_categoria: categorySelected.id_categoria})
         })
       )
+      const data = response.result
       const dataSelect = [];
       data.sort(function (a, b) {
         return a.id_grupo - b.id_grupo || a.name.localeCompare(b.name);
@@ -359,6 +381,8 @@ function Tablerow() {
             <Button className="btnGeneral" onClick={() => refreshReporte()}><FaSyncAlt /></Button>
           </div>
           <div className="col-sm-4">
+            <h6 className="n5 main-last-update">Actualizado al:</h6>
+            <h6 className="n5 main-last-update">{lastUpdateLabel}</h6>
           </div>
         </div>
         <div>

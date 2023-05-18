@@ -90,6 +90,12 @@
   padding-right: 10px;
 }
 
+.main-last-update{
+  color: black;
+  font-weight: bold;
+  padding-right: 10px;
+}
+
 .ag-header-cell {
   color: black;
 }
