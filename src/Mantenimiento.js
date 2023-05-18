@@ -98,16 +98,16 @@ function Mantenimiento() {
     )
     const webgroupreport = response_webgroupreport.result
     webgroupreport.map(async function (obj) {
-      const response_webbreport = await request_getquerydata(
+      const response_webreport = await request_getquerydata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
           table: 'VW_WebReporte',
           where: JSON.stringify({ id_reporte: obj.id_reporte })
         }))
-      webbreport = response_webbreport.result
-      console.log(webbreport)
-      if (webbreport.length > 0) {
-        setListView(listView => [...listView, webbreport[0]])
+      const webreport = response_webreport.result
+      console.log(webreport)
+      if (webreport.length > 0) {
+        setListView(listView => [...listView, webreport[0]])
       }
       console.log("GD_WebReporteGrafico")
       console.log(obj.id_reporte)
@@ -649,14 +649,14 @@ function Mantenimiento() {
           where: JSON.stringify({ state: 1 })
         })
       )
-      list_webgroup = response_webgroup.result
+      const list_webgroup = response_webgroup.result
       const selectWebGroup = [];
       list_webgroup.map(function (obj) {
         selectWebGroup.push({ value: obj["name"], label: obj["name"], object: obj });
       })
       setWebGroupSelect(selectWebGroup)
 
-      response_category = await request_getquerydata(
+      const response_category = await request_getquerydata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
           table: 'VW_WebReporteCategoria',

@@ -125,7 +125,7 @@ function MetadatosOperacionales() {
           where: JSON.stringify({ state: 1, id_consulta: 1})
         })
       )
-      const data = response.data.result
+      const data = response_data.result
       console.log(data)
       const q = data[0].full_qry
       console.log(q)
