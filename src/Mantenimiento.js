@@ -31,6 +31,9 @@ function Mantenimiento() {
   const [categoryValueSelect, setCategoryValueSelect] = useState({})
   const [categoryObjectSelect, setCategoryObjectSelect] = useState({})
   const [categoryName, setCategoryName] = useState("")
+  const [filterCategorySelect, setFilterCategorySelect] = useState([])
+  const [filterCategoryValueSelect, setFilterCategoryValueSelect] = useState({})
+  const [filterCategoryObjectSelect, setFilterCategoryObjectSelect] = useState({})
 
   const [listChart, setListChart] = useState([])
 
@@ -47,9 +50,9 @@ function Mantenimiento() {
     setReportName(newOption);
     setReportDescription('')
     setFlagAction('insert')
+    setCategoryValueSelect(categorySelect.filter(function(p){return p.value == 1}))
     console.log(flagAction)
   };
-
 
   const webGroupHandler = function (e) {
     console.log("UPDATE")
@@ -58,7 +61,7 @@ function Mantenimiento() {
     console.log(e)
     setWebGroupObjectSelect(e.object)
     setWebGroupValueSelect(e)
-    setCategoryValueSelect(e.id_categoria)
+    setCategoryValueSelect(categorySelect.filter(function(p){return p.value == e.object.id_categoria}))
     setReportDescription(e.object.description)
     setReportName(createOption(e.object.name))
     setReportDate(webGroupObjectSelect.create_ts)
@@ -66,6 +69,11 @@ function Mantenimiento() {
     setReportColumns([])
     setListChart([])
     setNumChart(0)
+  }
+
+  const handlerFilterCategory = function (e) {
+    setFilterCategoryObjectSelect(e.object)
+    setFilterCategoryValueSelect(e)
   }
 
   const handlerCategory = function (e) {
@@ -80,7 +88,37 @@ function Mantenimiento() {
     }
   }
   
-
+  const showReportes = async () =>{
+    try {
+      console.log('showReportes')
+      console.log(filterCategoryValueSelect)
+      var filter = {state: 1}
+      if (filterCategoryValueSelect.value > 0 && filterCategoryValueSelect.value !== undefined) {
+        filter.id_categoria = filterCategoryValueSelect.value
+      }
+      
+      const response_webgroup = await request_getquerydata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'VW_WebGrupo',
+          where: JSON.stringify(filter)
+        })
+      )
+      const list_webgroup = response_webgroup.result
+      const selectWebGroup = [];
+      list_webgroup.sort(function (a, b) {
+        return a.id_grupo - b.id_grupo || a.name.localeCompare(b.name);
+      });
+      list_webgroup.map(function (obj) {
+        selectWebGroup.push({ value: obj["name"], label: obj["name"], object: obj });
+      })
+      console.log("selectWebGroup")
+      console.log(selectWebGroup)
+      setWebGroupSelect(selectWebGroup)
+    } catch (error) {
+      console.error("There has been a problem with your fetch operation:", error);
+    }
+  }
 
   const getReportes = async function (e) {
     console.log("getReportes")
@@ -359,7 +397,8 @@ function Mantenimiento() {
             body: JSON.stringify({
               name: reportName.value,
               description: reportDescription,
-              id_tipogrupo: 1
+              id_tipogrupo: 1,
+              id_categoria: categoryValueSelect.value
             })
           }])
         )
@@ -427,7 +466,8 @@ function Mantenimiento() {
             }),
             body: JSON.stringify({
               name: webGroupObjectSelect.name,
-              description: reportDescription
+              description: reportDescription,
+              id_categoria: categoryValueSelect.value,
             })
           })
         )
@@ -642,20 +682,6 @@ function Mantenimiento() {
     setFlagAction('')
     console.log("showTables")
     try {
-      const response_webgroup = await request_getquerydata(
-        JSON.stringify({
-          database: 'D_EWAYA_CONFIG',
-          table: 'VW_WebGrupo',
-          where: JSON.stringify({ state: 1 })
-        })
-      )
-      const list_webgroup = response_webgroup.result
-      const selectWebGroup = [];
-      list_webgroup.map(function (obj) {
-        selectWebGroup.push({ value: obj["name"], label: obj["name"], object: obj });
-      })
-      setWebGroupSelect(selectWebGroup)
-
       const response_category = await request_getquerydata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
@@ -669,9 +695,26 @@ function Mantenimiento() {
         return a.id_categoria - b.id_categoria || a.desc_categoria.localeCompare(b.desc_categoria);
       });
       category.map(function (obj) {
-        arr_category.push({ value: obj["desc_categoria"], label: obj["desc_categoria"], object: obj });
+        arr_category.push({ value: obj["id_categoria"], label: obj["desc_categoria"], object: obj });
       })
       setCategorySelect(arr_category)
+      const category_all = { value: 0, label: "Todos"}
+      setFilterCategorySelect([category_all, ...arr_category])
+      setFilterCategoryValueSelect(category_all)
+
+      const response_webgroup = await request_getquerydata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'VW_WebGrupo',
+          where: JSON.stringify({ state: 1 })
+        })
+      )
+      const list_webgroup = response_webgroup.result
+      const selectWebGroup = [];
+      list_webgroup.map(function (obj) {
+        selectWebGroup.push({ value: obj["name"], label: obj["name"], object: obj });
+      })
+      setWebGroupSelect(selectWebGroup)
 
       const response_list_chart = await request_getquerydata(
         JSON.stringify({
@@ -719,6 +762,7 @@ function Mantenimiento() {
     setReportDescription("")
     setViewName("")
     setViewQuery("")
+    setListChart([])
   }
 
   useEffect(() => {
@@ -732,6 +776,10 @@ function Mantenimiento() {
     //console.log(listChart.length)
     //setNumChart(listChart.length)
   }, [reportColumns])
+
+  useEffect(() => {
+    showReportes()
+  }, [filterCategoryValueSelect])
 
   const previousValues = useRef({ listChart, reportColumns });
 
@@ -803,6 +851,18 @@ function Mantenimiento() {
           <form>
             <div className="divReport">
               <div className="divReportName mb-3 row">
+                <label className="col-sm-1 col-form-label labelForm">Buscar por Categoria</label>
+                <div className="col-sm-3">
+                <Select
+                  styles={style}
+                  options={filterCategorySelect}
+                  value={filterCategoryValueSelect}
+                  onChange={(e) => handlerFilterCategory(e)}
+                />
+                </div>
+              </div>
+              <hr/>
+              <div className="divReportName mb-3 row">
                 <label htmlFor="reportName" className="col-sm-1 col-form-label labelForm">Nombre</label>
                 <div className="col-sm-3">
                   <CreatableSelect
@@ -826,16 +886,17 @@ function Mantenimiento() {
                   <input id="reportDescription" type='text' className="form-control input"
                     value={reportDescription} onInput={e => setReportDescription(e.target.value)}></input>
                 </div>
-                {/*<div className="col-sm-1">
+                <div className="col-sm-1">
                   <label className="col-form-label labelForm">Categoria</label>
                 </div>
                 <div className="col-sm-2">
                 <Select
+                  styles={style}
                   options={categorySelect}
-                  value={categoryName}
+                  value={categoryValueSelect}
                   onChange={(e) => handlerCategory(e)}
                 />
-                </div>*/}
+                </div>
               </div>
               {/*<div className="divDatatable">
                   <label htmlFor="reportDatatable">Datatable</label>

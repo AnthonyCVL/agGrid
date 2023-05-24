@@ -6,6 +6,16 @@
  
 }
 
+hr {
+  display: block;
+  margin-top: 0.5em;
+  margin-bottom: 2.5em;
+  margin-left: auto;
+  margin-right: auto;
+  border-style: inset;
+  border-width: 3px;
+}
+
 .div-hidden{
   display: none;
 }
