@@ -5,6 +5,7 @@ import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import { Button } from 'reactstrap'
 import Select from 'react-select';
+import { FaSyncAlt } from 'react-icons/fa';
 
 function MetadatosTecnicos() {
   const headerGrid = useRef(null);
@@ -107,7 +108,9 @@ function MetadatosTecnicos() {
     return json
   }
 
-  const showTableData = async () => {
+  const showTableData = async (refresh = 'false') => {
+    setRowsHeader([])
+    setColumnsHeader([])
     setRowsDetail([])
     setColumnsDetail([])
     try {
@@ -120,6 +123,8 @@ function MetadatosTecnicos() {
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
           table: 'vw_metadatostecnicosdet',
+          cache_enabled: 'true',
+          cache_refresh: refresh,
           where: JSON.stringify({ DatabaseName: tableSelected.DatabaseName, TableName: tableSelected.TableName })
         })
       )
@@ -131,17 +136,25 @@ function MetadatosTecnicos() {
     }
   }
 
-  const showTables = async () => {
+  const showTables = async (refresh = 'false') => {
+    setRowTablesSelect([])
+    setValueSelect({})
+    setTableSelected([])
     try {
       const response_data = await request_getquerydata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: 'vw_metadatostecnicoscab'
+          table: 'vw_metadatostecnicoscab',
+          cache_enabled: 'true',
+          cache_refresh: refresh,
         })
       )
       const data = response_data.result
       const dataSelect = [];
       console.log(data)
+      data.sort(function (a, b) {
+        return a.TableName.localeCompare(b.TableName);
+      });
       data.map(function (obj) {
         dataSelect.push({ value: obj["TableName"], label: obj["TableName"], object: obj });
       })
@@ -160,6 +173,15 @@ function MetadatosTecnicos() {
   useEffect(() => {
     showTableData()
   }, [tableSelected])
+
+  const refreshReporte = () => {
+    showTables('true')
+  }
+
+  const refreshReporteDetalle = () => {
+    showTableData('true')
+  }
+
 
   function onRowDataChanged(params) {
     const colIds = params.columnApi.getAllGridColumns().map(c => c.colId)
@@ -187,6 +209,13 @@ function MetadatosTecnicos() {
       <div className="App-title">
         <h2 align="center" className="display-8 fw-bold main-title">Metadatos Técnicos</h2>
         </div>
+      <div className="update-metadatos">
+        <h5 className="col-sm-2 main-subtitle">Actualizar Tablas: </h5>
+        <div className="col-sm-1">
+          <Button className="btnGeneral" onClick={() => refreshReporte()}><FaSyncAlt /></Button>
+        </div>
+        <div className="col-sm-9"></div>
+      </div>
       <div className="dropdown">
         <div><h5 className="n5 main-subtitle">Tabla: </h5></div>
         <div className="reporte-dropdown">
@@ -195,6 +224,9 @@ function MetadatosTecnicos() {
             value={valueSelect}
             onChange={(e) => handlerTable(e)}
           />
+        </div>
+        <div className="col-sm-1">
+          <Button className="btnGeneral" onClick={() => refreshReporteDetalle()}><FaSyncAlt /></Button>
         </div>
 
       </div>

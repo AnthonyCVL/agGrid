@@ -17,6 +17,7 @@ import {
 import { Bar } from 'react-chartjs-2';
 import data from '../data.json'
 import Chart from './Chart';
+import BarChart from './BarChart';
 
 ChartJS.register(
   CategoryScale,
@@ -59,7 +60,7 @@ function AgGrid(props) {
           p_tipo: chart.id_grafico === 1 ? 'Bar' : 'Pie',
           p_data: data,
           p_categoria: chart.categoria,
-          p_valor: chart.valor,
+          p_valor: [chart.valor],
           p_titulo: chart.titulo,
           p_limite: chart.limite
         }
@@ -177,6 +178,9 @@ function AgGrid(props) {
     console.log("props.p_datatables.map")
     props.p_datatables.map(element => {
       console.log(element.data)
+      if(element.data.length === 0){
+        return
+      } 
       console.log(element.data[0])
       dtsColumns.push(getDynamicColumns(element.data[0]))
     })
@@ -228,6 +232,10 @@ function AgGrid(props) {
   function autoSizeColumns(params) {
     console.log("autoSizeColumns")
     console.log(params)
+    console.log(params.columnApi)
+    if (params.columnApi.columnModel === undefined){
+      return
+    }
     const colIds = params.columnApi
       .getAllDisplayedColumns()
       .map(col => col.getColId());
@@ -327,12 +335,20 @@ function AgGrid(props) {
       <div className='chart' style={{ display:'inline' }}>
         {listChart.map((chartData) => {
           return chartData && chartData?.p_data && (
+            <div>
             <div className='subchart'>
               <Chart
                 type={chartData.p_tipo}
                 chartData={chartData}
               />
-            </div>)
+            </div>
+            {/*<div>
+            <BarChart
+              data = {chartData.p_data}
+              xField = {chartData.p_categoria}
+              yFields = {chartData.p_valor} />
+            </div>*/}
+            </div>) 
         })}
       </div>
     </div>

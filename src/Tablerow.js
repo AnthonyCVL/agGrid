@@ -7,6 +7,7 @@ import { TabContent, TabPane, Nav, NavItem, NavLink, Button } from 'reactstrap'
 import Select from 'react-select';
 import AgGrid from './components/AgGrid';
 import Modal2 from './components/Modal2';
+import ChartGenerator from './components/ChartGenerator';
 import ModalMenu from './components/ModalMenu';
 import { FaSyncAlt, FaUndoAlt } from 'react-icons/fa';
 
@@ -27,6 +28,7 @@ function Tablerow() {
   const [tableModalMenu, setTableModalMenu] = useState([])
   const [tableGroupModalMenu, setTableGroupModalMenu] = useState([])
   const [lastUpdateLabel, setLastUpdateLabel] = useState('')
+  const [dataChart, setDataChart] = useState([])
 
   const addElementToArray = async (list, element) => {
     list.push(element)
@@ -224,6 +226,17 @@ function Tablerow() {
             })
           }
           const dt = { id_reporte: table.id_reporte, listChart: listChart, data: query_result }
+          console.log("query_result")
+          console.log(query_result)
+          console.log("response_webreportegrafico")
+          console.log(response_webreportegrafico) 
+          const newData = query_result.map(obj => {
+            const { Origen, Cantidad_Registros } = obj;
+            return { Origen, Cantidad_Registros };
+          });
+          console.log("filtrado")
+          console.log(newData)
+          setDataChart(newData)
           setLastUpdateLabel(last_update)
           addElementToArray(dts, dt)
           return dt
@@ -390,6 +403,12 @@ function Tablerow() {
             p_grouptables={groupTables}
             p_datatables={datatables} />
         </div>
+        {/*<div>
+          <ChartGenerator
+            p_data={dataChart}
+            p_chart_type='bar'/>
+        </div>*/}
+
       </div>
     </div>
   );
