@@ -114,7 +114,7 @@ function MetadatosTecnicos() {
     setRowsDetail([])
     setColumnsDetail([])
     try {
-      if (tableSelected.TableName === null || tableSelected.TableName === '') {
+      if (tableSelected.TableName === null || tableSelected.TableName === '' || tableSelected.TableName === undefined) {
         return;
       }
       setRowsHeader([tableSelected])
