@@ -19,6 +19,7 @@ function Metadatos() {
   const [rowsTableSelect, setRowTablesSelect] = useState([])
   const [valueSelect, setValueSelect] = useState({})
   const [tableSelected, setTableSelected] = useState([])
+  const [dataDetail, setDataDetail] = useState([])
 
   const handlerTable = function (e) {
     setTableSelected(e.object)
@@ -119,16 +120,7 @@ function Metadatos() {
       }
       setRowsHeader([tableSelected])
       setColumnsHeader(getDynamicColumns(tableSelected))
-      const response_resultados = await request_getquerydata(
-        JSON.stringify({
-          database: 'D_EWAYA_CONFIG',
-          table: 'vw_metadatosprocesosdet',
-          cache_enabled: 'true',
-          cache_refresh: refresh,
-          where: JSON.stringify({ id_proceso: tableSelected.id_proceso })
-        })
-      )
-      const resultados = response_resultados.result
+      const resultados = dataDetail.filter((el) => el['id_proceso'] === tableSelected.id_proceso )
       setRowsDetail(resultados)
       setColumnsDetail(getDynamicColumns(resultados[0]))
     } catch (error) {
@@ -158,9 +150,20 @@ function Metadatos() {
       data.map(function (obj) {
         dataSelect.push({ value: obj["nombre_proceso"], label: obj["nombre_proceso"], object: obj });
       })
+
+      const response_detalle = await request_getquerydata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'vw_metadatosprocesosdet',
+          cache_enabled: 'true',
+          cache_refresh: refresh
+        })
+      )
+      setDataDetail(response_detalle.result)
       setRowTablesSelect(dataSelect)
       setValueSelect(dataSelect[0])
       setTableSelected(data[0])
+
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
     }
@@ -176,10 +179,6 @@ function Metadatos() {
 
   const refreshReporte = () => {
     showTables('true')
-  }
-
-  const refreshReporteDetalle = () => {
-    showTableData('true')
   }
 
   function onRowDataChanged(params) {
@@ -223,9 +222,6 @@ function Metadatos() {
             value={valueSelect}
             onChange={(e) => handlerTable(e)}
           />
-        </div>
-        <div className="col-sm-1">
-          <Button className="btnGeneral" onClick={() => refreshReporteDetalle()}><FaSyncAlt /></Button>
         </div>
 
       </div>

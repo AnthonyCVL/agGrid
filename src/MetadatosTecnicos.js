@@ -19,6 +19,7 @@ function MetadatosTecnicos() {
   const [rowsTableSelect, setRowTablesSelect] = useState([])
   const [valueSelect, setValueSelect] = useState({})
   const [tableSelected, setTableSelected] = useState([])
+  const [dataDetail, setDataDetail] = useState([])
 
   const handlerTable = function (e) {
     setTableSelected(e.object)
@@ -119,16 +120,7 @@ function MetadatosTecnicos() {
       }
       setRowsHeader([tableSelected])
       setColumnsHeader(getDynamicColumns(tableSelected))
-      const response_resultados = await request_getquerydata(
-        JSON.stringify({
-          database: 'D_EWAYA_CONFIG',
-          table: 'vw_metadatostecnicosdet',
-          cache_enabled: 'true',
-          cache_refresh: refresh,
-          where: JSON.stringify({ DatabaseName: tableSelected.DatabaseName, TableName: tableSelected.TableName })
-        })
-      )
-      const resultados = response_resultados.result
+      const resultados = dataDetail.filter((el) => el['DatabaseName'] === valueSelect.object.DataBaseName && el['TableName'] ===  tableSelected.TableName )
       setRowsDetail(resultados)
       setColumnsDetail(getDynamicColumns(resultados[0]))
     } catch (error) {
@@ -158,9 +150,23 @@ function MetadatosTecnicos() {
       data.map(function (obj) {
         dataSelect.push({ value: obj["TableName"], label: obj["TableName"], object: obj });
       })
+
+      // console.log(data)
+      // console.log('response_detalle')
+      const response_detalle= await request_getquerydata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'vw_metadatostecnicosdet',
+          cache_enabled: 'true',
+          cache_refresh: refresh
+        })
+      )
+      // console.log(response_detalle.result)
+      setDataDetail(response_detalle.result)
       setRowTablesSelect(dataSelect)
       setValueSelect(dataSelect[0])
       setTableSelected(data[0])
+
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
     }
@@ -177,11 +183,6 @@ function MetadatosTecnicos() {
   const refreshReporte = () => {
     showTables('true')
   }
-
-  const refreshReporteDetalle = () => {
-    showTableData('true')
-  }
-
 
   function onRowDataChanged(params) {
     const colIds = params.columnApi.getAllGridColumns().map(c => c.colId)
@@ -224,9 +225,6 @@ function MetadatosTecnicos() {
             value={valueSelect}
             onChange={(e) => handlerTable(e)}
           />
-        </div>
-        <div className="col-sm-1">
-          <Button className="btnGeneral" onClick={() => refreshReporteDetalle()}><FaSyncAlt /></Button>
         </div>
 
       </div>
