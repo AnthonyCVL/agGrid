@@ -19,6 +19,7 @@ function MetadatosOperacionales() {
   const [rowsTableSelect, setRowTablesSelect] = useState([])
   const [valueSelect, setValueSelect] = useState({})
   const [tableSelected, setTableSelected] = useState([])
+  const [dataDetail, setDataDetail] = useState([])
 
   const handlerTable = function (e) {
     setTableSelected(e.object)
@@ -108,7 +109,7 @@ function MetadatosOperacionales() {
     return json
   }
 
-  const showTableData = async (refresh = 'false') => {
+  const showTableData = async () => {
     console.log("showTableData")
     setRowsHeader([])
     setColumnsHeader([])
@@ -120,30 +121,7 @@ function MetadatosOperacionales() {
       }
       setRowsHeader([tableSelected])
       setColumnsHeader(getDynamicColumns(tableSelected))
-      console.log("request_getquerydata")
-      const response_data = await request_getquerydata(
-        JSON.stringify({
-          database: 'D_EWAYA_CONFIG',
-          table: 'GD_WebMaestroConsultaDetalle',
-          cache_enabled: 'true',
-          cache_refresh: refresh,
-          where: JSON.stringify({ state: 1, id_consulta: 1})
-        })
-      )
-      const data = response_data.result
-      console.log(data)
-      const q = data[0].full_qry
-      console.log(q)
-      const fullQuery=q+" where msr.id_proceso="+tableSelected.id_proceso;
-      const response_resultados = await request_getquerydata(
-        JSON.stringify({
-          type: 2,
-          query: fullQuery,
-          cache_enabled: 'true',
-          cache_refresh: refresh,
-        })
-      )
-      const resultados = response_resultados.result
+      const resultados = dataDetail.filter((el) => el['id_proceso'] === tableSelected.id_proceso )
       setRowsDetail(resultados)
       setColumnsDetail(getDynamicColumns(resultados[0]))
     } catch (error) {
@@ -161,8 +139,7 @@ function MetadatosOperacionales() {
           database: 'D_EWAYA_CONFIG',
           table: 'vw_metadatosprocesoscab',
           cache_enabled: 'true',
-          cache_refresh: refresh,
-          where: JSON.stringify({ estado: 1 })
+          cache_refresh: refresh
         })
       )
       const data = response_data.result
@@ -173,6 +150,17 @@ function MetadatosOperacionales() {
       data.map(function (obj) {
         dataSelect.push({ value: obj["nombre_proceso"], label: obj["nombre_proceso"], object: obj });
       })
+
+      console.log('vw_metadatosoperacionalesdet')
+      const response_detalle = await request_getquerydata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'vw_metadatosoperacionalesdet',
+          cache_enabled: 'true',
+          cache_refresh: refresh
+        })
+      )
+      setDataDetail(response_detalle.result)
       setRowTablesSelect(dataSelect)
       setValueSelect(dataSelect[0])
       setTableSelected(data[0])
@@ -191,10 +179,6 @@ function MetadatosOperacionales() {
 
   const refreshReporte = () => {
     showTables('true')
-  }
-
-  const refreshReporteDetalle = () => {
-    showTableData('true')
   }
 
   function onRowDataChanged(params) {
@@ -238,9 +222,6 @@ function MetadatosOperacionales() {
             value={valueSelect}
             onChange={(e) => handlerTable(e)}
           />
-        </div>
-        <div className="col-sm-1">
-          <Button className="btnGeneral" onClick={() => refreshReporteDetalle()}><FaSyncAlt /></Button>
         </div>
       </div>
       <div className="App-datatable-header grid ag-theme-alpine"  >
