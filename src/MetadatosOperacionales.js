@@ -110,7 +110,7 @@ function MetadatosOperacionales() {
     return json
   }
 
-  const showTableData = async (refresh = 'false') => {
+  const showTableData = async () => {
     console.log("showTableData")
     setRowsHeader([])
     setColumnsHeader([])
@@ -122,7 +122,6 @@ function MetadatosOperacionales() {
       }
       setRowsHeader([tableSelected])
       setColumnsHeader(getDynamicColumns(tableSelected))
-  
       const resultados = dataDetail.filter((el) => el['id_proceso'] === tableSelected.id_proceso )
       setRowsDetail(resultados)
     } catch (error) {
@@ -140,8 +139,7 @@ function MetadatosOperacionales() {
           database: 'D_EWAYA_CONFIG',
           table: 'vw_metadatosprocesoscab',
           cache_enabled: 'true',
-          cache_refresh: refresh,
-          where: JSON.stringify({ estado: 1 })
+          cache_refresh: refresh
         })
       )
       const data = response_data.result
@@ -152,6 +150,17 @@ function MetadatosOperacionales() {
       data.map(function (obj) {
         dataSelect.push({ value: obj["nombre_proceso"], label: obj["nombre_proceso"], object: obj });
       })
+
+      console.log('vw_metadatosoperacionalesdet')
+      const response_detalle = await request_getquerydata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'vw_metadatosoperacionalesdet',
+          cache_enabled: 'true',
+          cache_refresh: refresh
+        })
+      )
+      setDataDetail(response_detalle.result)
       setRowTablesSelect(dataSelect)
       setValueSelect(dataSelect[0])
       setTableSelected(data[0])

@@ -109,7 +109,7 @@ function Metadatos() {
     return json
   }
 
-  const showTableData = async (refresh = 'false') => {
+  const showTableData = async () => {
     setRowsHeader([])
     setColumnsHeader([])
     setRowsDetail([])
@@ -138,8 +138,7 @@ function Metadatos() {
           database: 'D_EWAYA_CONFIG',
           table: 'vw_metadatosprocesoscab',
           cache_enabled: 'true',
-          cache_refresh: refresh,
-          where: JSON.stringify({ estado: 1 })
+          cache_refresh: refresh
         })
       )
       const data = response_data.result

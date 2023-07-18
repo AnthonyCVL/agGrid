@@ -109,7 +109,7 @@ function MetadatosTecnicos() {
     return json
   }
 
-  const showTableData = async (refresh = 'false') => {
+  const showTableData = async () => {
     setRowsHeader([])
     setColumnsHeader([])
     setRowsDetail([])
