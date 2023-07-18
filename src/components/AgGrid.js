@@ -230,9 +230,6 @@ function AgGrid(props) {
   }
 
   function autoSizeColumns(params) {
-    console.log("autoSizeColumns")
-    console.log(params)
-    console.log(params.columnApi)
     if (params.columnApi.columnModel === undefined){
       return
     }

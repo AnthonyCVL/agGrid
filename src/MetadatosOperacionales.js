@@ -19,6 +19,8 @@ function MetadatosOperacionales() {
   const [rowsTableSelect, setRowTablesSelect] = useState([])
   const [valueSelect, setValueSelect] = useState({})
   const [tableSelected, setTableSelected] = useState([])
+  const [gridParamsHeader, setGridParamsHeader] = useState({})
+  const [dataDetail, setDataDetail] = useState([])
 
   const handlerTable = function (e) {
     setTableSelected(e.object)
@@ -120,32 +122,9 @@ function MetadatosOperacionales() {
       }
       setRowsHeader([tableSelected])
       setColumnsHeader(getDynamicColumns(tableSelected))
-      console.log("request_getquerydata")
-      const response_data = await request_getquerydata(
-        JSON.stringify({
-          database: 'D_EWAYA_CONFIG',
-          table: 'GD_WebMaestroConsultaDetalle',
-          cache_enabled: 'true',
-          cache_refresh: refresh,
-          where: JSON.stringify({ state: 1, id_consulta: 1})
-        })
-      )
-      const data = response_data.result
-      console.log(data)
-      const q = data[0].full_qry
-      console.log(q)
-      const fullQuery=q+" where msr.id_proceso="+tableSelected.id_proceso;
-      const response_resultados = await request_getquerydata(
-        JSON.stringify({
-          type: 2,
-          query: fullQuery,
-          cache_enabled: 'true',
-          cache_refresh: refresh,
-        })
-      )
-      const resultados = response_resultados.result
+  
+      const resultados = dataDetail.filter((el) => el['id_proceso'] === tableSelected.id_proceso )
       setRowsDetail(resultados)
-      setColumnsDetail(getDynamicColumns(resultados[0]))
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
     }
@@ -176,6 +155,46 @@ function MetadatosOperacionales() {
       setRowTablesSelect(dataSelect)
       setValueSelect(dataSelect[0])
       setTableSelected(data[0])
+
+      console.log("request_getquerydata")
+      const response_data_detail = await request_getquerydata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'GD_WebMaestroConsultaDetalle',
+          cache_enabled: 'true',
+          cache_refresh: refresh,
+          where: JSON.stringify({ state: 1})
+        })
+      )
+      console.log("response_data_detail")
+      const data_detail = response_data_detail.result
+      console.log(data_detail)
+      const q = data_detail[0].full_qry
+      const fullQuery=q
+      const qryHeader=q+" where 1=0";
+      console.log(qryHeader)
+      autoSizeColumns(gridParamsHeader)
+      const response_header = await request_getquerydata(
+        JSON.stringify({
+          type: 2,
+          query: qryHeader,
+          cache_enabled: 'true',
+          cache_refresh: refresh,
+        })
+      )
+      console.log('esperaa')
+      const header = response_header.result
+      setColumnsDetail(getDynamicColumns(header[0]))
+      console.log(fullQuery)
+      const response_resultados_detail = await request_getquerydata(
+        JSON.stringify({
+          type: 2,
+          query: fullQuery,
+          cache_enabled: 'true',
+          cache_refresh: refresh,
+        })
+      )
+      setDataDetail(response_resultados_detail.result)
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
     }
@@ -193,10 +212,6 @@ function MetadatosOperacionales() {
     showTables('true')
   }
 
-  const refreshReporteDetalle = () => {
-    showTableData('true')
-  }
-
   function onRowDataChanged(params) {
     const colIds = params.columnApi.getAllGridColumns().map(c => c.colId)
     params.columnApi.autoSizeColumns(colIds)
@@ -204,6 +219,7 @@ function MetadatosOperacionales() {
 
   const onGridReadyHeader = params => {
     setGridApiHeader(params.api);
+    setGridParamsHeader(params)
   };
 
   const onGridReadyDetail = params => {
@@ -217,6 +233,17 @@ function MetadatosOperacionales() {
   const onBtnExportDataAsCsvDetail = () => {
     gridApiDetail.exportDataAsCsv();
   };
+  
+  function autoSizeColumns(params) {
+    if (params.columnApi.columnModel === undefined){
+      return
+    }
+    const colIds = params.columnApi
+      .getAllDisplayedColumns()
+      .map(col => col.getColId());
+    params.columnApi.autoSizeColumns(colIds);
+  };
+
 
   return (
     <div className="App">
@@ -238,9 +265,6 @@ function MetadatosOperacionales() {
             value={valueSelect}
             onChange={(e) => handlerTable(e)}
           />
-        </div>
-        <div className="col-sm-1">
-          <Button className="btnGeneral" onClick={() => refreshReporteDetalle()}><FaSyncAlt /></Button>
         </div>
       </div>
       <div className="App-datatable-header grid ag-theme-alpine"  >
