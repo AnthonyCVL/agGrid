@@ -16,6 +16,7 @@ function Mantenimiento() {
   const [webGroupObjectSelect, setWebGroupObjectSelect] = useState({})
   const [reportName, setReportName] = useState("")
   const [reportDescription, setReportDescription] = useState("")
+  const [reportSchedule, setReportSchedule] = useState("")
   const [enableCRUD, setEnableCRUD] = useState("")
   const [hiddenCRUD, setHiddenCRUD] = useState(true)
   const [viewName, setViewName] = useState("")
@@ -62,9 +63,10 @@ function Mantenimiento() {
     setWebGroupObjectSelect(e.object)
     setWebGroupValueSelect(e)
     setCategoryValueSelect(categorySelect.filter(function(p){return p.value == e.object.id_categoria}))
-    setReportDescription(e.object.description)
+    setReportDescription(e.object.name)
     setReportName(createOption(e.object.name))
     setReportDate(webGroupObjectSelect.create_ts)
+    setReportSchedule(e.object.schedule)
     setFlagAction('update')
     setReportColumns([])
     setListChart([])
@@ -396,9 +398,10 @@ function Mantenimiento() {
             main_id: 'id_grupo',
             body: JSON.stringify({
               name: reportName.value,
-              description: reportDescription,
+              description: reportName.value,
               id_tipogrupo: 1,
-              id_categoria: categoryValueSelect.value
+              id_categoria: categoryValueSelect.valuex,
+              schedule: reportSchedule
             })
           }])
         )
@@ -465,9 +468,10 @@ function Mantenimiento() {
               id_grupo: webGroupObjectSelect.id_grupo
             }),
             body: JSON.stringify({
-              name: webGroupObjectSelect.name,
+              name: reportDescription,
               description: reportDescription,
               id_categoria: categoryValueSelect.value,
+              schedule: reportSchedule
             })
           })
         )
@@ -572,6 +576,7 @@ function Mantenimiento() {
             return 0;
           }
         
+        showTables('update', reportDescription)
         show_ok('Actualizar', 'Actualización exitosa')
       }
     })
@@ -678,8 +683,9 @@ function Mantenimiento() {
     return response
   }
 
-  const showTables = async () => {
-    setFlagAction('')
+  const showTables = async (action='', reportName='') => {
+    console.log(action)
+    setFlagAction(action)
     console.log("showTables")
     try {
       const response_category = await request_getquerydata(
@@ -715,6 +721,9 @@ function Mantenimiento() {
         selectWebGroup.push({ value: obj["name"], label: obj["name"], object: obj });
       })
       setWebGroupSelect(selectWebGroup)
+      if(reportName!==''){
+        setReportName(createOption(reportName))
+      }
 
       const response_list_chart = await request_getquerydata(
         JSON.stringify({
@@ -863,7 +872,9 @@ function Mantenimiento() {
               </div>
               <hr/>
               <div className="divReportName mb-3 row">
-                <label htmlFor="reportName" className="col-sm-1 col-form-label labelForm">Nombre</label>
+                <div className="col-sm-1 div-left">
+                  <label htmlFor="reportName" className="col-form-label labelForm">Seleccionar Reporte:</label>
+                </div>
                 <div className="col-sm-3">
                   <CreatableSelect
                     styles={style}
@@ -873,21 +884,23 @@ function Mantenimiento() {
                     onChange={webGroupHandler} />
                 </div>
                 
-                <div className="col-sm-1">
+                <div className="col-sm-1 div-left">
                   <label className="col-form-label labelForm">Fecha mod:</label>
                 </div>
-                <div className="col-sm-2">
+                <div className="col-sm-2 div-left">
                   <label className="date-update col-form-label labelForm">{reportDate}</label>
                 </div>
               </div>
               <div className="divReportDescription mb-3 row">
-                <label htmlFor="reportDescription" className="col-sm-1 col-form-label labelForm">Descripcion</label>
-                <div className="col-sm-3">
-                  <input id="reportDescription" type='text' className="form-control input"
-                    value={reportDescription} onInput={e => setReportDescription(e.target.value)}></input>
+                <div className="col-sm-1 div-left">
+                  <label htmlFor="reportDescription" className='col-form-label labelForm'>Nombre:</label>
                 </div>
-                <div className="col-sm-1">
-                  <label className="col-form-label labelForm">Categoria</label>
+                <div className="col-sm-3 div-left">
+                  <input id="reportDescription" type='text' className='form-control input'
+                    value={reportDescription} onInput={e => setReportDescription(e.target.value)} disabled={`${(flagAction === 'insert' ? 'true' : '')}`} ></input>
+                </div>
+                <div className="col-sm-1 div-left">
+                  <label className="col-form-label labelForm">Categoria:</label>
                 </div>
                 <div className="col-sm-2">
                 <Select
@@ -896,6 +909,13 @@ function Mantenimiento() {
                   value={categoryValueSelect}
                   onChange={(e) => handlerCategory(e)}
                 />
+                </div>
+                <div className="col-sm-1 div-left">
+                  <label htmlFor="reportSchedule" className='col-form-label labelForm'>Schedule:</label>
+                </div>
+                <div className="col-sm-2 div-left">
+                  <input id="reportSchedule" type='text' className='form-control input'
+                    value={reportSchedule} onInput={e => setReportSchedule(e.target.value)}></input>
                 </div>
               </div>
               {/*<div className="divDatatable">
