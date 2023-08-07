@@ -18,7 +18,7 @@ section {
 	text-align: center;
 	background-color: white;
 	box-shadow: 0px -20px 5px 20px #333333;
-	padding: 10px;
+	padding: 3px;
 	font-size: 0;
 	font-family: 'Lato', sans-serif;
     background-image: url(./telefonica_background.jpg);
@@ -78,7 +78,7 @@ section {
 
 .container-logo{
     width: 180px;
-    height: 50px;
+    height: 10px;
 }
 
 .main-logo{

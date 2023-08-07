@@ -5,6 +5,7 @@ import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import { Button } from 'reactstrap'
 import Select from 'react-select';
+import { FaSyncAlt } from 'react-icons/fa';
 
 function MetadatosTecnicos() {
   const headerGrid = useRef(null);
@@ -18,6 +19,7 @@ function MetadatosTecnicos() {
   const [rowsTableSelect, setRowTablesSelect] = useState([])
   const [valueSelect, setValueSelect] = useState({})
   const [tableSelected, setTableSelected] = useState([])
+  const [dataDetail, setDataDetail] = useState([])
 
   const handlerTable = function (e) {
     setTableSelected(e.object)
@@ -77,6 +79,18 @@ function MetadatosTecnicos() {
     //minWidth: 100
   }
 
+  const request_getquerydata = async (body) => {
+    //const base_url = 'http://localhost:8080'
+    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const method = '/getQueryData'
+    const request = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: body
+    };
+    return await send_post(base_url, method, request)
+  }
+
   const request_gettabledata = async (body) => {
     //const base_url = 'http://localhost:8080'
     const base_url='http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
@@ -96,21 +110,17 @@ function MetadatosTecnicos() {
   }
 
   const showTableData = async () => {
+    setRowsHeader([])
+    setColumnsHeader([])
     setRowsDetail([])
     setColumnsDetail([])
     try {
-      if (tableSelected.TableName === null || tableSelected.TableName === '') {
+      if (tableSelected.TableName === null || tableSelected.TableName === '' || tableSelected.TableName === undefined) {
         return;
       }
       setRowsHeader([tableSelected])
       setColumnsHeader(getDynamicColumns(tableSelected))
-      const resultados = await request_gettabledata(
-        JSON.stringify({
-          database: 'D_EWAYA_CONFIG',
-          table: 'vw_metadatostecnicosdet',
-          where: JSON.stringify({ DatabaseName: tableSelected.DatabaseName, TableName: tableSelected.TableName })
-        })
-      )
+      const resultados = dataDetail.filter((el) => el['DatabaseName'] === valueSelect.object.DataBaseName && el['TableName'] ===  tableSelected.TableName )
       setRowsDetail(resultados)
       setColumnsDetail(getDynamicColumns(resultados[0]))
     } catch (error) {
@@ -118,22 +128,45 @@ function MetadatosTecnicos() {
     }
   }
 
-  const showTables = async () => {
+  const showTables = async (refresh = 'false') => {
+    setRowTablesSelect([])
+    setValueSelect({})
+    setTableSelected([])
     try {
-      const data = await request_gettabledata(
+      const response_data = await request_getquerydata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: 'vw_metadatostecnicoscab'
+          table: 'vw_metadatostecnicoscab',
+          cache_enabled: 'true',
+          cache_refresh: refresh,
         })
       )
+      const data = response_data.result
       const dataSelect = [];
       console.log(data)
+      data.sort(function (a, b) {
+        return a.TableName.localeCompare(b.TableName);
+      });
       data.map(function (obj) {
         dataSelect.push({ value: obj["TableName"], label: obj["TableName"], object: obj });
       })
+
+      // console.log(data)
+      // console.log('response_detalle')
+      const response_detalle= await request_getquerydata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'vw_metadatostecnicosdet',
+          cache_enabled: 'true',
+          cache_refresh: refresh
+        })
+      )
+      // console.log(response_detalle.result)
+      setDataDetail(response_detalle.result)
       setRowTablesSelect(dataSelect)
       setValueSelect(dataSelect[0])
       setTableSelected(data[0])
+
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
     }
@@ -146,6 +179,10 @@ function MetadatosTecnicos() {
   useEffect(() => {
     showTableData()
   }, [tableSelected])
+
+  const refreshReporte = () => {
+    showTables('true')
+  }
 
   function onRowDataChanged(params) {
     const colIds = params.columnApi.getAllGridColumns().map(c => c.colId)
@@ -170,7 +207,16 @@ function MetadatosTecnicos() {
 
   return (
     <div className="App">
-      <div className="App-title"><h1 align="center" className="display-5 fw-bold main-title">Metadatos técnicos</h1></div>
+      <div className="App-title">
+        <h2 align="center" className="display-8 fw-bold main-title">Metadatos Técnicos</h2>
+        </div>
+      <div className="update-metadatos">
+        <h5 className="col-sm-2 main-subtitle">Actualizar Tablas: </h5>
+        <div className="col-sm-1">
+          <Button className="btnGeneral" onClick={() => refreshReporte()}><FaSyncAlt /></Button>
+        </div>
+        <div className="col-sm-9"></div>
+      </div>
       <div className="dropdown">
         <div><h5 className="n5 main-subtitle">Tabla: </h5></div>
         <div className="reporte-dropdown">
@@ -186,7 +232,7 @@ function MetadatosTecnicos() {
         <div className='reporte-button'>
           <Button color="success"
             onClick={() => onBtnExportDataAsCsvHeader()}
-            style={{ marginBottom: '5px', fontWeight: 'bold' }}
+            style={{ fontSize: '12px', marginBottom: '5px'}}
           >
             Exportar a CSV
           </Button>
@@ -202,12 +248,11 @@ function MetadatosTecnicos() {
           rowHeight={30}
         />
       </div>
-      <div  ><h5 className="datatable-title">Detalle </h5></div>
       <div className="App-datatable-detail grid ag-theme-alpine"  >
         <div className='reporte-button'>
           <Button color="success"
             onClick={() => onBtnExportDataAsCsvDetail()}
-            style={{ marginBottom: '5px', fontWeight: 'bold' }}
+            style={{ fontSize: '12px', marginBottom: '5px'}}
           >
             Exportar a CSV
           </Button>

@@ -28,6 +28,11 @@
   color: #61dafb;
 }
 
+.tabs{
+  padding-top:0px !important;
+  margin: 0px !important;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
@@ -35,4 +40,29 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.chartElement {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  display: inline-block;
+}
+.subchart {
+  height: 500px;
+  padding: 2%;
+  width: 96%;
+  display: inline-block;
+}
+
+@media (min-width: 700px) {
+  .subchart {
+    width: 50%;
+  }
+}
+
+canvas {
+  display: inline !important;
 }

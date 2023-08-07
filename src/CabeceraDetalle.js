@@ -1,13 +1,12 @@
-import './Metadatos.css';
+import './CabeceraDetalle.css';
 import React, { useState, useEffect, useRef } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import { Button } from 'reactstrap'
 import Select from 'react-select';
-import { FaSyncAlt } from 'react-icons/fa';
 
-function Metadatos() {
+function CabeceraDetalle({p_params}) {
   const headerGrid = useRef(null);
   const detailGrid = useRef(null);
   const [gridApiHeader, setGridApiHeader] = useState({})
@@ -19,7 +18,6 @@ function Metadatos() {
   const [rowsTableSelect, setRowTablesSelect] = useState([])
   const [valueSelect, setValueSelect] = useState({})
   const [tableSelected, setTableSelected] = useState([])
-  const [dataDetail, setDataDetail] = useState([])
 
   const handlerTable = function (e) {
     setTableSelected(e.object)
@@ -79,18 +77,6 @@ function Metadatos() {
     //minWidth: 100
   }
 
-  const request_getquerydata = async (body) => {
-    //const base_url = 'http://localhost:8080'
-    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
-    const method = '/getQueryData'
-    const request = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: body
-    };
-    return await send_post(base_url, method, request)
-  }
-
   const request_gettabledata = async (body) => {
     //const base_url='http://localhost:8080'
     const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
@@ -110,17 +96,40 @@ function Metadatos() {
   }
 
   const showTableData = async () => {
-    setRowsHeader([])
-    setColumnsHeader([])
     setRowsDetail([])
     setColumnsDetail([])
+    
+    const arrHeaderInput = p_params.header.input.split()
+    const arrHeaderInputValues = []
+    arrHeaderInput.map((el)=>{
+      arrHeaderInputValues.push(tableSelected[el])
+    })
+    //const arrHeaderInput = p_params.header.input.split()
+    const arrDetailWhere = p_params.detail.where.split()
+
+    let jsonWhere=''
+    arrHeaderInputValues.map((el, i)=>{
+      jsonWhere+=`"${arrDetailWhere[i]}" : "${el}"`
+    })
+    jsonWhere=`{${jsonWhere}}`
+
     try {
-      if (tableSelected.id_proceso <= 0 || tableSelected.id_proceso == undefined) {
+      if (arrHeaderInputValues[0] <= 0 || arrHeaderInputValues[0] == undefined) {
         return;
       }
       setRowsHeader([tableSelected])
       setColumnsHeader(getDynamicColumns(tableSelected))
-      const resultados = dataDetail.filter((el) => el['id_proceso'] === tableSelected.id_proceso )
+      
+      console.log(p_params.detail.full_qry)
+      console.log(jsonWhere)
+
+      const resultados = await request_gettabledata(
+        JSON.stringify({
+          type: 2,
+          query: p_params.detail.full_qry,
+          where: jsonWhere
+        })
+      )
       setRowsDetail(resultados)
       setColumnsDetail(getDynamicColumns(resultados[0]))
     } catch (error) {
@@ -128,41 +137,23 @@ function Metadatos() {
     }
   }
 
-  const showTables = async (refresh = 'false') => {
-    setRowTablesSelect([])
-    setValueSelect({})
-    setTableSelected([])
+  const showTables = async () => {
     try {
-      const response_data = await request_getquerydata(
+      console.log(p_params.header.full_qry)
+      const data = await request_gettabledata(
         JSON.stringify({
-          database: 'D_EWAYA_CONFIG',
-          table: 'vw_metadatosprocesoscab',
-          cache_enabled: 'true',
-          cache_refresh: refresh
+          type: 2,
+          query: p_params.header.full_qry
         })
       )
-      const data = response_data.result
+      console.log(data)
       const dataSelect = [];
-      data.sort(function (a, b) {
-        return a.id_proceso - b.id_proceso || a.nombre_proceso.localeCompare(b.nombre_proceso);
-      });
       data.map(function (obj) {
-        dataSelect.push({ value: obj["nombre_proceso"], label: obj["nombre_proceso"], object: obj });
+        dataSelect.push({ value: obj[p_params.header.id_combo], label: obj[p_params.header.desc_combo], object: obj });
       })
-
-      const response_detalle = await request_getquerydata(
-        JSON.stringify({
-          database: 'D_EWAYA_CONFIG',
-          table: 'vw_metadatosprocesosdet',
-          cache_enabled: 'true',
-          cache_refresh: refresh
-        })
-      )
-      setDataDetail(response_detalle.result)
       setRowTablesSelect(dataSelect)
       setValueSelect(dataSelect[0])
       setTableSelected(data[0])
-
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
     }
@@ -175,10 +166,6 @@ function Metadatos() {
   useEffect(() => {
     showTableData()
   }, [tableSelected])
-
-  const refreshReporte = () => {
-    showTables('true')
-  }
 
   function onRowDataChanged(params) {
     const colIds = params.columnApi.getAllGridColumns().map(c => c.colId)
@@ -204,17 +191,10 @@ function Metadatos() {
   return (
     <div className="App">
       <div className="App-title">
-        <h2 align="center" className="display-8 fw-bold main-title">Metadatos de Procesos</h2>
+        <h2 align="center" className="display-8 fw-bold main-title">{p_params.header.titulo}</h2>
         </div>
-      <div className="update-metadatos">
-        <h5 className="col-sm-2 main-subtitle">Actualizar Procesos: </h5>
-        <div className="col-sm-1">
-          <Button className="btnGeneral" onClick={() => refreshReporte()}><FaSyncAlt /></Button>
-        </div>
-        <div className="col-sm-9"></div>
-      </div>
       <div className="dropdown">
-        <div><h5 className="n5 main-subtitle">Proceso: </h5></div>
+        <div><h5 className="n5 main-subtitle">{p_params.header.subtitulo}: </h5></div>
         <div className="reporte-dropdown">
           <Select
             options={rowsTableSelect}
@@ -273,4 +253,4 @@ function Metadatos() {
   );
 }
 
-export default Metadatos;
+export default CabeceraDetalle;

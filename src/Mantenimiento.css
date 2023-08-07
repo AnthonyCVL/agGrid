@@ -1,0 +1,89 @@
+.overlay{
+  color: black;
+}
+
+.divReportName{
+ 
+}
+
+.div-left{
+  text-align: left;
+}
+
+hr {
+  display: block;
+  margin-top: 0.5em;
+  margin-bottom: 2.5em;
+  margin-left: auto;
+  margin-right: auto;
+  border-style: inset;
+  border-width: 3px;
+}
+
+.div-hidden{
+  display: none;
+}
+
+.modalHeader{
+  background-color: #06f;
+  font-size: 25px;
+  /*background-image: linear-gradient(160deg, #28313B 0%, #485461 100%);*/
+  color: #fff;
+  text-shadow: 3px 3px rgba(50,50,70,0.1);
+  font-family: 'Lato', sans-serif;
+}
+
+/*06f-80D0C7-fff*/
+.modalBody{
+  background-color: #fff;
+  /*background-image: linear-gradient(160deg, #F5F7FA 0%, #B8C6DB 100%);*/
+  color: #000;
+  text-shadow: 3px 3px rgba(50,50,70,0.1);
+  font-family: 'Lato', sans-serif;
+}
+
+.viewSection{
+  border-color: #000;
+  border-style: solid;
+}
+
+.labelForm{
+  text-align: left !important;
+}
+
+.cell{
+  border-color: #06f;
+}
+
+.divPassword{
+  text-align: center !important;
+  padding: 10px 10px 10px 10px;
+}
+
+.title-viewform{
+  font-size: 20px;
+}
+
+.form-control {
+  border-color: #06f !important;
+}
+
+.date-update{
+  border: 1px solid #06f;
+  border-radius: 0.5em;
+  text-align: center !important;
+  padding: 5px 28px 8px 28px;
+}
+
+.center-element{
+  text-align: center !important;
+}
+
+.legend-detail{
+  border-color: #06f !important;
+  padding: 0px 0px 0px 0px !important;
+}
+
+.overlay{
+  overflow-y: scroll;
+}

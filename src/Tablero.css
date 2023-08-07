@@ -3,25 +3,24 @@
 .App {
   text-align: center;
   background-color: white;
+  z-index: -999;
 }
 
 .App-link {
   color: #61dafb;
 }
 
-.dropdown {
-  width: 700px !important;
-  padding: 10px;
-  margin: 10px;
+.dropdown-tablero {
+  padding: 0px !important;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.reporte-dropdown{
-  padding: 10px;
-  margin: 10px;
-  width: 70%;
+.reporte-dropdown-tablero{
+  padding: 0px !important;
+  margin: 0px !important;
+  color: black !important;
 }
 
 .reporte-button{
@@ -34,9 +33,10 @@
 }
 
 .App-title {
-  padding: 10px;
-  margin: 10px;
+  padding: 0px;
+  margin: 0px;
   color: #06f;
+  z-index: -999;
 }
 
 .App-subtitle {
@@ -87,8 +87,133 @@
 
 .main-subtitle{
   color: #06f;
+  padding-right: 10px;
+}
+
+.main-last-update{
+  color: black;
+  font-weight: bold;
+  padding-right: 10px;
 }
 
 .ag-header-cell {
   color: black;
+}
+
+.modalBtn {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: -1;
+  padding: 12px 24px;
+}
+
+.overlay {
+  background-color: rgba( 0, 0, 0, 0.5);
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+}
+
+.modalContainer {
+  max-width: 1000px;
+  width: 100%;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  background-color: #ffffff;
+  box-shadow: 0px 0px 18px 0px rgba(0, 0, 0, 0.75);
+  border-radius: 8px;
+}
+
+img {
+  width: 250px;
+  object-fit: cover;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.modalRight {
+  width: 100%;
+}
+
+.closeBtn {
+  position: fixed;
+  top: 8px;
+  right: 8px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  margin-top: 1rem;
+  padding: 1rem 2rem;
+}
+
+.btnContainer {
+  display: flex;
+  padding: 1rem 1rem;
+}
+.btnContainer button {
+  width: 100%;
+  margin: .5rem;
+  padding: 16px 0;
+  /* border: none; */
+  border: 1px solid #411b57;
+  /* color: #ffffff; */
+}
+
+.btnPrimary {
+  background-color: #411b57;
+  color: white;
+}
+
+.btnOutline {
+  /* background-color: #a76a99; */
+  background-color: white;
+  color: #411b57;
+}
+
+.bold {
+  font-weight: 600;
+}
+
+.btnAgregar{
+  text-align: right;
+}
+
+.btnGeneral{
+  border-color: #06f;
+  background-color: #06f;
+}
+
+.btnRefrescar{
+  border-color: green;
+  background-color: green;
+}
+
+@media screen and (max-width: 500px) {
+  .modalContainer {
+    flex-direction: column;
+    top: 0;
+    left: 0;
+    transform: none;
+    width: 100%;
+    height: 100vh;
+  }
+  img {
+    width: 100%;
+    max-height: 70vh;
+    object-fit: cover;
+  }
+
+  .heading {
+    margin: 1rem;
+  }
 }

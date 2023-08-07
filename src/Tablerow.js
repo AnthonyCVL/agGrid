@@ -6,14 +6,29 @@ import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Button } from 'reactstrap'
 import Select from 'react-select';
 import AgGrid from './components/AgGrid';
+import Modal2 from './components/Modal2';
+import ChartGenerator from './components/ChartGenerator';
+import ModalMenu from './components/ModalMenu';
+import { FaSyncAlt, FaUndoAlt } from 'react-icons/fa';
 
 function Tablerow() {
   const [groupTables, setGroupTables] = useState([])
   const [rowsTableSelect, setRowTablesSelect] = useState([])
   const [valueSelect, setValueSelect] = useState({})
   const [tableSelected, setTableSelected] = useState([])
-  const [datatables, setDatatables] = useState([]);
+  const [categoryRowSelect, setCategoryRowSelect] = useState([])
+  const [categoryValueSelect, setCategoryValueSelect] = useState({})
+  const [categorySelected, setCategorySelected] = useState([])
+  const [datatables, setDatatables] = useState([])
   const [gridApi, setGridApi] = useState({})
+  const [openModal, setOpenModal] = useState(false)
+  const [openModalMenu, setOpenModalMenu] = useState(false)
+  const [tableModal, setTableModal] = useState([])
+  const [tableGroupModal, setTableGroupModal] = useState([])
+  const [tableModalMenu, setTableModalMenu] = useState([])
+  const [tableGroupModalMenu, setTableGroupModalMenu] = useState([])
+  const [lastUpdateLabel, setLastUpdateLabel] = useState('')
+  const [dataChart, setDataChart] = useState([])
 
   const addElementToArray = async (list, element) => {
     list.push(element)
@@ -22,6 +37,31 @@ function Tablerow() {
   const handlerTable = function (e) {
     setTableSelected(e.object)
     setValueSelect(e)
+  }
+
+  const handlerCategory = function (e) {
+    setCategorySelected(e.object)
+    setCategoryValueSelect(e)
+  }
+
+  const openModalfunction = () => {
+    setOpenModal(false)
+    const list = []
+    list[0] = [{ position: '1', databasename: 'databasename', objectname: 'objectname' }]
+    const grouplist = []
+    grouplist[0] = [{ position_table: 1, description: 'Reporte' }]
+    setTableModal(list)
+    setTableGroupModal(grouplist)
+  }
+
+  const openModalMenufunction = () => {
+    setOpenModalMenu(false)
+    const list = []
+    list[0] = [{ position: '1', databasename: 'databasename', objectname: 'objectname' }]
+    const grouplist = []
+    grouplist[0] = [{ position_table: 1, description: 'Reporte' }]
+    setTableModal(list)
+    setTableGroupModal(grouplist)
   }
 
   const columnDefs = (key) => ({
@@ -60,8 +100,20 @@ function Tablerow() {
     }
   })
 
+  const request_getquerydata = async (body) => {
+    //const base_url = 'http://localhost:8080'
+    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const method = '/getQueryData'
+    const request = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: body
+    };
+    return await send_post(base_url, method, request)
+  }
+
   const request_gettabledata = async (body) => {
-    //const base_url='http://localhost:8080'
+    //const base_url = 'http://localhost:8080'
     const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/getTableData2'
     const request = {
@@ -72,60 +124,120 @@ function Tablerow() {
     return await send_post(base_url, method, request)
   }
 
+  const request_getwebreport = async (body) => {
+    //const base_url = 'http://localhost:8080'
+    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const method = '/getWebReport'
+    const request = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: body
+    };
+    return await send_post(base_url, method, request)
+  }
+
   const send_post = async (base_url, method, request) => {
-    const response = await fetch(base_url + method, request)
+    const response = await Promise.race(
+      [timeoutAfter(300), fetch(base_url + method, request)]
+    );
     const json = await response.json();
     return json
   }
 
-  const showTableData = async () => {
+  function timeoutAfter(seconds) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        reject(new Error("request timed-out"));
+      }, seconds * 1000);
+    });
+  }
+
+  const showTableData = async (refresh = 'false') => {
     console.log("showTableData")
     setGroupTables([])
     setDatatables([])
     try {
-      if (tableSelected.id <= 0 || tableSelected.id == undefined) {
+      if (tableSelected.id_grupo <= 0 || tableSelected.id_grupo == undefined) {
         return;
       }
 
-      const group_tables = await request_gettabledata(
+      const response = await request_getquerydata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: 'GD_WebGrupoReporte',
-          where: JSON.stringify({ id_group: tableSelected.id, state: 1 })
+          table: 'VW_WebGrupoReporte',
+          cache_enabled: 'true',
+          cache_refresh: refresh,
+          where: JSON.stringify({ id_grupo: tableSelected.id_grupo, state: 1 })
         })
       )
+      const group_tables = response.result
       setGroupTables(group_tables.sort((a, b) => a.position_table > b.position_table ? 1 : -1))
       const dts = []
       const promises = []
 
 
       Object.keys(group_tables).forEach(async function (key) {
-        promises.push(group_tables[key].id_table)
+        promises.push(group_tables[key].id_reporte)
       });
-
       const resultados = await Promise.all(promises.map(function (key) {
-        const tables = request_gettabledata(
+        const tables = request_getquerydata(
           JSON.stringify({
             database: 'D_EWAYA_CONFIG',
-            table: 'GD_WebReporte',
-            where: JSON.stringify({ id: key, state: 1 })
+            table: 'VW_WebReporte',
+            cache_enabled: 'true',
+            cache_refresh: refresh,
+            where: JSON.stringify({ id_reporte: key, state: 1 })
           })
         )
+        console.log("responseeeeee")
+        console.log(tables)
         return tables
       })
       ).then(
         tables => Promise.all(tables.map(async function (tables) {
-          const table = tables[0]
-          const dt = await request_gettabledata(
+          const table = tables.result[0]
+          const response_query_result = await request_getquerydata(
             JSON.stringify({
               database: table.database_name,
               table: table.table_name,
               select: table.col_qry,
               order: table.ord_qry,
-              type: table.type_qry,
-              query: table.full_qry
+              type: table.id_tiporeporte,
+              query: table.full_qry,
+              cache_enabled: 'true',
+              cache_refresh: refresh
             })
           )
+          const last_update = response.last_update
+          const query_result = response_query_result.result
+          const response_webreportegrafico = await request_getquerydata(
+            JSON.stringify({
+              database: 'D_EWAYA_CONFIG',
+              table: 'GD_WebReporteGrafico',
+              cache_enabled: 'true',
+              cache_refresh: refresh,
+              where: JSON.stringify({ id_reporte: table.id_reporte })
+            }))
+          const webreportegrafico_result = response_webreportegrafico.result
+          const listChart = []
+          if (webreportegrafico_result.length > 0) {
+            webreportegrafico_result.map(function (obj) {
+              listChart.push({ id_grafico: obj["id_grafico"], categoria: obj["categoria"], valor: obj["valor"], titulo: obj["titulo"], limite: obj["limite"], object: obj });
+            })
+          }
+          const dt = { id_reporte: table.id_reporte, listChart: listChart, data: query_result }
+          console.log("query_result")
+          console.log(query_result)
+          console.log("response_webreportegrafico")
+          console.log(response_webreportegrafico) 
+          const newData = query_result.map(obj => {
+            const { Origen, Cantidad_Registros } = obj;
+            return { Origen, Cantidad_Registros };
+          });
+          console.log("filtrado")
+          console.log(newData)
+          setDataChart(newData)
+          setLastUpdateLabel(last_update)
           addElementToArray(dts, dt)
           return dt
         }
@@ -136,22 +248,61 @@ function Tablerow() {
           }
         )
       )
-
       setDatatables(resultados)
-      console.log(resultados)
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
     }
   }
 
-  const showTables = async () => {
+  const showCategory = async () => {
     try {
-      //const response = await fetch('http://localhost:8080/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE_GROUP');
-      const response = await fetch('http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet/getTableData?database=D_EWAYA_CONFIG&table=GD_WebGrupo');
-      const data = await response.json();
+      console.log('showCategory')
+      const response = await request_getquerydata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'VW_WebReporteCategoria',
+          where: JSON.stringify({ state: 1 })
+        })
+      )
+      const category = response.result
+      console.log('category')
+      console.log(category)
+      const categorySelect = [];
+      category.sort(function (a, b) {
+        return a.id_categoria - b.id_categoria || a.desc_categoria.localeCompare(b.desc_categoria);
+      });
+      console.log(category)
+      category.map(function (obj) {
+        categorySelect.push({ value: obj["desc_categoria"], label: obj["desc_categoria"], object: obj });
+      })
+      console.log(categorySelect)
+      setCategoryRowSelect(categorySelect)
+      setCategoryValueSelect(categorySelect[0])
+      setCategorySelected(category[0])
+    } catch (error) {
+      console.error("There has been a problem with your fetch operation:", error);
+    }
+  }
+
+  const showReportes = async () =>{
+    try {
+      console.log('showReportes')
+      console.log(categorySelected)
+      if (categorySelected.id_categoria <= 0 || categorySelected.id_categoria == undefined) {
+        return;
+      }
+      
+      const response = await request_getquerydata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'VW_WebGrupo',
+          where: JSON.stringify({ state: 1 , id_categoria: categorySelected.id_categoria})
+        })
+      )
+      const data = response.result
       const dataSelect = [];
       data.sort(function (a, b) {
-        return a.id - b.id || a.name.localeCompare(b.name);
+        return a.id_grupo - b.id_grupo || a.name.localeCompare(b.name);
       });
       data.map(function (obj) {
         dataSelect.push({ value: obj["name"], label: obj["name"], object: obj });
@@ -164,14 +315,18 @@ function Tablerow() {
     }
   }
 
+
   useEffect(() => {
-    showTables()
+    showCategory()
   }, [])
+
+  useEffect(() => {
+    showReportes()
+  }, [categorySelected])
 
   useEffect(() => {
     showTableData()
   }, [tableSelected])
-
 
   function onRowDataChanged(params) {
     const colIds = params.columnApi.getAllGridColumns().map(c => c.colId)
@@ -186,22 +341,75 @@ function Tablerow() {
     gridApi.exportDataAsCsv();
   };
 
+  const consultarReporte = () => {
+    showTableData()
+  }
+
+  const refreshReporte = () => {
+    showTableData('true')
+  }
+
   return (
-    <div className="App">
-      <div className="App-title"><h1 align="center" className="display-5 fw-bold main-title">Tablero BI</h1></div>
-      <div className="dropdown">
-        <div><h5 className="n5 main-subtitle">Reporte: </h5></div>
-        <div className="reporte-dropdown">
-          <Select
-            options={rowsTableSelect}
-            value={valueSelect}
-            onChange={(e) => handlerTable(e)}
-          />
+    <div>
+      <div className="App">
+
+        <div className="divReportName mb-3 row">
         </div>
+        <div className="divReportName mb-3 row">
+          <div className="col-sm-10">
+          </div>
+        </div>
+        <Modal2 open={openModal} onClose={openModalfunction} p_datatables={tableModal} p_grouptables={tableGroupModal}></Modal2>
+        {/*<Button onClick={()=>setOpenModalMenu(true)}>Agregar Menu</Button>
+      <ModalMenu open={openModalMenu} onClose={openModalMenufunction} p_datatables={tableModalMenu} p_grouptables={tableGroupModalMenu}></ModalMenu>*/}
+        <div className="App-title">
+          <h2 align="center" className="display-8 fw-bold main-title">Tablero BI</h2>
+        </div>
+        <div className="dropdown-tablero mb-3 row">
+          <div className="col-sm-2">
+            <h5 className="n5 main-subtitle">Categoria: </h5>
+          </div>
+          <div className="reporte-dropdown-tablero col-sm-5 ">
+            <Select
+              options={categoryRowSelect}
+              value={categoryValueSelect}
+              onChange={(e) => handlerCategory(e)}
+            />
+          </div>
+          <div className="col-sm-5">
+          </div>
+        </div>
+        <div className="dropdown-tablero mb-3 row">
+          <div className="col-sm-2">
+            <h5 className="n5 main-subtitle">Reporte: </h5>
+          </div>
+          <div className="reporte-dropdown-tablero col-sm-5 ">
+            <Select
+              options={rowsTableSelect}
+              value={valueSelect}
+              onChange={(e) => handlerTable(e)}
+            />
+          </div>
+          <div className="col-sm-1">
+            <Button className="btnGeneral" onClick={() => refreshReporte()}><FaSyncAlt /></Button>
+          </div>
+          <div className="col-sm-4">
+            <h6 className="n5 main-last-update">Actualizado al:</h6>
+            <h6 className="n5 main-last-update">{lastUpdateLabel}</h6>
+          </div>
+        </div>
+        <div>
+          <AgGrid
+            p_grouptables={groupTables}
+            p_datatables={datatables} />
+        </div>
+        {/*<div>
+          <ChartGenerator
+            p_data={dataChart}
+            p_chart_type='bar'/>
+        </div>*/}
+
       </div>
-      <AgGrid 
-        p_grouptables = {groupTables}
-        p_datatables = {datatables}/>
     </div>
   );
 }
