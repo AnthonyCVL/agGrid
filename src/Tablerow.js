@@ -11,7 +11,7 @@ import ChartGenerator from './components/ChartGenerator';
 import ModalMenu from './components/ModalMenu';
 import { FaSyncAlt, FaUndoAlt } from 'react-icons/fa';
 
-function Tablerow() {
+function Tablerow(props) {
   const [groupTables, setGroupTables] = useState([])
   const [rowsTableSelect, setRowTablesSelect] = useState([])
   const [valueSelect, setValueSelect] = useState({})
@@ -257,13 +257,26 @@ function Tablerow() {
   const showCategory = async () => {
     try {
       console.log('showCategory')
-      const response = await request_getquerydata(
+      console.log(props.idrol)
+    /*  const response = await request_getquerydata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
           table: 'VW_WebReporteCategoria',
           where: JSON.stringify({ state: 1 })
         })
+      )*/
+      const query=`SELECT a.* FROM D_EWAYA_CONFIG.VW_WebReporteCategoria a
+      JOIN D_EWAYA_CONFIG.VW_WebCategoriaRol b ON a.id_categoria=b.id_categoria
+      WHERE id_rol=`+props.idrol
+      console.log('query')
+      console.log(query)
+      const response = await request_getquerydata(
+        JSON.stringify({
+          query: query,
+          type: 2
+        })
       )
+      console.log('categorydsdasdas')
       const category = response.result
       console.log('category')
       console.log(category)

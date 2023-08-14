@@ -17,6 +17,7 @@ function Appss() {
   const [test, setTest] = useState({})
   const [url, setUrl] = useState(null)
   const p_params = {}
+  const idrol = 3
   p_params.header = {}
   p_params.detail = {}
   p_params.header.titulo = 'Metadatos de Procesos'
@@ -110,9 +111,9 @@ function Appss() {
   return (
     <div className="App">
 <Routes>
-  <Route exact path='/' element={ <Menu p_params={listCabeceraDetalle}/> }>
+  <Route exact path='/' element={ <Menu p_params={listCabeceraDetalle} enable = {idrol!==3}  /> }>
     <Route index element={ <Tablerow /> } />
-    <Route exact path='app' element={ <Tablerow /> } />
+    <Route exact path='app' element={ <Tablerow idrol={idrol}/> } />
     <Route exact path='metadatosprocesos' element={ <Metadatos /> } />
     <Route exact path='metadatostecnicos' element={ <MetadatosTecnicos /> } />
     

@@ -7,6 +7,7 @@ function AppData() {
   const [listCabeceraDetalle, setListCabeceraDetalle] = useState([])
   const [test, setTest] = useState({})
   const p_params = {}
+  const idrol = 3
   p_params.header = {}
   p_params.detail = {}
   p_params.header.titulo = 'Metadatos de Procesos'
