@@ -112,7 +112,7 @@ function Appss() {
     <div className="App">
 <Routes>
   <Route exact path='/' element={ <Menu p_params={listCabeceraDetalle} enable = {idrol!==3}  /> }>
-    <Route index element={ <Tablerow /> } />
+    <Route index element={ <Tablerow idrol={idrol}/> } />
     <Route exact path='app' element={ <Tablerow idrol={idrol}/> } />
     <Route exact path='metadatosprocesos' element={ <Metadatos /> } />
     <Route exact path='metadatostecnicos' element={ <MetadatosTecnicos /> } />
