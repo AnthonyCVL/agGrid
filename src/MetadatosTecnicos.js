@@ -6,6 +6,7 @@ import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import { Button } from 'reactstrap'
 import Select from 'react-select';
 import { FaSyncAlt } from 'react-icons/fa';
+import * as Utilities from './utils/AggridUtil.js';
 
 function MetadatosTecnicos() {
   const headerGrid = useRef(null);
@@ -91,18 +92,6 @@ function MetadatosTecnicos() {
     return await send_post(base_url, method, request)
   }
 
-  const request_gettabledata = async (body) => {
-    //const base_url = 'http://localhost:8080'
-    const base_url='http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
-    const method = '/getTableData2'
-    const request = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: body
-    };
-    return await send_post(base_url, method, request)
-  }
-
   const send_post = async (base_url, method, request) => {
     const response = await fetch(base_url + method, request)
     const json = await response.json();
@@ -119,10 +108,10 @@ function MetadatosTecnicos() {
         return;
       }
       setRowsHeader([tableSelected])
-      setColumnsHeader(getDynamicColumns(tableSelected))
+      setColumnsHeader(Utilities.getDynamicColumns(tableSelected))
       const resultados = dataDetail.filter((el) => el['DatabaseName'] === valueSelect.object.DataBaseName && el['TableName'] ===  tableSelected.TableName )
       setRowsDetail(resultados)
-      setColumnsDetail(getDynamicColumns(resultados[0]))
+      setColumnsDetail(Utilities.getDynamicColumns(resultados[0]))
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
     }
@@ -184,11 +173,6 @@ function MetadatosTecnicos() {
     showTables('true')
   }
 
-  function onRowDataChanged(params) {
-    const colIds = params.columnApi.getAllGridColumns().map(c => c.colId)
-    params.columnApi.autoSizeColumns(colIds)
-  }
-
   const onGridReadyHeader = params => {
     setGridApiHeader(params.api);
   };
@@ -240,12 +224,13 @@ function MetadatosTecnicos() {
         <AgGridReact
           ref={headerGrid}
           alignedGrids={headerGrid.current ? [headerGrid.current] : undefined}
-          defaultColDef={defColumnDefs}
+          defaultColDef={Utilities.defColumnDefs}
           rowData={rowsHeader}
           columnDefs={columnsHeader}
-          onRowDataChanged={onRowDataChanged}
+          onRowDataChanged={Utilities.onRowDataChanged}
           onGridReady={onGridReadyHeader}
           rowHeight={30}
+          gridOptions={Utilities.gridOptionsHeader}
         />
       </div>
       <div className="App-datatable-detail grid ag-theme-alpine"  >
@@ -260,14 +245,15 @@ function MetadatosTecnicos() {
         <AgGridReact
           ref={detailGrid}
           alignedGrids={detailGrid.current ? [detailGrid.current] : undefined}
-          defaultColDef={defColumnDefs}
+          defaultColDef={Utilities.defColumnDefs}
           pagination={true}
           paginationPageSize={100}
           rowData={rowsDetail}
           columnDefs={columnsDetail}
-          onRowDataChanged={onRowDataChanged}
+          onRowDataChanged={Utilities.onRowDataChanged}
           onGridReady={onGridReadyDetail}
           rowHeight={30}
+          gridOptions={Utilities.gridOptions}
         />
       </div>
     </div>

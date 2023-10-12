@@ -20,13 +20,9 @@ function Tablerow() {
   const [categoryValueSelect, setCategoryValueSelect] = useState({})
   const [categorySelected, setCategorySelected] = useState([])
   const [datatables, setDatatables] = useState([])
-  const [gridApi, setGridApi] = useState({})
   const [openModal, setOpenModal] = useState(false)
-  const [openModalMenu, setOpenModalMenu] = useState(false)
   const [tableModal, setTableModal] = useState([])
   const [tableGroupModal, setTableGroupModal] = useState([])
-  const [tableModalMenu, setTableModalMenu] = useState([])
-  const [tableGroupModalMenu, setTableGroupModalMenu] = useState([])
   const [lastUpdateLabel, setLastUpdateLabel] = useState('')
   const [dataChart, setDataChart] = useState([])
 
@@ -54,68 +50,10 @@ function Tablerow() {
     setTableGroupModal(grouplist)
   }
 
-  const openModalMenufunction = () => {
-    setOpenModalMenu(false)
-    const list = []
-    list[0] = [{ position: '1', databasename: 'databasename', objectname: 'objectname' }]
-    const grouplist = []
-    grouplist[0] = [{ position_table: 1, description: 'Reporte' }]
-    setTableModal(list)
-    setTableGroupModal(grouplist)
-  }
-
-  const columnDefs = (key) => ({
-    field: key,
-    hide: key.toLowerCase() === 'v_obsv',
-    //tooltipComponent: customToolTip,
-    cellStyle: params => {
-      let style = {};
-      if (isNaN(params.value)) {
-        style['text-align'] = 'left'
-      } else {
-        style['text-align'] = 'right'
-      }
-      //Para todas las celdas valida que el campo v_obsv exista y su contenido sea diferente de null
-      if ('v_obsv' in params.data && params.data.v_obsv !== null && params.data.v_obsv !== "") {
-        //Valida que el contenido de v_obsv sea un String
-        if (typeof params.data.v_obsv === 'string' || params.data.v_obsv instanceof String) {
-          //Transforma el JSON en String en un objeto JSON
-          params.data.v_obsv = JSON.parse(params.data.v_obsv)
-        }
-        //Recorre el JSON contenido en v_obsv
-        Object.keys(params.data.v_obsv).map(kjson => {
-          //Valida que el cellStyle se aplique sobre el campo contenido en cada elemento del JSON de v_obsv
-          //Valida que el JSON sea diferente de null
-          if ((kjson.toLowerCase() === params.colDef.field.toLowerCase() || kjson.toLowerCase() == "all_fields") && params.data.v_obsv[kjson] !== null) {
-            //Aplica estilos a la celda del elemento del JSON de v_obsv
-            Object.keys(params.data.v_obsv[kjson]).map(prop => {
-              style[prop.replace("_", "-")] = params.data.v_obsv[kjson][prop].replace("_", "-")
-              //style[prop] = (params.data.v_obsv[kjson][prop]==null ? '' : params.data.v_obsv[kjson][prop])
-            })
-            return true
-          }
-        })
-      }
-      return style;
-    }
-  })
-
   const request_getquerydata = async (body) => {
     //const base_url = 'http://localhost:8080'
     const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/getQueryData'
-    const request = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: body
-    };
-    return await send_post(base_url, method, request)
-  }
-
-  const request_gettabledata = async (body) => {
-    //const base_url = 'http://localhost:8080'
-    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
-    const method = '/getTableData2'
     const request = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -327,23 +265,6 @@ function Tablerow() {
   useEffect(() => {
     showTableData()
   }, [tableSelected])
-
-  function onRowDataChanged(params) {
-    const colIds = params.columnApi.getAllGridColumns().map(c => c.colId)
-    params.columnApi.autoSizeColumns(colIds)
-  }
-
-  const onGridReady = params => {
-    setGridApi(params.api);
-  };
-
-  const onBtnExportDataAsCsv = () => {
-    gridApi.exportDataAsCsv();
-  };
-
-  const consultarReporte = () => {
-    showTableData()
-  }
 
   const refreshReporte = () => {
     showTableData('true')

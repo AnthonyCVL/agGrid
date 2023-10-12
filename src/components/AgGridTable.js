@@ -54,6 +54,29 @@ function AgGrid(props) {
     console.log("end main")
   }, [props.p_datatables])
 
+  const isURL = (text) => {
+    const urlPattern = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
+    return urlPattern.test(text);
+  };
+  
+  const UrlRenderer = ({ value }) => {
+    const handleClick = () => {
+      if (isURL(value)) {
+        window.open(value, '_blank');
+      }
+    };
+  
+    const style = isURL(value)
+      ? { cursor: 'pointer', color: 'blue', textDecoration: 'underline' }
+      : {};
+  
+    return (
+      <div onClick={handleClick} style={style}>
+        {value}
+      </div>
+    );
+  };
+
   function buildListChart(lChart, data){
     let list = []
     lChart.map(chart => {
@@ -105,14 +128,6 @@ function AgGrid(props) {
     }
   }
 
-  function getRandomColor() {
-    var r = Math.floor(Math.random() * 255);
-    var g = Math.floor(Math.random() * 255);
-    var b = Math.floor(Math.random() * 255);
-    return "rgb(" + r + "," + g + "," + b + ")";
-  }
-
-
   const columnDefs = (key) => ({
     field: key,
     hide: key.toLowerCase() === 'v_obsv',
@@ -149,6 +164,10 @@ function AgGrid(props) {
     }
   })
 
+  const getDynamicColumns = (obj) => {
+    return Object.keys(obj).map(key => columnDefs(key))
+  }
+
   const defColumnDefs = {
     //editable: true,
     //enableRowGroup: true,
@@ -158,6 +177,7 @@ function AgGrid(props) {
     resizable: true,
     filter: true,
     flex: 1,
+    cellRendererFramework: UrlRenderer,
     //tooltipComponent: <p>Hola</p>
     //minWidth: 100
   }
@@ -222,6 +242,10 @@ function AgGrid(props) {
     }
   }, [rowsFiltered])
 
+  function onRowDataChanged(params) {
+    autoSizeColumns(params)
+  }
+
   function autoSizeColumns(params) {
     if (params.columnApi.columnModel === undefined){
       return
@@ -229,13 +253,6 @@ function AgGrid(props) {
     const colIds = params.columnApi
       .getAllDisplayedColumns()
       .map(col => col.getColId());
-    console.log(colIds)
-    var column = params.columnApi.getColumn('modelo'); // where field = name
-    var column2 = params.columnApi.getColumn('F6_SUM_tmin_90'); // where field = name
-    console.log('column info' );
-    console.log(column );
-    console.log('column info' );
-    console.log(column2 );
     params.columnApi.autoSizeColumns(colIds);
   };
 
@@ -262,6 +279,10 @@ function AgGrid(props) {
   const btnAutosize = () => {
     utilidades.autoSizeColumns(gridParams);
   };
+
+  const columnVisible = params => {
+    utilidades.autoSizeColumns(params);
+  }
 
   return (
     <div>
@@ -311,7 +332,6 @@ function AgGrid(props) {
                   rowHeight={30}
                   onGridReady={onGridReady}
                   onFilterChanged={onFilterChanged} 
-                  gridOptions={utilidades.gridOptions}
                   //onBodyScroll={columnVisible}
                 />
               </div>

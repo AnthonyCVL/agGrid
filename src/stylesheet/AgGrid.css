@@ -66,3 +66,10 @@
 canvas {
   display: inline !important;
 }
+
+
+.url-style {
+  cursor: pointer;
+  color: blue;
+  text-decoration: underline;
+}
