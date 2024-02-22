@@ -28,6 +28,7 @@ function Mantenimiento() {
   const [chartColumnValue, setChartColumnValue] = useState({})
   const [numChart, setNumChart] = useState(0)
   const [reportColumns, setReportColumns] = useState([])
+
   const [categorySelect, setCategorySelect] = useState([])
   const [categoryValueSelect, setCategoryValueSelect] = useState({})
   const [categoryObjectSelect, setCategoryObjectSelect] = useState({})
@@ -35,6 +36,16 @@ function Mantenimiento() {
   const [filterCategorySelect, setFilterCategorySelect] = useState([])
   const [filterCategoryValueSelect, setFilterCategoryValueSelect] = useState({})
   const [filterCategoryObjectSelect, setFilterCategoryObjectSelect] = useState({})
+
+  {/* ------------PROBANDO*---------*/}
+  const [dataBaseSelect,setdataBaseSelect] = useState([])
+  const [dataBaseValueSelect,setdataBaseValueSelect] =  useState({})
+  const [dataBaseObjectSelect, setdataBaseObjectSelect] = useState({})
+  const [dataBaseName, setdataBaseName] = useState("")
+  const [filterdataBaseSelect, setFilterdataBaseSelect] = useState([]) ///No se necesita, pues es usando en el buscar
+  const [filterdataBaseValueSelect, setFilterdataBaseValueSelect] = useState({}) ///No se necesita, pues es usando en el buscar
+  const [filterdataBaseObjectSelect, setFilterdataBaseObjectSelect] = useState({})
+  {/* ------------PROBANDO*---------*/}
 
   const [listChart, setListChart] = useState([])
 
@@ -51,7 +62,11 @@ function Mantenimiento() {
     setReportName(newOption);
     setReportDescription('')
     setFlagAction('insert')
+
     setCategoryValueSelect(categorySelect.filter(function(p){return p.value == 1}))
+
+    //setdataBaseValueSelect(dataBaseSelect.filter(function(p){return p.value == 1}))
+
     console.log(flagAction)
   };
 
@@ -63,6 +78,7 @@ function Mantenimiento() {
     setWebGroupObjectSelect(e.object)
     setWebGroupValueSelect(e)
     setCategoryValueSelect(categorySelect.filter(function(p){return p.value == e.object.id_categoria}))
+
     setReportDescription(e.object.name)
     setReportName(createOption(e.object.name))
     setReportDate(webGroupObjectSelect.create_ts)
@@ -81,6 +97,11 @@ function Mantenimiento() {
   const handlerCategory = function (e) {
     setCategoryObjectSelect(e.object)
     setCategoryValueSelect(e)
+  }
+
+  const handlerdataBase = function (e) {
+    setdataBaseObjectSelect(e.object)
+    setdataBaseValueSelect(e)
   }
 
   const showFormCRUD = function (e) {
@@ -113,7 +134,7 @@ function Mantenimiento() {
       });
       list_webgroup.map(function (obj) {
         selectWebGroup.push({ value: obj["name"], label: obj["name"], object: obj });
-      })
+      }) 
       console.log("selectWebGroup")
       console.log(selectWebGroup)
       setWebGroupSelect(selectWebGroup)
@@ -136,12 +157,13 @@ function Mantenimiento() {
         where: JSON.stringify({ id_grupo: webGroupObjectSelect.id_grupo })
       })
     )
+
     const webgroupreport = response_webgroupreport.result
     webgroupreport.map(async function (obj) {
       const response_webreport = await request_getquerydata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: 'VW_WebReporte',
+          table: 'GD_WebReporte',
           where: JSON.stringify({ id_reporte: obj.id_reporte })
         }))
       const webreport = response_webreport.result
@@ -165,7 +187,7 @@ function Mantenimiento() {
         console.log("iffffff")
         var list = []
         webreportegrafico.map(function (obj) {
-          list.push({ id_grafico: obj["id_grafico"], categoria: obj["categoria"], valor: obj["valor"], titulo: obj["titulo"], limite: obj["limite"], object: obj });
+          list.push({ id_grafico: obj["id_grafico"], categoria: obj["categoria"], valor: obj["valor"], titulo: obj["titulo"], limite: obj["limite"],id_database: obj["id_database"], object: obj });
         })
         console.log(list)
         console.log("ifffend")
@@ -180,7 +202,9 @@ function Mantenimiento() {
     console.log("SAVE")
     console.log(flagAction)
     if (flagAction === 'insert') {
+
       show_modal_insert()
+     
       console.log("insert")
     } else {
       show_modal_update()
@@ -212,7 +236,7 @@ function Mantenimiento() {
         })
       )
       console.log("result_columns")
-      console.log(result_columns)
+      console.log(result_columns) 
       var columns = Object.keys(result_columns[0]).map(obj => { 
         return ({value: obj, label: obj})
       })
@@ -292,6 +316,17 @@ function Mantenimiento() {
                             defaultValue={reportColumns[0]}
                             onChange={onChangeChartSelect(listChart,i,'categoria')}/>
                   </div>
+                    {/* ------------PROBANDO*---------*/}
+                  <div className="col-sm-2">
+                    <Select styles={style} 
+                            options={reportColumns}
+                            value={getElementByValue(reportColumns,listChart[i]['id_database'])}
+                            defaultValue={reportColumns[0]}
+                            onChange={onChangeChartSelect(listChart,i,'id_database')}/>
+                  </div>
+                    {/* ------------PROBANDO*---------*/}
+
+
                   
                   <div className="col-sm-2">
                   <Select styles={style} 
@@ -358,6 +393,8 @@ function Mantenimiento() {
   }
 
   const show_modal_insert = async function (e) {
+    console.log("show_modal_insert")
+    console.log(dataBaseValueSelect.value)
     Swal.fire({
       title: 'Registrar',
       text: 'Verifica los datos ingresados',
@@ -389,8 +426,8 @@ function Mantenimiento() {
             id_tipogrupo: 1
           })
         }])
-        console.log("postrequest")
-        console.log(postrequest)
+        //console.log("postrequest")
+        //console.log(postrequest)
         const response_insert_webgrupo = await request_insertrow(
           JSON.stringify([{
             database: 'D_EWAYA_CONFIG',
@@ -400,7 +437,7 @@ function Mantenimiento() {
               name: reportName.value,
               description: reportName.value,
               id_tipogrupo: 1,
-              id_categoria: categoryValueSelect.valuex,
+              id_categoria: categoryValueSelect.value,
               schedule: reportSchedule
             })
           }])
@@ -410,8 +447,8 @@ function Mantenimiento() {
           show_error()
           return 0;
         }
-        console.log(viewQuery)
-        console.log(p_query)
+        //console.log(viewQuery)
+        //console.log(p_query)
         const response_insert_webreporte = await request_insertrow(
           JSON.stringify([{
             database: 'D_EWAYA_CONFIG',
@@ -420,9 +457,11 @@ function Mantenimiento() {
             body: JSON.stringify({
               desc_qry: viewName,
               full_qry: p_query,
-              id_tiporeporte: 2
+              id_tiporeporte: 2,
+              id_database: dataBaseValueSelect.value
             })
-          }])
+
+          }])                                                                                  
         )
         const json_insert_webreporte = await response_insert_webreporte.json()
         if (!response_insert_webreporte.ok) {
@@ -430,13 +469,14 @@ function Mantenimiento() {
           return 0;
         }
         const response_insert_webgruporeporte = await request_insertrow(
-          JSON.stringify([{
+          JSON.stringify([{ 
             database: 'D_EWAYA_CONFIG',
             table: 'GD_WebGrupoReporte',
             body: JSON.stringify({
               id_grupo: json_insert_webgrupo['id_grupo'],
               id_reporte: json_insert_webreporte['id_reporte'],
               description: viewName
+
             })
           }])
         )
@@ -453,6 +493,8 @@ function Mantenimiento() {
   }
 
   const show_modal_update = async function (e) {
+    console.log("show_modal_update")
+    console.log(dataBaseValueSelect.value)
     Swal.fire({
       title: 'Actualizar',
       text: '¿Está seguro de actualizar este registro?',
@@ -488,7 +530,8 @@ function Mantenimiento() {
             }),
             body: JSON.stringify({
               desc_qry: viewName,
-              full_qry: viewQuery.replaceAll("'", "''")
+              full_qry: viewQuery.replaceAll("'", "''"), 
+              id_database: dataBaseValueSelect.value
             })
           })
         )
@@ -541,7 +584,8 @@ function Mantenimiento() {
               titulo: !obj['titulo'] ? "" : obj['titulo'],
               categoria: obj['categoria'],
               valor: obj['valor'],
-              limite: obj['limite']
+              limite: obj['limite'],
+              id_database: obj['id_database']
             })
           }
           listInsert.push(insert)
@@ -687,6 +731,7 @@ function Mantenimiento() {
     console.log(action)
     setFlagAction(action)
     console.log("showTables")
+    
     try {
       const response_category = await request_getquerydata(
         JSON.stringify({
@@ -716,6 +761,7 @@ function Mantenimiento() {
         })
       )
       const list_webgroup = response_webgroup.result
+      debugger;
       const selectWebGroup = [];
       list_webgroup.map(function (obj) {
         selectWebGroup.push({ value: obj["name"], label: obj["name"], object: obj });
@@ -735,21 +781,59 @@ function Mantenimiento() {
           order: 1
         })
       )
-      const list_chart = response_list_chart.result
+      const list_chart = response_list_chart.result 
+      debugger;
       const dataSelect = []
       list_chart.map(function (obj) {
-        dataSelect.push({ value: obj["id_grafico"], label: obj["nombre"], object: obj });
+        dataSelect.push({ value: obj["id_grafico"], label: obj["nombre"], id_dataBase: obj['id_database'], object: obj });
       })
       setChartOptions(dataSelect)
+      {/*PRUEBA*/}
+
+      const response_dataBase =  await  request_getquerydata(
+          JSON.stringify({
+            database:'D_EWAYA_CONFIG',
+            table: 'GD_WebDatabaseEngine'
+          })    
+      )
+      const dataBase = response_dataBase.result
+      debugger;
+      const arr_dataBase = [];
+      dataBase.sort(function (a, b) {
+        return a.id_database - b.id_database  || a.database_name.localeCompare(b.database_name);
+      });
+      dataBase.map(function (obj){
+        arr_dataBase.push({ value:  obj["id_database"], label:  obj["database_name"], object: obj });    
+      })
+      console.log(arr_dataBase)
+      console.log(action)
+      setdataBaseSelect(arr_dataBase)
+      const dataBase_all = {value: 0, label: "Todos"}
+      setFilterdataBaseSelect([dataBase_all, ...arr_dataBase])
+      setFilterdataBaseValueSelect(dataBase_all)
+      
+
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
     }
   }
 
   const setWebReport = () => {
-    if(listView.length>0){
+    console.log("setWebReport")
+    console.log(listView)
+    
+
+    if(listView.length > 0){
       setViewName(listView[0].desc_qry)
       setViewQuery(listView[0].full_qry)
+
+      var result = dataBaseSelect.filter(function(p){
+        return p.value == listView[0].id_database
+      })
+      console.log(result)
+      setdataBaseValueSelect(result[0])
+      setdataBaseObjectSelect(result[0].object)
+
     }
   }
 
@@ -765,6 +849,10 @@ function Mantenimiento() {
     setWebGroupValueSelect({})
     setCategoryObjectSelect([])
     setCategoryValueSelect([])
+
+    setdataBaseObjectSelect([])
+    setdataBaseValueSelect([])
+
     //setWebGroupSelect([])
     console.log(webGroupObjectSelect.id_grupo)
     setReportName("")
@@ -843,7 +931,7 @@ function Mantenimiento() {
   return (
     <div className="App">
       <div className="App-title">
-        <h2 align="center" className="display-8 fw-bold main-title">Mantenimiento de Tablero BI</h2>
+        <h2 align="center" className="display-8 fw-bold main-title">Mantenimiento de Tablero BI - OP</h2>
         </div>
         {/*<div className="col-sm-3">
                       <Button color="primary"
@@ -860,7 +948,7 @@ function Mantenimiento() {
           <form>
             <div className="divReport">
               <div className="divReportName mb-3 row">
-                <label className="col-sm-1 col-form-label labelForm">Buscar por Categoria</label>
+                <label className="col-sm-1 col-form-label labelForm">Buscar Categoria</label>
                 <div className="col-sm-3">
                 <Select
                   styles={style}
@@ -871,7 +959,8 @@ function Mantenimiento() {
                 </div>
               </div>
               <hr/>
-              <div className="divReportName mb-3 row">
+
+              <div className="divReportName mb-3 row"> 
                 <div className="col-sm-1 div-left">
                   <label htmlFor="reportName" className="col-form-label labelForm">Seleccionar Reporte:</label>
                 </div>
@@ -890,7 +979,17 @@ function Mantenimiento() {
                 <div className="col-sm-2 div-left">
                   <label className="date-update col-form-label labelForm">{reportDate}</label>
                 </div>
+
+                <div className="col-sm-1 div-left">
+                  <label htmlFor="reportSchedule" className='col-form-label labelForm'>Schedule:</label>
+                </div>
+                <div className="col-sm-2 div-left">
+                  <input id="reportSchedule" type='text' className='form-control input'
+                    value={reportSchedule} onInput={e => setReportSchedule(e.target.value)}></input>
+                </div>
               </div>
+
+
               <div className="divReportDescription mb-3 row">
                 <div className="col-sm-1 div-left">
                   <label htmlFor="reportDescription" className='col-form-label labelForm'>Nombre:</label>
@@ -901,7 +1000,7 @@ function Mantenimiento() {
                 </div>
                 <div className="col-sm-1 div-left">
                   <label className="col-form-label labelForm">Categoria:</label>
-                </div>
+                </div>  
                 <div className="col-sm-2">
                 <Select
                   styles={style}
@@ -910,14 +1009,8 @@ function Mantenimiento() {
                   onChange={(e) => handlerCategory(e)}
                 />
                 </div>
-                <div className="col-sm-1 div-left">
-                  <label htmlFor="reportSchedule" className='col-form-label labelForm'>Schedule:</label>
-                </div>
-                <div className="col-sm-2 div-left">
-                  <input id="reportSchedule" type='text' className='form-control input'
-                    value={reportSchedule} onInput={e => setReportSchedule(e.target.value)}></input>
-                </div>
-              </div>
+
+
               {/*<div className="divDatatable">
                   <label htmlFor="reportDatatable">Datatable</label>
                   <AgGrid
@@ -925,6 +1018,7 @@ function Mantenimiento() {
                     p_datatables={p_datatables} />
     </div>*/}
             </div>
+          </div>
             <form action="" method="post">
               <fieldset className="form-group border border-secondary rounded p-3 viewSection legend-detail">
                 <div className="divView card-body ">
@@ -937,6 +1031,19 @@ function Mantenimiento() {
                       <input id="viewName" type='text' className="form-control input"
                         value={viewName} onInput={e => setViewName(e.target.value)}></input>
                     </div>
+                    <div className="col-sm-1 div-left">
+                  <label className='col-form-label labelForm'>Base de datos:</label>
+                </div>
+                <div  className="col-sm-2">
+                  {/* probando */}
+                <Select
+                   styles = {style}
+                   options = {dataBaseSelect}
+                   value = {dataBaseValueSelect}
+                   onChange={(e) => handlerdataBase(e)}
+
+                />
+              </div>
                   </div>
                   <div className={`divViewQuery mb-3 row`}>
                     <label htmlFor="viewQuery" className="col-sm-1 px-4 col-form-label labelForm">Query</label>
