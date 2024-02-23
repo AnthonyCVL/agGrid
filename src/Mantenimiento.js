@@ -65,7 +65,7 @@ function Mantenimiento() {
 
     setCategoryValueSelect(categorySelect.filter(function(p){return p.value == 1}))
 
-    //setdataBaseValueSelect(dataBaseSelect.filter(function(p){return p.value == 1}))
+    setdataBaseValueSelect(dataBaseSelect.filter(function(p){return p.value == 1}))
 
     console.log(flagAction)
   };
@@ -449,6 +449,15 @@ function Mantenimiento() {
         }
         //console.log(viewQuery)
         //console.log(p_query)
+        debugger;
+
+        var dataBaseValueSelect_aux;
+        if (dataBaseValueSelect.hasOwnProperty('value')) {
+            dataBaseValueSelect_aux = dataBaseValueSelect.value;
+        } else {
+            dataBaseValueSelect_aux = dataBaseValueSelect[0].value;
+        }
+
         const response_insert_webreporte = await request_insertrow(
           JSON.stringify([{
             database: 'D_EWAYA_CONFIG',
@@ -458,9 +467,9 @@ function Mantenimiento() {
               desc_qry: viewName,
               full_qry: p_query,
               id_tiporeporte: 2,
-              id_database: dataBaseValueSelect.value
+              id_database: dataBaseValueSelect_aux
             })
-
+              
           }])                                                                                  
         )
         const json_insert_webreporte = await response_insert_webreporte.json()
@@ -761,7 +770,6 @@ function Mantenimiento() {
         })
       )
       const list_webgroup = response_webgroup.result
-      debugger;
       const selectWebGroup = [];
       list_webgroup.map(function (obj) {
         selectWebGroup.push({ value: obj["name"], label: obj["name"], object: obj });
@@ -782,7 +790,6 @@ function Mantenimiento() {
         })
       )
       const list_chart = response_list_chart.result 
-      debugger;
       const dataSelect = []
       list_chart.map(function (obj) {
         dataSelect.push({ value: obj["id_grafico"], label: obj["nombre"], id_dataBase: obj['id_database'], object: obj });
@@ -797,7 +804,6 @@ function Mantenimiento() {
           })    
       )
       const dataBase = response_dataBase.result
-      debugger;
       const arr_dataBase = [];
       dataBase.sort(function (a, b) {
         return a.id_database - b.id_database  || a.database_name.localeCompare(b.database_name);
@@ -931,7 +937,7 @@ function Mantenimiento() {
   return (
     <div className="App">
       <div className="App-title">
-        <h2 align="center" className="display-8 fw-bold main-title">Mantenimiento de Tablero BI - OP</h2>
+        <h2 align="center" className="display-8 fw-bold main-title">Mantenimiento de Tablero BI</h2>
         </div>
         {/*<div className="col-sm-3">
                       <Button color="primary"
