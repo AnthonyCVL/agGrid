@@ -855,9 +855,10 @@ function Mantenimiento() {
         return p.value == listView[0].id_database
       })
       console.log(result)
-      setdataBaseValueSelect(result[0])
-      setdataBaseObjectSelect(result[0].object)
-
+      if(result.length > 0){
+        setdataBaseValueSelect(result[0])
+        setdataBaseObjectSelect(result[0].object)
+      }
     }
   }
 
