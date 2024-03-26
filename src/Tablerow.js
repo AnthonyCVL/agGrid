@@ -142,6 +142,7 @@ function Tablerow() {
               order: table.ord_qry,
               type: table.id_tiporeporte,
               query: table.full_qry,
+              db_engine: table.id_database,
               cache_enabled: 'true',
               cache_refresh: refresh
             })
