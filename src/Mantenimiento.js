@@ -54,6 +54,24 @@ function Mantenimiento() {
     value: label
   });
 
+  const cargarArchivo = () => {
+    const archivoInput = document.getElementById('archivoInput');
+    archivoInput.click();
+
+    archivoInput.addEventListener('change', () => {
+        const archivo = archivoInput.files[0];
+        const lector = new FileReader();
+
+        lector.onload = (evento) => {
+            const contenido = evento.target.result;
+            console.log("Contenido del archivo:", contenido);
+
+        };
+
+        lector.readAsText(archivo);
+    });
+}
+
   const handleCreateReport = (inputValue) => {
     console.log("INSERT")
     clear()
@@ -1015,6 +1033,16 @@ function Mantenimiento() {
                   onChange={(e) => handlerCategory(e)}
                 />
                 </div>
+              {/*PROBANDO 04/03/2023 */}
+              <div className="col-sm-1 div-left">
+                  <label className="col-form-label labelForm">Importar:</label>
+                </div>  
+                <div className="col-sm-2" id="archivoInput" >
+                <Button  color="primary" onClick={() => cargarArchivo()}>
+                  Importación
+                </Button>
+                
+                </div>
 
 
               {/*<div className="divDatatable">
@@ -1089,6 +1117,7 @@ function Mantenimiento() {
           </form>
         </div>
       </div>
+      
     </div>
 
   );
