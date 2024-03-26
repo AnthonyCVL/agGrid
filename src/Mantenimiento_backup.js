@@ -780,7 +780,7 @@ function Mantenimiento() {
   return (
     <div className="App">
       <div className="App-title">
-        <h2 align="center" className="display-8 fw-bold main-title">Mantenimiento de Tablero BI</h2>
+        <h2 align="center" className="display-8 fw-bold main-title">Mantenimiento de Tableroooo BI</h2>
         </div>
         <Button color="primary" onClick={(e) => test(e)}>Test</Button>
       <div className='modalRight modalBody'>
