@@ -51,8 +51,8 @@ function Tablerow() {
   }
 
   const request_getquerydata = async (body) => {
-    //const base_url = 'http://localhost:8080'
-    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const base_url = 'http://localhost:8080'
+    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/getQueryData'
     const request = {
       method: 'POST',
