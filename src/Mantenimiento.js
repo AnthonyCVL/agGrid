@@ -1035,15 +1035,14 @@ function Mantenimiento() {
                 />
                 </div>
               {/*PROBANDO 04/03/2023 */}
-              <div className="col-sm-1 div-left">
+              <div className="col-sm-1 div-left div-hidden">
                   <label className="col-form-label labelForm">Importar:</label>
-                </div>  
-                <div className="col-sm-2" id="archivoInput" >
+              </div>  
+              <div className="col-sm-2 div-hidden" id="archivoInput" >
                 <Button  color="primary" onClick={() => cargarArchivo()}>
                   Importación
                 </Button>
-                
-                </div>
+              </div>
 
 
               {/*<div className="divDatatable">

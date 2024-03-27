@@ -51,21 +51,9 @@ function Tablerow() {
   }
 
   const request_getquerydata = async (body) => {
-    //const base_url = 'http://localhost:8080'
-    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
+    const base_url = 'http://localhost:8080'
+    //const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
     const method = '/getQueryData'
-    const request = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: body
-    };
-    return await send_post(base_url, method, request)
-  }
-
-  const request_getwebreport = async (body) => {
-    //const base_url = 'http://localhost:8080'
-    const base_url = 'http://ms-python-teradata-nirvana-qa.apps.ocptest.gp.inet'
-    const method = '/getWebReport'
     const request = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
