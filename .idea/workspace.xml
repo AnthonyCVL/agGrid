@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="390f932f-2bdc-4578-85e0-5eb620ea6806" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/layout/metadatos/Metadatos.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/services/apiServices.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/utils/ColumnDefs.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/utils/variables.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AppData.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/AppData.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/CabeceraDetalle.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/CabeceraDetalle.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Mantenimiento.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/layout/maintenance/Mantenimiento.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Mantenimiento.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layout/maintenance/Mantenimiento.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Mantenimiento_backup.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layout/maintenance/Mantenimiento_backup.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Menu.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Menu.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Menu.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Menu.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Metadatos.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/layout/metadatos/Metadatos.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Metadatos.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MetadatosOperacionales.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MetadatosOperacionales.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MetadatosTecnicos.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MetadatosTecnicos.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Tablero.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/layout/board/Tablero.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Tablero.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Tablerow.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layout/board/Tablero.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/Login.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/Modal.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/Modal2.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/Modal2.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ModalMenu.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/trash/ModalMenu.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/home.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.js" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="CSS File" />
+        <option value="JavaScript File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="2fH8jLabD93sWGZXBwQjAv6UnEU" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;develop&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;npm.start.executor&quot;: &quot;Run&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\WebStorm 2024.1\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="F:\PROYECTOS\agGrid\src\trash" />
+      <recent name="F:\PROYECTOS\agGrid\src\utils" />
+      <recent name="F:\PROYECTOS\agGrid\src\components" />
+      <recent name="F:\PROYECTOS\agGrid\src\layout\maintenance" />
+      <recent name="F:\PROYECTOS\agGrid\src\layout\metadatos" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="start" type="js.build_tools.npm" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="start" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-1d06a55b98c1-74d2a5396914-JavaScript-WS-241.14494.235" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="390f932f-2bdc-4578-85e0-5eb620ea6806" name="Changes" comment="" />
+      <created>1713446777899</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1713446777899</updated>
+      <workItem from="1713446779548" duration="10519000" />
+      <workItem from="1713467343526" duration="17522000" />
+      <workItem from="1713798927518" duration="24332000" />
+      <workItem from="1713880594350" duration="201000" />
+      <workItem from="1713880854089" duration="4720000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

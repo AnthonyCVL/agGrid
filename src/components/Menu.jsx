@@ -22,7 +22,7 @@ const Menu = (links) => {
         <>
                 <div className="navbar-container">
                     <div className="container-logo">
-                        <img src={require("./telefonica_logo_blanco.png")} alt="logo" className='main-logo' />
+                        <img src={require("../telefonica_logo_blanco.png")} alt="logo" className='main-logo' />
                     </div>
                     <div>
                             <ul className="nav-ul">

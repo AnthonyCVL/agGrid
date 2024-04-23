@@ -21,7 +21,7 @@ section {
 	padding: 3px;
 	font-size: 0;
 	font-family: 'Lato', sans-serif;
-    background-image: url(./telefonica_background.jpg);
+    background-image: url(../telefonica_background.jpg);
 }
 
 .navbar-container .nav-ul {

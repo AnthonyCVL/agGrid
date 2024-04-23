@@ -1,14 +1,15 @@
-import './Mantenimiento.css';
+import '../stylesheet/Modal.css';
+import styled from 'styled-components';
 import React, { useState, useEffect } from 'react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-alpine.css';
 import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
+import AgGrid from '../components/AgGrid';
 import { Button } from 'reactstrap'
 import Swal from 'sweetalert2'
-import CustomSelect from './components/CustomSelect';
 
-function Mantenimiento() {
+function ModalMenu({ open, onClose, p_datatables, p_grouptables }) {
 
   const [databaseSelect, setDatabaseSelect] = useState([])
   const [databaseValueSelect, setDatabaseValueSelect] = useState({})
@@ -30,6 +31,7 @@ function Mantenimiento() {
   const [webGroupObjectSelect, setWebGroupObjectSelect] = useState({})
   const [reportName, setReportName] = useState("")
   const [reportDescription, setReportDescription] = useState("")
+  const [reportSubtitle, setReportSubtitle] = useState("")
   const [enableCRUD, setEnableCRUD] = useState("")
   const [hiddenCRUD, setHiddenCRUD] = useState(true)
   const [viewName, setViewName] = useState("")
@@ -37,18 +39,7 @@ function Mantenimiento() {
   const [viewSort, setViewSort] = useState("")
   const [viewQuery, setViewQuery] = useState("")
   const [flagAction, setFlagAction] = useState("")
-  const [reportDate, setReportDate] = useState(new Date().toLocaleString().replace(",", ""))
-  const [chartSelect, setChartSelect] = useState([])
-  const [chartValueSelect, setChartValueSelect] = useState({})
-  const [chartObjectSelect, setChartObjectSelect] = useState([])
-  const [numChart, setNumChart] = useState(0)
-
-  const [groupTypeOptions, setGroupTypeOptions] = useState([])
-  const [groupTypeValueSelected, setGroupTypeValueSelected] = useState({})
-  const [reportTypeOptions, setReportTypeOptions] = useState([])
-  const [reportTypeValueSelected, setReportTypeValueSelected] = useState({})
-
-  const [ejemplo, setEjemplo] = useState("hola")
+  const [reportDate, setReportDate] = useState(new Date().toLocaleString().replace(",",""))
 
   const databaseHandler = function (e) {
     setDatabaseObjectSelect(e.object)
@@ -70,12 +61,6 @@ function Mantenimiento() {
     setReportTypeValueSelect(e)
   }
 
-  const chartSelectHandler = function (e) {
-    setChartObjectSelect(e.object)
-    setChartValueSelect(e)
-  }
-
-
 
   const createOption = (label) => ({
     label,
@@ -89,6 +74,7 @@ function Mantenimiento() {
     //setWebGroupSelect((prev) => [...prev, newOption]);
     setReportName(newOption);
     setReportDescription('')
+    setReportSubtitle('')
     setFlagAction('insert')
     console.log(flagAction)
   };
@@ -102,15 +88,15 @@ function Mantenimiento() {
     setWebGroupObjectSelect(e.object)
     setWebGroupValueSelect(e)
     setReportDescription(e.object.description)
+    setReportSubtitle(e.object.subtitle)
     setReportName(createOption(e.object.name))
     setReportDate(webGroupObjectSelect.create_ts)
     setFlagAction('update')
-    setNumChart(0)
   }
 
-  const showFormCRUD = function (e) {
+  const showFormCRUD = function (e){
     console.log("showFormCRUD")
-    if (enableCRUD === "tablerobi") {
+    if(enableCRUD==="tablerobi"){
       setHiddenCRUD(false)
     }
   }
@@ -120,13 +106,13 @@ function Mantenimiento() {
     console.log("getReportes")
     console.log(webGroupObjectSelect.id_grupo)
     setListView([])
-    if (webGroupObjectSelect === "" || webGroupObjectSelect === undefined || webGroupObjectSelect.id_grupo === '' || webGroupObjectSelect.id_grupo === undefined) {
+    if(webGroupObjectSelect === "" || webGroupObjectSelect === undefined || webGroupObjectSelect.id_grupo === '' || webGroupObjectSelect.id_grupo === undefined){
       return 0
     }
     const response_webgroupreport = await request_gettabledata(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
-        table: 'VW_WebGrupoReporte',
+        table: 'VW_WebGrupoReporteDesa',
         where: JSON.stringify({ id_grupo: webGroupObjectSelect.id_grupo })
       })
     )
@@ -134,11 +120,11 @@ function Mantenimiento() {
       const response_webbreport = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: 'VW_WebReporte',
+          table: 'VW_WebReporteDesa',
           where: JSON.stringify({ id_reporte: obj.id_reporte })
         }))
       console.log(response_webbreport)
-      if (response_webbreport.length > 0) {
+      if(response_webbreport.length>0){
         setListView(listView => [...listView, response_webbreport[0]])
       }
     })
@@ -146,22 +132,17 @@ function Mantenimiento() {
 
   const setWebGroup = () => {
     console.log("setWebGroup")
-    if (webGroupObjectSelect === '' || webGroupObjectSelect === undefined || webGroupObjectSelect.id_tipogrupo === '' || webGroupObjectSelect.id_tipogrupo === undefined) {
+    if (webGroupObjectSelect === '' || webGroupObjectSelect === undefined || webGroupObjectSelect.id_tipogrupo === '' || webGroupObjectSelect.id_tipogrupo === undefined) { 
+      console.log("no pase")
       setGroupTypeObjectSelect(groupTypeSelect[0].object)
       setGroupTypeValueSelect(groupTypeSelect[0])
-      setGroupTypeValueSelected(groupTypeOptions[0])
     } else {
+      console.log("pase")
       var elementGroupType = groupTypeSelect.find((el) => {
         return el.object.id_tipogrupo === webGroupObjectSelect.id_tipogrupo
       })
       setGroupTypeObjectSelect(elementGroupType.object)
       setGroupTypeValueSelect(elementGroupType)
-      var elementGroupType = groupTypeOptions.find((el) => {
-        return el.object.id_tipogrupo === webGroupObjectSelect.id_tipogrupo
-      })
-      setGroupTypeObjectSelect(elementGroupType.object)
-      setGroupTypeValueSelect(elementGroupType)
-      setGroupTypeValueSelected(elementGroupType)
     }
   }
 
@@ -169,7 +150,7 @@ function Mantenimiento() {
     console.log("setWebReport")
     console.log(listView)
     console.log(viewSelect)
-    if (listView.length > 0) {
+    if(listView.length>0){
       setViewName(listView[0].desc_qry)
       setViewQuery(listView[0].full_qry)
       setViewColumns(listView[0].col_qry)
@@ -178,25 +159,19 @@ function Mantenimiento() {
     if (webGroupObjectSelect === '' || webGroupObjectSelect === undefined || webGroupObjectSelect.id_tipogrupo === '' || webGroupObjectSelect.id_tipogrupo === undefined) {
       setReportTypeObjectSelect(reportTypeSelect[0].object)
       setReportTypeValueSelect(reportTypeSelect[0])
-      setReportTypeValueSelected(reportTypeOptions[0])
       setDatabaseObjectSelect(databaseSelect[0].object)
       setDatabaseValueSelect(databaseSelect[0])
       setViewObjectSelect(viewSelect[0].object)
       setViewValueSelect(viewSelect[0])
     } else {
-      if (listView.length > 0) {
+      if(listView.length>0){
         var elementReportType = reportTypeSelect.find((el) => {
           return el.object.id_tiporeporte === listView[0].id_tiporeporte
         })
         setReportTypeObjectSelect(elementReportType.object)
         setReportTypeValueSelect(elementReportType)
 
-        elementReportType = reportTypeOptions.find((el) => {
-          return el.object.id_tiporeporte === listView[0].id_tiporeporte
-        })
-        setReportTypeValueSelected(elementReportType)
-
-        if (listView[0].id_tiporeporte === 1) {
+        if(listView[0].id_tiporeporte === 1){
           var elementDatabaseType = databaseSelect.find((el) => {
             return el.object.DataBaseName.toUpperCase() === listView[0].database_name.toUpperCase()
           })
@@ -225,52 +200,14 @@ function Mantenimiento() {
     }
   }
 
-  const deleteButton = async function (e) {
+  const deleteButton = async function (e){
     console.log("DELETE")
-    if (flagAction === 'update') {
+    if(flagAction==='update'){
       show_modal_delete()
     }
   }
 
-  const test = function(e){
-    console.log("test")
-    console.log(groupTypeValueSelected)
-    console.log(reportTypeValueSelected)
-  }
-  const addChart = async function (e) {
-    const list = await request_gettabledata(
-      JSON.stringify({
-        database: 'D_EWAYA_CONFIG',
-        table: 'GD_WebGrafico',
-        where: JSON.stringify({
-          estado: 1
-        })
-      })
-    )
-    const dataSelect = []
-    list.map(function (obj) {
-      dataSelect.push({ value: obj["id_grafico"], label: obj["nombre"], object: obj });
-    })
-    setChartSelect(dataSelect)
-    setNumChart((oldNumChart) => oldNumChart + 1)
-    console.log(chartSelect)
-    console.log(numChart)
-  }
-
-  const getChartForm = function (e) {
-    return (<div className="mb-3 row">
-      <div className="col-sm-5">
-        <Select
-          styles={style}
-          options={chartSelect}
-          value={chartValueSelect}
-          onChange={(e) => chartSelectHandler(e)} />
-      </div>
-    </div>
-    )
-  }
-
-  const show_modal_delete = async function (e) {
+  const show_modal_delete = async function (e){
     console.log("show_modal_delete")
     console.log(webGroupObjectSelect.id_grupo)
     Swal.fire({
@@ -283,8 +220,8 @@ function Mantenimiento() {
         const response_update_webgrupo = await request_updaterow(
           JSON.stringify({
             database: 'D_EWAYA_CONFIG',
-            table: 'GD_WebGrupo',
-            where: JSON.stringify({
+            table: 'GD_WebGrupoDesa',
+            where: JSON.stringify({ 
               id_grupo: webGroupObjectSelect.id_grupo
             }),
             body: JSON.stringify({
@@ -292,7 +229,7 @@ function Mantenimiento() {
             })
           })
         )
-        if (!response_update_webgrupo.ok) {
+        if(!response_update_webgrupo.ok){
           show_error()
           return 0;
         }
@@ -300,7 +237,7 @@ function Mantenimiento() {
         console.log(newWebGroup);
         setWebGroupSelect(newWebGroup);
         clear()
-        show_ok('Eliminar', 'Eliminación exitosa')
+        show_ok('Eliminar','Eliminación exitosa')
       }
     })
   }
@@ -309,8 +246,8 @@ function Mantenimiento() {
     const response_update_webgrupo = await request_updaterow(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
-        table: 'GD_WebGrupo',
-        where: JSON.stringify({
+        table: 'GD_WebGrupoDesa',
+        where: JSON.stringify({ 
           id_grupo: webGroupObjectSelect.id_grupo
         }),
         body: JSON.stringify({
@@ -324,8 +261,8 @@ function Mantenimiento() {
     const response_update_webgrupo = await request_updaterow(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
-        table: 'GD_WebGrupo',
-        where: JSON.stringify({
+        table: 'GD_WebGrupoDesa',
+        where: JSON.stringify({ 
           id_grupo: webGroupObjectSelect.id_grupo
         }),
         body: JSON.stringify({
@@ -338,19 +275,17 @@ function Mantenimiento() {
     const response_update_webreporte = await request_updaterow(
       JSON.stringify({
         database: 'D_EWAYA_CONFIG',
-        table: 'GD_WebReporte',
-        where: JSON.stringify({
+        table: 'GD_WebReporteDesa',
+        where: JSON.stringify({ 
           id_reporte: listView[0].id_reporte
         }),
-        body: JSON.stringify({
-          desc_qry: viewName,
-          database_name: reportTypeObjectSelect.id_tiporeporte == 1 ? viewObjectSelect.DataBaseName : 'null',
-          table_name: reportTypeObjectSelect.id_tiporeporte == 1 ? viewObjectSelect.TableName : 'null',
-          col_qry: reportTypeObjectSelect.id_tiporeporte == 1 ? viewColumns : 'null',
-          ord_qry: reportTypeObjectSelect.id_tiporeporte == 1 ? viewSort : 'null',
-          full_qry: reportTypeObjectSelect.id_tiporeporte == 2 ? viewQuery : 'null',
-          id_tiporeporte: reportTypeObjectSelect.id_tiporeporte
-        })
+        body: JSON.stringify({  desc_qry: viewName, 
+                                database_name: reportTypeObjectSelect.id_tiporeporte==1 ? viewObjectSelect.DataBaseName : 'null',
+                                table_name: reportTypeObjectSelect.id_tiporeporte==1 ? viewObjectSelect.TableName : 'null',
+                                col_qry: reportTypeObjectSelect.id_tiporeporte==1 ? viewColumns : 'null',
+                                ord_qry: reportTypeObjectSelect.id_tiporeporte==1 ? viewSort : 'null',
+                                full_qry: reportTypeObjectSelect.id_tiporeporte==2 ? viewQuery : 'null',
+                                id_tiporeporte: reportTypeObjectSelect.id_tiporeporte})
       })
     )
   }
@@ -366,7 +301,7 @@ function Mantenimiento() {
         const response_insert_webgrupo = await request_insertrow(
           JSON.stringify({
             database: 'D_EWAYA_CONFIG',
-            table: 'GD_WebGrupo',
+            table: 'GD_WebGrupoDesa',
             main_id: 'id_grupo',
             body: JSON.stringify({
               name: reportName.value,
@@ -376,16 +311,14 @@ function Mantenimiento() {
           })
         )
         const json_insert_webgrupo = await response_insert_webgrupo.json()
-        if (!response_insert_webgrupo.ok) {
+        if(!response_insert_webgrupo.ok){
           show_error()
           return 0;
         }
-        console.log(viewQuery)
-        console.log(viewQuery.replaceAll("'", "''"))
         const response_insert_webreporte = await request_insertrow(
           JSON.stringify({
             database: 'D_EWAYA_CONFIG',
-            table: 'GD_WebReporte',
+            table: 'GD_WebReporteDesa',
             main_id: 'id_reporte',
             body: JSON.stringify({
               desc_qry: viewName,
@@ -393,33 +326,33 @@ function Mantenimiento() {
               table_name: reportTypeObjectSelect.id_tiporeporte == 1 ? viewObjectSelect.TableName : 'null',
               col_qry: reportTypeObjectSelect.id_tiporeporte == 1 ? viewColumns : 'null',
               ord_qry: reportTypeObjectSelect.id_tiporeporte == 1 ? viewSort : 'null',
-              full_qry: reportTypeObjectSelect.id_tiporeporte == 2 ? viewQuery.replaceAll("'", "''") : 'null',
+              full_qry: reportTypeObjectSelect.id_tiporeporte == 2 ? viewQuery : 'null',
               id_tiporeporte: reportTypeObjectSelect.id_tiporeporte
             })
           })
         )
         const json_insert_webreporte = await response_insert_webreporte.json()
-        if (!response_insert_webreporte.ok) {
+        if(!response_insert_webreporte.ok){
           show_error()
           return 0;
         }
         const response_insert_webgruporeporte = await request_insertrow(
           JSON.stringify({
             database: 'D_EWAYA_CONFIG',
-            table: 'GD_WebGrupoReporte',
+            table: 'GD_WebGrupoReporteDesa',
             body: JSON.stringify({
               id_grupo: json_insert_webgrupo['id_grupo'],
               id_reporte: json_insert_webreporte['id_reporte'],
-              description: viewName
+              description: reportDescription
             })
           })
         )
-
-        if (!response_insert_webgruporeporte.ok) {
+    
+        if(!response_insert_webgruporeporte.ok){
           show_error()
           return 0;
         }
-        show_ok('Registrar', 'Registro exitoso')
+        show_ok('Registrar','Registro exitoso')
       }
     })
   }
@@ -435,8 +368,8 @@ function Mantenimiento() {
         const response_update_webgrupo = await request_updaterow(
           JSON.stringify({
             database: 'D_EWAYA_CONFIG',
-            table: 'GD_WebGrupo',
-            where: JSON.stringify({
+            table: 'GD_WebGrupoDesa',
+            where: JSON.stringify({ 
               id_grupo: webGroupObjectSelect.id_grupo
             }),
             body: JSON.stringify({
@@ -446,50 +379,31 @@ function Mantenimiento() {
             })
           })
         )
-        if (!response_update_webgrupo.ok) {
+        if(!response_update_webgrupo.ok){
           show_error()
           return 0;
         }
         const response_update_webreporte = await request_updaterow(
           JSON.stringify({
             database: 'D_EWAYA_CONFIG',
-            table: 'GD_WebReporte',
-            where: JSON.stringify({
+            table: 'GD_WebReporteDesa',
+            where: JSON.stringify({ 
               id_reporte: listView[0].id_reporte
             }),
-            body: JSON.stringify({
-              desc_qry: viewName,
-              database_name: reportTypeObjectSelect.id_tiporeporte == 1 ? viewObjectSelect.DataBaseName : 'null',
-              table_name: reportTypeObjectSelect.id_tiporeporte == 1 ? viewObjectSelect.TableName : 'null',
-              col_qry: reportTypeObjectSelect.id_tiporeporte == 1 ? viewColumns : 'null',
-              ord_qry: reportTypeObjectSelect.id_tiporeporte == 1 ? viewSort : 'null',
-              full_qry: reportTypeObjectSelect.id_tiporeporte == 2 ? viewQuery.replaceAll("'", "''") : 'null',
-              id_tiporeporte: reportTypeObjectSelect.id_tiporeporte
-            })
+            body: JSON.stringify({  desc_qry: viewName, 
+                                    database_name: reportTypeObjectSelect.id_tiporeporte==1 ? viewObjectSelect.DataBaseName : 'null',
+                                    table_name: reportTypeObjectSelect.id_tiporeporte==1 ? viewObjectSelect.TableName : 'null',
+                                    col_qry: reportTypeObjectSelect.id_tiporeporte==1 ? viewColumns : 'null',
+                                    ord_qry: reportTypeObjectSelect.id_tiporeporte==1 ? viewSort : 'null',
+                                    full_qry: reportTypeObjectSelect.id_tiporeporte==2 ? viewQuery : 'null',
+                                    id_tiporeporte: reportTypeObjectSelect.id_tiporeporte})
           })
         )
-        if (!response_update_webreporte.ok) {
+        if(!response_update_webreporte.ok){
           show_error()
           return 0;
         }
-
-        const response_update_webgruporeporte = await request_updaterow(
-          JSON.stringify({
-            database: 'D_EWAYA_CONFIG',
-            table: 'GD_WebGrupoReporte',
-            where: JSON.stringify({
-              id_grupo: webGroupObjectSelect.id_grupo,
-              id_reporte: listView[0].id_reporte
-            }),
-            body: JSON.stringify({ description: viewName })
-          })
-        )
-        if (!response_update_webgruporeporte.ok) {
-          show_error()
-          return 0;
-        }
-
-        show_ok('Actualizar', 'Actualización exitosa')
+        show_ok('Actualizar','Actualización exitosa')
       }
     })
   }
@@ -503,11 +417,11 @@ function Mantenimiento() {
     })
   }
 
-  const show_ok = (title, text, icon = 'success', button = 'Aceptar') => {
+  const show_ok = (title, text, icon='success', button='Aceptar') => {
     show_modal(title, text, icon, button)
   }
 
-  const show_error = (title = 'Error', text = 'Ocurrió un error en la operación', icon = 'error', button = 'Aceptar') => {
+  const show_error = (title='Error', text='Ocurrió un error en la operación', icon='error', button ='Aceptar') => {
     show_modal(title, text, icon, button)
   }
 
@@ -568,10 +482,11 @@ function Mantenimiento() {
     console.log(databaseObjectSelect)
     try {
       if (databaseObjectSelect.DataBaseName == "" || databaseObjectSelect.DataBaseName == undefined) {
-        console.log("return")
+        console.log("no pase")
         return;
       }
 
+      console.log("pasee")
       /*const list = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
@@ -595,7 +510,7 @@ function Mantenimiento() {
       var viewValue = dataSelect[0]
       var viewObject = list[0]
 
-      if (viewElementSelect !== null && viewElementSelect !== "") {
+      if(viewElementSelect!==null && viewElementSelect!==""){
         var elementGroupType = dataSelect.find((el) => {
           return el.value.toUpperCase() === viewElementSelect.toUpperCase()
         })
@@ -613,10 +528,36 @@ function Mantenimiento() {
   }
 
   const showTables = async () => {
+    console.log("showwwwwwwwTablesssssssssssssssssss")
     setHiddenCRUD(true)
     setFlagAction('')
-    console.log("showTables")
     try {
+      const listV = await request_gettabledata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'VW_DATABASEOBJECT',
+          where: JSON.stringify({ tablekind: 'V' })
+        })
+      )
+      setViewGeneralSelect(listV)
+      //const response = await fetch('http://localhost:8080/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE_GROUP');
+      const list = await request_gettabledata(
+        JSON.stringify({
+          database: 'D_EWAYA_CONFIG',
+          table: 'VW_DATABASE'
+        })
+      )
+      const dataSelect = [];
+      /*listDatabase.sort(function (a, b) {
+        return a.id - b.id || a.name.localeCompare(b.name);
+      });*/
+      list.map(function (obj) {
+        dataSelect.push({ value: obj["DataBaseName"], label: obj["DataBaseName"], object: obj });
+      })
+      setDatabaseSelect(dataSelect)
+      setDatabaseValueSelect(dataSelect[0])
+      setDatabaseObjectSelect(list[0])
+
       const listGroupType = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
@@ -624,11 +565,13 @@ function Mantenimiento() {
         })
       )
       const selectGroupType = [];
+      /*listDatabase.sort(function (a, b) {
+        return a.id - b.id || a.name.localeCompare(b.name);
+      });*/
       listGroupType.map(function (obj) {
         selectGroupType.push({ value: obj["id_tipogrupo"], label: obj["nombre"], object: obj });
       })
       setGroupTypeSelect(selectGroupType)
-      setGroupTypeOptions(selectGroupType)
       setGroupTypeValueSelect(selectGroupType[0])
       setGroupTypeObjectSelect(listGroupType[0])
 
@@ -638,60 +581,36 @@ function Mantenimiento() {
           table: 'VW_TipoWebReporte'
         })
       )
+
       const selectReportType = [];
+      /*listDatabase.sort(function (a, b) {
+        return a.id - b.id || a.name.localeCompare(b.name);
+      });*/
       listReportType.map(function (obj) {
         selectReportType.push({ value: obj["nombre"], label: obj["nombre"], object: obj });
       })
       setReportTypeSelect(selectReportType)
-      setReportTypeOptions(selectReportType)
       setReportTypeValueSelect(selectReportType[0])
       setReportTypeObjectSelect(listReportType[0])
 
       const listWebGroup = await request_gettabledata(
         JSON.stringify({
           database: 'D_EWAYA_CONFIG',
-          table: 'VW_WebGrupo',
+          table: 'VW_WebGrupoDesa',
           where: JSON.stringify({ state: 1 })
         })
       )
       const selectWebGroup = [];
+      /*listDatabase.sort(function (a, b) {
+        return a.id - b.id || a.name.localeCompare(b.name);
+      });*/
       listWebGroup.map(function (obj) {
         selectWebGroup.push({ value: obj["name"], label: obj["name"], object: obj });
       })
       setWebGroupSelect(selectWebGroup)
       //setWebGroupValueSelect("")
       //setWebGroupObjectSelect("")
-      console.log("pre-await VW_DATABASEOBJECT")
-      const listV = await request_gettabledata(
-        JSON.stringify({
-          database: 'D_EWAYA_CONFIG',
-          table: 'VW_DATABASEOBJECT',
-          where: JSON.stringify({ tablekind: 'V' })
-        })
-      )
-      console.log("post-await VW_DATABASEOBJECT")
-      console.log("pre-await VW_DATABASE")
-      setViewGeneralSelect(listV)
-      //const response = await fetch('http://localhost:8080/getTableData?database=D_EWAYA_CONFIG&table=TB_CONFIG_FE_GROUP');
-      const list = await request_gettabledata(
-        JSON.stringify({
-          database: 'D_EWAYA_CONFIG',
-          table: 'VW_DATABASE'
-        })
-      )
-      console.log("post-await VW_DATABASE")
 
-      const dataSelect = [];
-      /*listDatabase.sort(function (a, b) {
-        return a.id - b.id || a.name.localeCompare(b.name);
-      });*/
-      list.map(function (obj) {
-        dataSelect.push({ value: obj["DataBaseName"], label: obj["DataBaseName"], object: obj });
-      })
-      console.log("databaseee")
-      setDatabaseSelect(dataSelect)
-      setDatabaseValueSelect(dataSelect[0])
-      setDatabaseObjectSelect(list[0])
     } catch (error) {
       console.error("There has been a problem with your fetch operation:", error);
     }
@@ -707,19 +626,18 @@ function Mantenimiento() {
     console.log(webGroupObjectSelect.id_grupo)
     setReportName("")
     setReportDescription("")
+    setReportSubtitle("")
     //setGroupTypeSelect([])
     //setGroupTypeValueSelect({})
     //setGroupTypeObjectSelect([])
     setGroupTypeObjectSelect(groupTypeSelect[0].object)
     setGroupTypeValueSelect(groupTypeSelect[0])
-    setGroupTypeValueSelected(groupTypeOptions[0])
     setViewName("")
     //setReportTypeSelect([])
     //setReportTypeValueSelect({})
     //setReportTypeObjectSelect([])
     setReportTypeObjectSelect(reportTypeSelect[0].object)
     setReportTypeValueSelect(reportTypeSelect[0])
-    setReportTypeValueSelected(reportTypeOptions[0])
     setViewColumns("")
     setViewSort("")
     setViewQuery("")
@@ -733,39 +651,48 @@ function Mantenimiento() {
   }
 
   useEffect(() => {
-    console.log("useEffect showTables")
-    showTables()
-  }, [])
+    if (open) {
+      showTables()
+    }
+  }, [open])
 
   useEffect(() => {
-    showTableData()
+    if (open) {
+      showTableData()
+    }
   }, [databaseObjectSelect])
 
   useEffect(() => {
+    if(open) {
+      
+    }
   }, [flagAction])
 
   useEffect(() => {
-    console.log("useEffect setWebGroup")
+    console.log("EJECUTA???????")
     console.log(webGroupObjectSelect.id_grupo)
-    console.log(webGroupValueSelect)
-    getReportes()
-    //setWebGroup()
-    if (flagAction === 'update') {
-      setReportDate(webGroupObjectSelect.create_ts)
-    } else {
-      setReportDate(new Date().toLocaleString().replace(",", ""))
+    if (open) {
+      getReportes()
+      setWebGroup()
+      if(flagAction === 'update'){
+        setReportDate(webGroupObjectSelect.create_ts)
+      } else{
+        setReportDate(new Date().toLocaleString().replace(",",""))
+      }
+      //setWebReport()
     }
-    //setWebReport()
   }, [webGroupValueSelect])
 
   useEffect(() => {
-    console.log("useEffect setWebReport")
-    //setWebReport()
+    if (open) {
+      setWebReport()
+    }
   }, [listView])
 
   useEffect(() => {
-    console.log("useEffect showFormCRUD")
-    showFormCRUD()
+    if (open) {
+      showFormCRUD()
+    }
   }, [enableCRUD])
 
   const style = {
@@ -775,159 +702,146 @@ function Mantenimiento() {
     })
   };
 
-
+  if (!open) return null;
 
   return (
-    <div className="App">
-      <div className="App-title">
-        <h2 align="center" className="display-8 fw-bold main-title">Mantenimiento de Tableroooo BI</h2>
-        </div>
-        <Button color="primary" onClick={(e) => test(e)}>Test</Button>
-      <div className='modalRight modalBody'>
-        <div className={`divPassword col-sm-12 ${(!hiddenCRUD ? "div-hidden" : "")}`} >
-          <input id="inputEnableCRUD" type='text' className="form-control input"
-            value={enableCRUD} onInput={e => setEnableCRUD(e.target.value)}></input>
-        </div>
-        <div className={`content ${(hiddenCRUD ? "div-hidden" : "")}`}>
-          <form>
-            <div className="divReport">
-              <div className="divReportName mb-3 row">
-                <label htmlFor="reportName" className="col-sm-2 col-form-label labelForm">Nombre</label>
-                <div className="col-sm-4">
-                  <CreatableSelect
-                    styles={style}
-                    options={webGroupSelect}
-                    value={reportName}
-                    onCreateOption={handleCreateReport}
-                    onChange={webGroupHandler} />
-                </div>
-                <div className="col-sm-1" />
-                <div className="col-sm-2">
-                  <label className="col-form-label labelForm">Fecha mod:</label>
-                </div>
-                <div className="col-sm-3">
+    <div onClick={onClose} className='overlay'>
+      <div onClick={(e) => {
+        e.stopPropagation()
+      }
+      } className='modalContainer card'> 
+      <div class="card-header modalHeader">
+        Tablero BI (CRUD) - Reporte
+      </div>
+        <div className='modalRight modalBody'>
+          
+          <button type="button" className="btn-close closeBtn" aria-label="Close"
+          onClick={() => { onClose(); clear(); window.location.reload();}}/>
+          
+          <div className={`divPassword col-sm-12 ${(!hiddenCRUD ? "div-hidden" : "")}`} >
+            <input id="inputEnableCRUD" type='text' className="form-control input"
+              value={enableCRUD} onInput={e => setEnableCRUD(e.target.value)}></input>
+          </div>
+          <div className={`content ${(hiddenCRUD ? "div-hidden" : "")}`}>
+            <form>
+              <div className="divReport">
+                <div className="divReportName mb-3 row">
+                  <label htmlFor="reportName" className="col-sm-2 col-form-label labelForm">Nombre</label>
+                  <div className="col-sm-4">
+                    <CreatableSelect
+                      styles={style}
+                      options={webGroupSelect}
+                      value={reportName}
+                      onCreateOption={handleCreateReport}
+                      onChange={webGroupHandler} />
+                  </div>
+                  <div className="col-sm-1"/>
+                  <div className="col-sm-2">
+                    <label className="col-form-label labelForm">Fecha mod:</label>
+                  </div>
+                  <div className="col-sm-3">
                   <label className="date-update col-form-label labelForm">{reportDate}</label>
+                  </div>
                 </div>
-              </div>
-              <div className="divReportDescription mb-3 row">
-                <label htmlFor="reportDescription" className="col-sm-2 col-form-label labelForm">Descripcion</label>
-                <div className="col-sm-10">
-                  <input id="reportDescription" type='text' className="form-control input"
-                    value={reportDescription} onInput={e => setReportDescription(e.target.value)}></input>
+                <div className="divReportDescription mb-3 row">
+                  <label htmlFor="reportDescription" className="col-sm-2 col-form-label labelForm">Descripcion</label>
+                  <div className="col-sm-10">
+                    <input id="reportDescription" type='text' className="form-control input"
+                      value={reportDescription} onInput={e => setReportDescription(e.target.value)}></input>
+                  </div>
                 </div>
-              </div>
-              <div className="divReportType mb-3 row">
-                <label htmlFor="reportType" className="col-sm-2 col-form-label labelForm">Tipo</label>
-                <div className="col-sm-4">
-                  <CustomSelect
-                    styles={style}
-                    options={groupTypeOptions}
-                    value={groupTypeValueSelected}
-                    setValue={setGroupTypeValueSelected} />
+                <div className="divReportDescription mb-3 row">
+                  <label htmlFor="reportSubtitle" className="col-sm-2 col-form-label labelForm">Subtitulo</label>
+                  <div className="col-sm-4">
+                    <input id="reportSubtitle" type='text' className="form-control input"
+                      value={reportSubtitle} onInput={e => setReportSubtitle(e.target.value)}></input>
+                  </div>
                 </div>
-                <div className="col-sm-2">
-                </div>
-              </div>
-              {/*<div className="divDatatable">
+                {/*<div className="divDatatable">
                   <label htmlFor="reportDatatable">Datatable</label>
                   <AgGrid
                     p_grouptables={p_grouptables}
                     p_datatables={p_datatables} />
     </div>*/}
-            </div>
-            <form action="" method="post">
-              <fieldset className="form-group border border-secondary rounded p-3 viewSection legend-detail">
+              </div>
+              <form action="" method="post">
+                <fieldset className="form-group border border-secondary rounded p-3 viewSection legend-detail">
+                <div className="divView card-body ">
+                  <div className="divTitle mb-3 row card-title">
+                    <legend className="w-auto px-2 title-viewform">Cabecera</legend >
+                  </div>
+                  <div className="divViewName mb-3 row">
+                    <label htmlFor="viewQuery" className="col-sm-2 col-form-label labelForm">Query</label>
+                    <div className="col-sm-10">
+                      <input id="viewQuery" type='text' className="form-control" rows="1"
+                        value={viewQuery} onInput={e => setViewQuery(e.target.value)}></input>
+                    </div>
+                  </div>  
+                  <div className="divViewName mb-3 row">
+                    <label htmlFor="viewName" className="col-sm-2 col-form-label labelForm">Desc Combo</label>
+                    <div className="col-sm-4">
+                      <input id="viewName" type='text' className="form-control input"
+                        value={viewName} onInput={e => setViewName(e.target.value)}></input>
+                    </div>
+                    <label htmlFor="viewName" className="col-sm-2 col-form-label labelForm">Input</label>
+                    <div className="col-sm-4">
+                      <input id="viewName" type='text' className="form-control input"
+                        value={viewName} onInput={e => setViewName(e.target.value)}></input>
+                    </div>
+                  </div>  
+                </div>
+                </fieldset>
+              </form>
+              <form action="" method="post">
+                <fieldset className="form-group border border-secondary rounded p-3 viewSection legend-detail">
                 <div className="divView card-body ">
                   <div className="divTitle mb-3 row card-title">
                     <legend className="w-auto px-2 title-viewform">Detalle</legend >
                   </div>
                   <div className="divViewName mb-3 row">
-                    <label htmlFor="viewName" className="col-sm-2 col-form-label labelForm">Nombre</label>
+                    <label htmlFor="viewQuery" className="col-sm-2 col-form-label labelForm">Query</label>
+                    <div className="col-sm-10">
+                      <input id="viewQuery" type='text' className="form-control" rows="1"
+                        value={viewQuery} onInput={e => setViewQuery(e.target.value)}></input>
+                    </div>
+                  </div>  
+                  <div className="divViewName mb-3 row">
+                    <label htmlFor="viewName" className="col-sm-2 col-form-label labelForm">Where</label>
                     <div className="col-sm-4">
                       <input id="viewName" type='text' className="form-control input"
                         value={viewName} onInput={e => setViewName(e.target.value)}></input>
                     </div>
-                    <label htmlFor="viewType" className="col-sm-1 col-form-label labelForm">Tipo</label>
-                    <div className="col-sm-5">
-                      <CustomSelect
-                        styles={style}
-                        options={reportTypeOptions}
-                        value={reportTypeValueSelected}
-                        setValue={setReportTypeValueSelected} />
-                    </div>
                   </div>
-                  <div className={`divViewDatabase mb-3 row ${(reportTypeObjectSelect.id_tiporeporte !== 1 ? "div-hidden" : "")}`}>
-                    <label htmlFor="viewDatabase" className="col-sm-2 col-form-label labelForm">Base de datos</label>
-                    <div className="col-sm-4">
-                      <Select
-                        styles={style}
-                        options={databaseSelect}
-                        value={databaseValueSelect}
-                        onChange={(e) => databaseHandler(e)} />
-                    </div>
-                    <label htmlFor="viewView" className="col-sm-1 col-form-label labelForm">Vista</label>
-                    <div className="col-sm-5">
-                      <Select
-                        styles={style}
-                        options={viewSelect}
-                        value={viewValueSelect}
-                        onChange={(e) => viewHandler(e)} />
-                    </div>
-                  </div>
-                  <div className={`divViewColumns mb-3 row ${(reportTypeValueSelected.object.id_tiporeporte !== 1 ? "div-hidden" : "")}`}>
-                    <label htmlFor="viewColumns" className="col-sm-2 col-form-label labelForm">Columnas</label>
-                    <div className="col-sm-10">
-                      <input id="viewColumns" type='text' className="form-control input"
-                        value={viewColumns} onInput={e => setViewColumns(e.target.value)}></input>
-                    </div>
-                  </div>
-                  <div className={`divViewSort mb-3 row ${(reportTypeValueSelected.object.id_tiporeporte !== 1 ? "div-hidden" : "")}`}>
-                    <label htmlFor="viewSort" className="col-sm-2 col-form- labelForm">Orden</label>
-                    <div className="col-sm-10">
-                      <input id="viewSort" type='text' className="form-control input"
-                        value={viewSort} onInput={e => setViewSort(e.target.value)}></input>
-                    </div>
-                  </div>
-                  <div className={`divViewQuery mb-3 row ${(reportTypeValueSelected.object.id_tiporeporte !== 2 ? "div-hidden" : "")}`}>
-                    <label htmlFor="viewQuery" className="col-sm-2 col-form-label labelForm">Query</label>
-                    <div className="col-sm-10">
-                      <textarea id="viewQuery" type='text' className="form-control" rows="6"
-                        value={viewQuery} onInput={e => setViewQuery(e.target.value)}></textarea>
-                    </div>
-                  </div>
-
                   <div className="mb-3 row">
-                    <div className="col-sm-5"></div>
-                    <div className="col-sm-1">
-                      <Button disabled={`${(flagAction === '' ? 'true' : '')}`} color="primary"
-                        onClick={(e) => saveButton(e)}>{(flagAction === 'update' ? 'Modificar' : 'Crear')}</Button>
-                    </div>
-                    <div className="col-sm-4"></div>
-                    <div className="col-sm-1">
-                      <Button color="danger" className={`${(flagAction === 'update' ? '' : 'div-hidden')}`}
+                  <div className="col-sm-5"></div>
+                  <div className="col-sm-1">
+                  <Button disabled={`${(flagAction === '' ? 'true' : '')}`} color="primary"
+                    onClick={(e) => saveButton(e)}>{(flagAction === 'update' ? 'Modificar' : 'Crear')}</Button>
+                  </div>
+                  <div className="col-sm-4"></div>
+                  <div className="col-sm-1">
+                  <Button color="danger" className={`${(flagAction==='update' ? '' : 'div-hidden')}`}
                         onClick={(e) => deleteButton(e)}>Eliminar</Button>
-                    </div>
                   </div>
-                  {[...Array(numChart)].map((e, i) => {
-                    return getChartForm()
-                  })}
-                  <div className="mb-3 row">
-
-                    <div className="col-sm-3">
-                      <Button color="primary" className={`${(flagAction === 'update' ? '' : 'div-hidden')}`}
-                        onClick={(e) => addChart(e)}>Agregar Grafico</Button>
-                    </div>
                   </div>
-
                 </div>
-              </fieldset>
+                </fieldset>
+              </form>
             </form>
-          </form>
+          </div>
+          {/*<div className='btnContainer'>
+          <button className='btnPrimary'>
+            <span className='bold'>YES  </span>, I love NFT's
+          </button>
+          <button className='btnOutline'>
+            <span className='bold'>NO</span>, thanks
+          </button>
+          </div>
+          */}
         </div>
       </div>
     </div>
-
   );
 }
 
-export default Mantenimiento;
+export default ModalMenu;
